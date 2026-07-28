@@ -1,0 +1,317 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   RestaurantOS Design System CSS Variables (Light & Dark Themes)
+   ========================================================================== */
+
+:root {
+  /* Brand Palette */
+  --primary-50: #EEF2FF;
+  --primary-100: #E0E7FF;
+  --primary-200: #C7D2FE;
+  --primary-300: #A5B4FC;
+  --primary-400: #818CF8;
+  --primary-500: #6366F1;
+  --primary-600: #4F46E5;
+  --primary-700: #4338CA;
+  --primary-800: #3730A3;
+  --primary-900: #312E81;
+  --primary-contrast: #FFFFFF;
+
+  /* Secondary Palette */
+  --secondary-50: #ECFEFF;
+  --secondary-100: #CFFAFE;
+  --secondary-300: #67E8F9;
+  --secondary-500: #06B6D4;
+  --secondary-600: #0891B2;
+  --secondary-700: #0E7490;
+  --secondary-contrast: #FFFFFF;
+
+  /* Accents */
+  --accent-rose: #F43F5E;
+  --accent-amber: #F59E0B;
+  --accent-rose-hover: #E11D48;
+  --accent-amber-hover: #D97706;
+
+  /* Status */
+  --color-success: #10B981;
+  --color-success-bg: #ECFDF5;
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FFFBEB;
+  --color-danger: #EF4444;
+  --color-danger-bg: #FEF2F2;
+  --color-info: #3B82F6;
+  --color-info-bg: #EFF6FF;
+
+  /* Light Theme Specific Variables */
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-elevated: #FFFFFF;
+  --bg-overlay: rgba(15, 23, 42, 0.4);
+
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+
+  --border-subdued: #E2E8F0;
+  --border-default: #CBD5E1;
+  --border-focus: #6366F1;
+
+  --glass-bg: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-hover-bg: rgba(99, 102, 241, 0.05);
+
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 2px 4px 0 rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 32px -8px rgba(15, 23, 42, 0.16), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+
+  --shadow-glow-primary: 0 8px 24px -4px rgba(99, 102, 241, 0.35);
+  --shadow-glow-accent: 0 8px 24px -4px rgba(244, 63, 94, 0.35);
+  --shadow-glow-success: 0 8px 24px -4px rgba(16, 185, 129, 0.35);
+  --shadow-glow-danger: 0 8px 24px -4px rgba(239, 68, 68, 0.35);
+
+  /* Typography */
+  --font-family-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "Fira Code", Consolas, monospace;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 350ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --bg-canvas: #090D16;
+  --bg-surface: #111827;
+  --bg-subtle: #1F2937;
+  --bg-elevated: #1E293B;
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+
+  --border-subdued: rgba(255, 255, 255, 0.08);
+  --border-default: #374151;
+  --border-focus: #818CF8;
+
+  --glass-bg: rgba(17, 24, 39, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover-bg: rgba(99, 102, 241, 0.15);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.75);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.85);
+
+  --shadow-glow-primary: 0 8px 28px rgba(99, 102, 241, 0.45);
+  --shadow-glow-accent: 0 8px 28px rgba(244, 63, 94, 0.45);
+  --shadow-glow-success: 0 8px 28px rgba(16, 185, 129, 0.45);
+  --shadow-glow-danger: 0 8px 28px rgba(239, 68, 68, 0.45);
+
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-danger-bg: rgba(239, 68, 68, 0.15);
+  --color-info-bg: rgba(59, 130, 246, 0.15);
+}
+
+/* ==========================================================================
+   Global Resets & Base Typography
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Design System Utility Classes
+   ========================================================================== */
+
+/* Glassmorphism Panels & Cards */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-spring), box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Gradient Text */
+.gradient-text-primary {
+  background: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-600) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, var(--accent-rose) 0%, var(--accent-amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glow Utilities */
+.glow-primary {
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.glow-accent {
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.glow-success {
+  box-shadow: var(--shadow-glow-success);
+}
+
+/* Keyframe Animations & Animation Utilities */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-spring) forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown var(--transition-spring) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-spring) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-400);
+}
