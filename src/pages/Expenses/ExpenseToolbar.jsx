@@ -29,14 +29,13 @@ export const ExpenseToolbar = ({
         p: '16px 20px',
         borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
         display: 'flex',
-        flexDirection: { xs: 'column', lg: 'row' },
-        alignItems: { xs: 'stretch', lg: 'center' },
+        alignItems: 'center',
         justifyContent: 'space-between',
         gap: 2,
       }}
     >
-      {/* Left Section: Search Input + Filters */}
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', flexGrow: 1 }}>
+      {/* Search Input + Filters Bar */}
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
         <Paper
           elevation={0}
           sx={{
@@ -44,7 +43,7 @@ export const ExpenseToolbar = ({
             py: '6px',
             display: 'flex',
             alignItems: 'center',
-            minWidth: { xs: '100%', sm: 260 },
+            minWidth: { xs: '100%', sm: 280, md: 340 },
             borderRadius: '12px',
             backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : '#F8FAFC',
             border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.12)',
@@ -80,58 +79,6 @@ export const ExpenseToolbar = ({
           onEndDateChange={onEndDateChange}
           categories={categories}
         />
-      </Box>
-
-      {/* Right Section: Action Buttons */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-        {onOpenUpload && (
-          <Button
-            variant="outlined"
-            startIcon={<CloudUploadIcon />}
-            onClick={onOpenUpload}
-            sx={{
-              borderRadius: '12px',
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)',
-              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : '#FFFFFF',
-              color: 'text.primary',
-              px: 2.2,
-              py: 1,
-              fontSize: '13px',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': {
-                borderColor: '#7C6CFF',
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(124, 108, 255, 0.04)',
-              },
-            }}
-          >
-            Upload OCR Invoice
-          </Button>
-        )}
-
-        {onOpenCreateExpense && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onOpenCreateExpense}
-            sx={{
-              borderRadius: '12px',
-              backgroundColor: '#7C6CFF',
-              color: '#FFFFFF',
-              px: 2.5,
-              py: 1,
-              fontSize: '13px',
-              fontWeight: 700,
-              textTransform: 'none',
-              boxShadow: '0 4px 16px rgba(124, 108, 255, 0.3)',
-              '&:hover': {
-                backgroundColor: '#6854FF',
-              },
-            }}
-          >
-            Create Expense
-          </Button>
-        )}
       </Box>
     </Box>
   );

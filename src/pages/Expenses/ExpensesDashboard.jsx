@@ -183,6 +183,28 @@ export const ExpensesDashboard = () => {
 
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
             <Button
+              variant="outlined"
+              startIcon={<CloudUploadIcon />}
+              onClick={handleOpenUpload}
+              sx={{
+                borderRadius: '14px',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
+                backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                color: 'text.primary',
+                px: 2.5,
+                py: 1,
+                fontSize: '14px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#7C6CFF',
+                  backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(124, 108, 255, 0.04)',
+                },
+              }}
+            >
+              Upload OCR Invoice
+            </Button>
+            <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleOpenAddExpense}
