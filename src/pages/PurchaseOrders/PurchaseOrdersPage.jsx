@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Paper, Box, Grid, Button } from '@mui/material';
+import { Paper, Box, Grid, Button, IconButton, Fab, useTheme, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
 import purchaseOrderService from '../../services/purchaseOrder.service';
 import supplierService from '../../services/supplier.service';
@@ -23,8 +24,12 @@ import PrintPurchaseOrderDialog from './PrintPurchaseOrderDialog';
 import DeletePurchaseOrderDialog from './DeletePurchaseOrderDialog';
 import EmptyPurchaseOrderState from './EmptyPurchaseOrderState';
 import ErrorState from '../../components/common/ErrorState';
+import MobilePurchaseOrderFilterDrawer from './MobilePurchaseOrderFilterDrawer';
 
 export const PurchaseOrdersPage = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const [purchaseOrders, setPurchaseOrders] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -38,6 +43,7 @@ export const PurchaseOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [supplierFilter, setSupplierFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState('list');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Dialog States
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -440,28 +446,60 @@ export const PurchaseOrdersPage = () => {
       {/* Metrics Summary Header */}
       <PurchaseOrderSummaryCard purchaseOrders={purchaseOrders} />
 
-      <Paper
-        elevation={2}
+      {/* Mobile Header Filter Trigger */}
+      <Box
         sx={{
-          borderRadius: 3.5,
-          overflow: 'hidden',
-          border: (theme) => `1px solid ${theme.palette.divider}`,
-          mb: 4,
+          display: { xs: 'flex', md: 'none' },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
         }}
       >
-        <PurchaseOrderToolbar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          supplierFilter={supplierFilter}
-          onSupplierFilterChange={setSupplierFilter}
-          availableSuppliers={suppliers}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+        <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
+          Purchase Orders ({filteredPurchaseOrders.length})
+        </Typography>
 
-        <Box p={3}>
+        <IconButton
+          onClick={() => setMobileFilterOpen(true)}
+          sx={{
+            color: 'text.primary',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '12px',
+            p: 1.2,
+          }}
+        >
+          <FilterListIcon />
+        </IconButton>
+      </Box>
+
+      {/* Single Unified Merged Container */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: '20px',
+          overflow: 'hidden',
+          backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+          border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4,
+          boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <PurchaseOrderToolbar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            supplierFilter={supplierFilter}
+            onSupplierFilterChange={setSupplierFilter}
+            availableSuppliers={suppliers}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
+        </Box>
+
+        <Box p={{ xs: 2, sm: 3 }}>
           {!loading && filteredPurchaseOrders.length === 0 ? (
             <EmptyPurchaseOrderState onCreatePO={handleOpenCreateDialog} />
           ) : viewMode === 'grid' ? (
@@ -589,13 +627,55 @@ export const PurchaseOrdersPage = () => {
         loading={submitting}
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete PO Confirmation Dialog */}
       <DeletePurchaseOrderDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleDeletePO}
+        onConfirm={handleConfirmDeletePO}
         purchaseOrder={selectedPO}
         loading={submitting}
+      />
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <Fab
+        onClick={handleOpenCreateDialog}
+        aria-label="create purchase order"
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          position: 'fixed',
+          bottom: '24px',
+          right: '20px',
+          zIndex: 1000,
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          backgroundColor: '#7C6CFF',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 24px rgba(124, 108, 255, 0.4)',
+          '&:hover': {
+            backgroundColor: '#6854FF',
+          },
+        }}
+      >
+        <AddIcon sx={{ fontSize: 28 }} />
+      </Fab>
+
+      {/* Mobile Purchase Order Filter Drawer */}
+      <MobilePurchaseOrderFilterDrawer
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        supplierFilter={supplierFilter}
+        onSupplierFilterChange={setSupplierFilter}
+        suppliers={suppliers}
+        onResetFilters={() => {
+          setSearchTerm('');
+          setStatusFilter('ALL');
+          setSupplierFilter('ALL');
+        }}
       />
     </PageContainer>
   );

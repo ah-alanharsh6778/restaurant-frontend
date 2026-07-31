@@ -4,12 +4,17 @@ import {
   Tabs,
   Tab,
   Paper,
+  IconButton,
+  Fab,
+  Typography,
+  useTheme,
 } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
 
 import PageContainer from '../../layout/PageContainer';
@@ -30,8 +35,11 @@ import StockInDialog from './StockInDialog';
 import StockOutDialog from './StockOutDialog';
 import DeleteDialog from './DeleteDialog';
 import ProductDetailsDialog from './ProductDetailsDialog';
+import MobileInventoryFilterDrawer from './MobileInventoryFilterDrawer';
 
 export const InventoryDashboard = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   // Data States
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -47,6 +55,7 @@ export const InventoryDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedWarehouse, setSelectedWarehouse] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Dialog States
   const [productDialog, setProductDialog] = useState({ open: false, product: null });
@@ -167,100 +176,175 @@ export const InventoryDashboard = () => {
         loading={loading}
       />
 
-      {/* Toolbar / Search & Filters */}
-      <InventoryToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        selectedWarehouse={selectedWarehouse}
-        onWarehouseChange={setSelectedWarehouse}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        categories={categories}
-        warehouses={warehouses}
-        onRefresh={fetchAllData}
-        onOpenStockIn={() => handleOpenStockIn()}
-        onOpenStockOut={() => handleOpenStockOut()}
-        onOpenAddProduct={handleOpenAddProduct}
-        onOpenAddWarehouse={handleOpenAddWarehouse}
-        onOpenAddCategory={handleOpenAddCategory}
-      />
+      {/* Mobile Header Filter Trigger */}
+      <Box
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
+          Inventory Stock ({filteredProducts.length})
+        </Typography>
 
-      {/* Main Tabbed Content Area */}
+        <IconButton
+          onClick={() => setMobileFilterOpen(true)}
+          sx={{
+            color: 'text.primary',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '12px',
+            p: 1.2,
+          }}
+        >
+          <FilterListIcon />
+        </IconButton>
+      </Box>
+
+      {/* Single Unified Merged Container */}
       <Paper
         elevation={0}
         sx={{
-          borderRadius: 3,
-          border: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-          p: { xs: 2, sm: 3 },
+          borderRadius: '20px',
+          overflow: 'hidden',
+          backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+          border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+          boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
         }}
       >
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs
-            value={currentTab}
-            onChange={(_, newValue) => setCurrentTab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              '& .MuiTab-root': {
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                textTransform: 'none',
-                minHeight: 48,
-              },
-            }}
-          >
-            <Tab icon={<InventoryIcon />} iconPosition="start" label={`Products (${filteredProducts.length})`} />
-            <Tab icon={<WarehouseIcon />} iconPosition="start" label={`Warehouses (${warehouses.length})`} />
-            <Tab icon={<CategoryIcon />} iconPosition="start" label={`Categories (${categories.length})`} />
-            <Tab icon={<HistoryIcon />} iconPosition="start" label={`Stock History (${stockHistory.length})`} />
-          </Tabs>
+        {/* Desktop Toolbar / Search & Filters */}
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <InventoryToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            selectedWarehouse={selectedWarehouse}
+            onWarehouseChange={setSelectedWarehouse}
+            selectedStatus={selectedStatus}
+            onStatusChange={setSelectedStatus}
+            categories={categories}
+            warehouses={warehouses}
+            onRefresh={fetchAllData}
+            onOpenStockIn={() => handleOpenStockIn()}
+            onOpenStockOut={() => handleOpenStockOut()}
+            onOpenAddProduct={handleOpenAddProduct}
+            onOpenAddWarehouse={handleOpenAddWarehouse}
+            onOpenAddCategory={handleOpenAddCategory}
+          />
         </Box>
 
-        {/* Tab 0: Products */}
-        {currentTab === 0 && (
-          <ProductsPage
-            products={filteredProducts}
-            loading={loading}
-            onOpenAdd={handleOpenAddProduct}
-            onOpenEdit={handleOpenEditProduct}
-            onOpenDelete={(item) => handleOpenDelete('product', item)}
-            onOpenDetails={handleOpenDetails}
-            onOpenStockIn={handleOpenStockIn}
-            onOpenStockOut={handleOpenStockOut}
-          />
-        )}
+        {/* Main Tabbed Content Area */}
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs
+              value={currentTab}
+              onChange={(_, newValue) => setCurrentTab(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                '& .MuiTab-root': {
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  textTransform: 'none',
+                  minHeight: 48,
+                },
+              }}
+            >
+              <Tab icon={<InventoryIcon />} iconPosition="start" label={`Products (${filteredProducts.length})`} />
+              <Tab icon={<WarehouseIcon />} iconPosition="start" label={`Warehouses (${warehouses.length})`} />
+              <Tab icon={<CategoryIcon />} iconPosition="start" label={`Categories (${categories.length})`} />
+              <Tab icon={<HistoryIcon />} iconPosition="start" label={`Stock History (${stockHistory.length})`} />
+            </Tabs>
+          </Box>
 
-        {/* Tab 1: Warehouses */}
-        {currentTab === 1 && (
-          <WarehousesPage
-            warehouses={warehouses}
-            loading={loading}
-            onOpenAdd={handleOpenAddWarehouse}
-            onOpenEdit={handleOpenEditWarehouse}
-            onOpenDelete={(item) => handleOpenDelete('warehouse', item)}
-          />
-        )}
+          {/* Tab 0: Products */}
+          {currentTab === 0 && (
+            <ProductsPage
+              products={filteredProducts}
+              loading={loading}
+              onOpenAdd={handleOpenAddProduct}
+              onOpenEdit={handleOpenEditProduct}
+              onOpenDelete={(item) => handleOpenDelete('product', item)}
+              onOpenDetails={handleOpenDetails}
+              onOpenStockIn={handleOpenStockIn}
+              onOpenStockOut={handleOpenStockOut}
+            />
+          )}
 
-        {/* Tab 2: Categories */}
-        {currentTab === 2 && (
-          <ProductCategoriesPage
-            categories={categories}
-            loading={loading}
-            onOpenAdd={handleOpenAddCategory}
-            onOpenEdit={handleOpenEditCategory}
-            onOpenDelete={(item) => handleOpenDelete('category', item)}
-          />
-        )}
+          {/* Tab 1: Warehouses */}
+          {currentTab === 1 && (
+            <WarehousesPage
+              warehouses={warehouses}
+              loading={loading}
+              onOpenAdd={handleOpenAddWarehouse}
+              onOpenEdit={handleOpenEditWarehouse}
+              onOpenDelete={(item) => handleOpenDelete('warehouse', item)}
+            />
+          )}
 
-        {/* Tab 3: Stock History */}
-        {currentTab === 3 && (
-          <StockHistoryPage stockHistory={stockHistory} loading={loading} />
-        )}
+          {/* Tab 2: Categories */}
+          {currentTab === 2 && (
+            <ProductCategoriesPage
+              categories={categories}
+              loading={loading}
+              onOpenAdd={handleOpenAddCategory}
+              onOpenEdit={handleOpenEditCategory}
+              onOpenDelete={(item) => handleOpenDelete('category', item)}
+            />
+          )}
+
+          {/* Tab 3: Stock History */}
+          {currentTab === 3 && (
+            <StockHistoryPage stockHistory={stockHistory} loading={loading} />
+          )}
+        </Box>
       </Paper>
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <Fab
+        onClick={handleOpenAddProduct}
+        aria-label="add stock product"
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          position: 'fixed',
+          bottom: '24px',
+          right: '20px',
+          zIndex: 1000,
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          backgroundColor: '#7C6CFF',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 24px rgba(124, 108, 255, 0.4)',
+          '&:hover': {
+            backgroundColor: '#6854FF',
+          },
+        }}
+      >
+        <AddIcon sx={{ fontSize: 28 }} />
+      </Fab>
+
+      {/* Mobile Inventory Filter Drawer */}
+      <MobileInventoryFilterDrawer
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        stockStatusFilter={selectedStatus}
+        onStockStatusFilterChange={setSelectedStatus}
+        warehouseFilter={selectedWarehouse}
+        onWarehouseFilterChange={setSelectedWarehouse}
+        warehouses={warehouses}
+        onResetFilters={() => {
+          setSearchQuery('');
+          setSelectedCategory('ALL');
+          setSelectedWarehouse('ALL');
+          setSelectedStatus('ALL');
+        }}
+      />
 
       {/* Dialog Modals */}
       <ProductDialog
