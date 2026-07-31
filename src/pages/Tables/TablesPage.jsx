@@ -214,8 +214,41 @@ export const TablesPage = () => {
     }
   };
 
+  const handleOpenBookTable = (table) => {
+    setTableToBook(table);
+    setBookDialogOpen(true);
+  };
+
+  const handleCheckInTable = async (tableId) => {
+    try {
+      if (tableId) {
+        await tableService.updateTableStatus(tableId, 'OCCUPIED');
+        toast.success('Guest checked in! Table is now occupied.');
+        fetchTables();
+        setDetailsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Check in error:', err);
+      toast.error(err.response?.data?.message || 'Failed to check in table');
+    }
+  };
+
+  const handleCancelBooking = async (tableId) => {
+    try {
+      if (tableId) {
+        await tableService.updateTableStatus(tableId, 'AVAILABLE');
+        toast.success('Table booking cancelled and freed.');
+        fetchTables();
+        setDetailsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Cancel booking error:', err);
+      toast.error(err.response?.data?.message || 'Failed to cancel booking');
+    }
+  };
+
   const handleCreateOrder = (table) => {
-    navigate(`/orders?tableId=${table.id}&customerId=${table.customerId || ''}`);
+    navigate(`/orders?tableId=${table?.id || ''}&customerId=${table?.customerId || ''}`);
   };
 
   const summaryCardData = [
