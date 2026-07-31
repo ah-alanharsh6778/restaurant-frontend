@@ -124,21 +124,25 @@ export const InvoicesPage = () => {
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             indicatorColor="primary"
             textColor="primary"
             sx={{
               minHeight: 48,
               '& .MuiTab-root': {
                 fontWeight: 700,
-                fontSize: '0.875rem',
+                fontSize: { xs: '0.78rem', sm: '0.875rem' },
                 textTransform: 'none',
                 minHeight: 48,
+                px: { xs: 1.5, sm: 2 },
               },
             }}
           >
-            <Tab icon={<DashboardIcon fontSize="small" />} iconPosition="start" label="Dashboard & Telemetry" />
-            {isManager && <Tab icon={<CloudUploadIcon fontSize="small" />} iconPosition="start" label="Upload New Invoice" />}
-            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Invoice History & Audit" />
+            <Tab icon={<DashboardIcon fontSize="small" />} iconPosition="start" label="Dashboard" />
+            {isManager && <Tab icon={<CloudUploadIcon fontSize="small" />} iconPosition="start" label="Upload Invoice" />}
+            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Invoice History" />
           </Tabs>
         </Paper>
 

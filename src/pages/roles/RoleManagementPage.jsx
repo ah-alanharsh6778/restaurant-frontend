@@ -17,6 +17,13 @@ import {
   IconButton,
   Alert,
   Tooltip,
+  Card,
+  CardContent,
+  Stack,
+  Tabs,
+  Tab,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -24,6 +31,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SecurityIcon from '@mui/icons-material/Security';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 
@@ -34,6 +43,8 @@ import { Loader } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 
 export const RoleManagementPage = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const { hasRole } = useAuth();
   const isAdmin = hasRole('ADMIN');
 
@@ -43,6 +54,7 @@ export const RoleManagementPage = () => {
   const [assignedPermIds, setAssignedPermIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [permsLoading, setPermsLoading] = useState(false);
+  const [mobileTab, setMobileTab] = useState(0); // 0 = Roles, 1 = Permissions
 
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
@@ -169,13 +181,20 @@ export const RoleManagementPage = () => {
     }
   };
 
+  const handleSelectRoleMobile = (role) => {
+    setSelectedRole(role);
+    if (isMobile) {
+      setMobileTab(1); // Auto-switch to permissions on mobile tap
+    }
+  };
+
   return (
     <PageContainer
       title="Role-Based Access Control (RBAC)"
       subtitle="Manage enterprise security roles, system permissions, and role assignment policies"
       breadcrumbs={[{ label: 'Roles & RBAC' }]}
       actions={
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
           <Button
             variant="outlined"
             size="small"
@@ -195,7 +214,7 @@ export const RoleManagementPage = () => {
               onClick={handleOpenAddRole}
               sx={{ fontWeight: 700 }}
             >
-              Create New Role
+              Create Role
             </Button>
           )}
         </Box>
@@ -206,223 +225,316 @@ export const RoleManagementPage = () => {
           <Loader size="large" />
         </Box>
       ) : (
-        <Grid container spacing={3}>
-          {/* Left Column: Roles List */}
-          <Grid item xs={12} lg={4}>
+        <Box>
+          {/* Mobile View Tab Selector */}
+          {isMobile && (
             <Paper
               elevation={0}
               sx={{
-                p: 2.5,
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: 'divider',
+                mb: 2.5,
+                borderRadius: '12px',
+                border: '1px solid var(--border-subdued)',
                 bgcolor: 'background.paper',
+                p: 0.5,
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight={800}>
-                  System Roles ({roles.length})
-                </Typography>
-                <Chip label="Prisma RoleName Enum" size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: '0.65rem' }} />
-              </Box>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, maxHeight: 680, overflowY: 'auto' }}>
-                {roles.map((role) => {
-                  const isSelected = selectedRole?.id === role.id;
-                  return (
-                    <Paper
-                      key={role.id}
-                      onClick={() => setSelectedRole(role)}
-                      elevation={0}
-                      sx={{
-                        p: 2,
-                        borderRadius: 2.5,
-                        border: '1.5px solid',
-                        borderColor: isSelected ? 'primary.main' : 'divider',
-                        bgcolor: isSelected ? 'action.selected' : 'background.paper',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        '&:hover': { borderColor: 'primary.main' },
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="subtitle1" fontWeight={800} color={isSelected ? 'primary.main' : 'text.primary'}>
-                            {role.name}
-                          </Typography>
-                          {role.name === 'ADMIN' && (
-                            <Chip label="FULL ACCESS" color="primary" size="small" sx={{ fontWeight: 800, height: 18, fontSize: '0.6rem' }} />
-                          )}
-                        </Box>
-
-                        {isAdmin && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Tooltip title="Edit Role">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleOpenEditRole(role);
-                                }}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            {role.name !== 'ADMIN' && role.name !== 'MANAGER' && (
-                              <Tooltip title="Delete Role">
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteRole(role);
-                                  }}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </Box>
-                        )}
-                      </Box>
-
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.4 }}>
-                        {role.description || 'Enterprise security role.'}
-                      </Typography>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Created: {dayjs(role.createdAt).format('MMM DD, YYYY')}
-                        </Typography>
-                        <Chip
-                          icon={<CheckCircleIcon style={{ fontSize: 14 }} />}
-                          label="ACTIVE"
-                          color="success"
-                          variant="outlined"
-                          size="small"
-                          sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
-                        />
-                      </Box>
-                    </Paper>
-                  );
-                })}
-              </Box>
+              <Tabs
+                value={mobileTab}
+                onChange={(_, v) => setMobileTab(v)}
+                variant="fullWidth"
+                indicatorColor="primary"
+                textColor="primary"
+              >
+                <Tab icon={<ListAltIcon fontSize="small" />} iconPosition="start" label={`Roles (${roles.length})`} sx={{ fontWeight: 700 }} />
+                <Tab icon={<LockPersonIcon fontSize="small" />} iconPosition="start" label={selectedRole ? `Perms: ${selectedRole.name}` : 'Permissions'} sx={{ fontWeight: 700 }} />
+              </Tabs>
             </Paper>
-          </Grid>
+          )}
 
-          {/* Right Column: Permission Matrix */}
-          <Grid item xs={12} lg={8}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'background.paper',
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
-                <Box>
-                  <Typography variant="h6" fontWeight={800}>
-                    Role Permissions: {selectedRole?.name || 'Select a Role'}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Backend RBAC permission mappings from GET /api/permissions/role/{selectedRole?.id || ':id'}
-                  </Typography>
-                </Box>
-
-                {selectedRole?.name === 'ADMIN' && (
-                  <Alert severity="info" sx={{ py: 0, px: 2, borderRadius: 2 }}>
-                    ADMIN role automatically bypasses all permission checks in backend middleware.
-                  </Alert>
-                )}
-              </Box>
-
-              {permsLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-                  <Loader />
-                </Box>
-              ) : allPermissions.length === 0 ? (
-                <Alert severity="warning" sx={{ borderRadius: 3 }}>
-                  No system permissions configured in database.
-                </Alert>
-              ) : (
-                <TableContainer
-                  component={Box}
+          <Grid container spacing={3}>
+            {/* Left Column: Roles List */}
+            {(!isMobile || mobileTab === 0) && (
+              <Grid item xs={12} lg={4}>
+                <Paper
+                  elevation={0}
                   sx={{
+                    p: { xs: 2, sm: 2.5 },
+                    borderRadius: 3,
                     border: '1px solid',
                     borderColor: 'divider',
-                    borderRadius: 2.5,
-                    overflow: 'hidden',
+                    bgcolor: 'background.paper',
                   }}
                 >
-                  <Table sx={{ minWidth: 500 }}>
-                    <TableHead sx={{ bgcolor: 'action.hover' }}>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 800 }}>Permission Name</TableCell>
-                        <TableCell sx={{ fontWeight: 800 }}>Action Scope</TableCell>
-                        <TableCell sx={{ fontWeight: 800 }}>Resource Entity</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 800 }}>
-                          Assigned to Role
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" fontWeight={800}>
+                      System Roles ({roles.length})
+                    </Typography>
+                    <Chip label="Prisma RoleName Enum" size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: '0.65rem' }} />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, maxHeight: { xs: 'none', lg: 680 }, overflowY: 'auto' }}>
+                    {roles.map((role) => {
+                      const isSelected = selectedRole?.id === role.id;
+                      return (
+                        <Paper
+                          key={role.id}
+                          onClick={() => handleSelectRoleMobile(role)}
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            borderRadius: 2.5,
+                            border: '1.5px solid',
+                            borderColor: isSelected ? 'primary.main' : 'divider',
+                            bgcolor: isSelected ? 'action.selected' : 'background.paper',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            '&:hover': { borderColor: 'primary.main' },
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                              <Typography variant="subtitle1" fontWeight={800} color={isSelected ? 'primary.main' : 'text.primary'}>
+                                {role.name}
+                              </Typography>
+                              {role.name === 'ADMIN' && (
+                                <Chip label="FULL ACCESS" color="primary" size="small" sx={{ fontWeight: 800, height: 18, fontSize: '0.6rem' }} />
+                              )}
+                            </Box>
+
+                            {isAdmin && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <Tooltip title="Edit Role">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenEditRole(role);
+                                    }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                {role.name !== 'ADMIN' && role.name !== 'MANAGER' && (
+                                  <Tooltip title="Delete Role">
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteRole(role);
+                                      }}
+                                    >
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            )}
+                          </Box>
+
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.4 }}>
+                            {role.description || 'Enterprise security role.'}
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="caption" color="text.secondary">
+                              Created: {dayjs(role.createdAt).format('MMM DD, YYYY')}
+                            </Typography>
+                            <Chip
+                              icon={<CheckCircleIcon style={{ fontSize: 14 }} />}
+                              label="ACTIVE"
+                              color="success"
+                              variant="outlined"
+                              size="small"
+                              sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
+                            />
+                          </Box>
+                        </Paper>
+                      );
+                    })}
+                  </Box>
+                </Paper>
+              </Grid>
+            )}
+
+            {/* Right Column: Permission Matrix */}
+            {(!isMobile || mobileTab === 1) && (
+              <Grid item xs={12} lg={8}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: { xs: 2, sm: 3 },
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
+                    <Box>
+                      <Typography variant="h6" fontWeight={800}>
+                        Role Permissions: {selectedRole?.name || 'Select a Role'}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Backend RBAC permission mappings for {selectedRole?.name || 'role'}
+                      </Typography>
+                    </Box>
+
+                    {selectedRole?.name === 'ADMIN' && (
+                      <Alert severity="info" sx={{ py: 0, px: 2, borderRadius: 2, width: '100%' }}>
+                        ADMIN role automatically bypasses all permission checks in backend middleware.
+                      </Alert>
+                    )}
+                  </Box>
+
+                  {permsLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+                      <Loader />
+                    </Box>
+                  ) : allPermissions.length === 0 ? (
+                    <Alert severity="warning" sx={{ borderRadius: 3 }}>
+                      No system permissions configured in database.
+                    </Alert>
+                  ) : isMobile ? (
+                    /* Modern Mobile Card View for Permissions */
+                    <Stack spacing={1.5}>
                       {allPermissions.map((perm) => {
                         const isAssigned = assignedPermIds.has(perm.id) || selectedRole?.name === 'ADMIN';
                         return (
-                          <TableRow key={perm.id} hover>
-                            <TableCell>
-                              <Typography variant="subtitle2" fontWeight={700}>
-                                {perm.name}
-                              </Typography>
-                              {perm.description && (
-                                <Typography variant="caption" color="text.secondary" display="block">
-                                  {perm.description}
-                                </Typography>
-                              )}
-                            </TableCell>
+                          <Card
+                            key={perm.id}
+                            elevation={0}
+                            sx={{
+                              borderRadius: '12px',
+                              border: '1.5px solid',
+                              borderColor: isAssigned ? 'primary.light' : 'var(--border-subdued)',
+                              bgcolor: isAssigned ? 'action.hover' : 'background.paper',
+                              p: 1.8,
+                            }}
+                          >
+                            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                                <Box sx={{ flexGrow: 1 }}>
+                                  <Typography variant="subtitle2" fontWeight={800}>
+                                    {perm.name}
+                                  </Typography>
+                                  {perm.description && (
+                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.3 }}>
+                                      {perm.description}
+                                    </Typography>
+                                  )}
 
-                            <TableCell>
-                              <Chip
-                                label={perm.action}
-                                size="small"
-                                color="primary"
-                                variant="outlined"
-                                sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
-                              />
-                            </TableCell>
+                                  <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                                    <Chip
+                                      label={`Action: ${perm.action}`}
+                                      size="small"
+                                      color="primary"
+                                      variant="outlined"
+                                      sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
+                                    />
+                                    <Chip
+                                      label={`Entity: ${perm.resource}`}
+                                      size="small"
+                                      color="secondary"
+                                      variant="outlined"
+                                      sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
+                                    />
+                                  </Box>
+                                </Box>
 
-                            <TableCell>
-                              <Chip
-                                label={perm.resource}
-                                size="small"
-                                color="secondary"
-                                variant="outlined"
-                                sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
-                              />
-                            </TableCell>
-
-                            <TableCell align="center">
-                              <Checkbox
-                                checked={isAssigned}
-                                disabled={!isAdmin || selectedRole?.name === 'ADMIN'}
-                                onChange={() => handleTogglePermission(perm.id)}
-                                size="small"
-                                color="primary"
-                              />
-                            </TableCell>
-                          </TableRow>
+                                <Checkbox
+                                  checked={isAssigned}
+                                  disabled={!isAdmin || selectedRole?.name === 'ADMIN'}
+                                  onChange={() => handleTogglePermission(perm.id)}
+                                  size="medium"
+                                  color="primary"
+                                  sx={{ p: 0.5 }}
+                                />
+                              </Box>
+                            </CardContent>
+                          </Card>
                         );
                       })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </Paper>
+                    </Stack>
+                  ) : (
+                    /* Desktop Table View */
+                    <TableContainer
+                      component={Box}
+                      sx={{
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2.5,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Table sx={{ minWidth: 500 }}>
+                        <TableHead sx={{ bgcolor: 'action.hover' }}>
+                          <TableRow>
+                            <TableCell sx={{ fontWeight: 800 }}>Permission Name</TableCell>
+                            <TableCell sx={{ fontWeight: 800 }}>Action Scope</TableCell>
+                            <TableCell sx={{ fontWeight: 800 }}>Resource Entity</TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 800 }}>
+                              Assigned to Role
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {allPermissions.map((perm) => {
+                            const isAssigned = assignedPermIds.has(perm.id) || selectedRole?.name === 'ADMIN';
+                            return (
+                              <TableRow key={perm.id} hover>
+                                <TableCell>
+                                  <Typography variant="subtitle2" fontWeight={700}>
+                                    {perm.name}
+                                  </Typography>
+                                  {perm.description && (
+                                    <Typography variant="caption" color="text.secondary" display="block">
+                                      {perm.description}
+                                    </Typography>
+                                  )}
+                                </TableCell>
+
+                                <TableCell>
+                                  <Chip
+                                    label={perm.action}
+                                    size="small"
+                                    color="primary"
+                                    variant="outlined"
+                                    sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
+                                  />
+                                </TableCell>
+
+                                <TableCell>
+                                  <Chip
+                                    label={perm.resource}
+                                    size="small"
+                                    color="secondary"
+                                    variant="outlined"
+                                    sx={{ fontWeight: 700, height: 20, fontSize: '0.65rem' }}
+                                  />
+                                </TableCell>
+
+                                <TableCell align="center">
+                                  <Checkbox
+                                    checked={isAssigned}
+                                    disabled={!isAdmin || selectedRole?.name === 'ADMIN'}
+                                    onChange={() => handleTogglePermission(perm.id)}
+                                    size="small"
+                                    color="primary"
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </Paper>
+              </Grid>
+            )}
           </Grid>
-        </Grid>
+        </Box>
       )}
 
       {/* Role Add/Edit Dialog */}
@@ -470,3 +582,4 @@ export const RoleManagementPage = () => {
 };
 
 export default RoleManagementPage;
+
