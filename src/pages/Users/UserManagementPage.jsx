@@ -23,6 +23,8 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  Fab,
+  useTheme,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
@@ -31,6 +33,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 
@@ -42,8 +45,12 @@ import roleService from '../../services/role.service';
 import staffService from '../../services/staff.service';
 import { Loader } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
+import MobileUserFilterDrawer from './MobileUserFilterDrawer';
 
 export const UserManagementPage = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const { hasRole } = useAuth();
   const isAdmin = hasRole('ADMIN');
 
@@ -53,6 +60,10 @@ export const UserManagementPage = () => {
   const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('ALL');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // User Register Modal State
   const [userDialogOpen, setUserDialogOpen] = useState(false);
@@ -515,8 +526,44 @@ export const UserManagementPage = () => {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, width: '100%' }}>
-          {/* Navigation Tabs */}
-          <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', px: 2 }}>
+          {/* Mobile Header Filter Trigger */}
+          <Box
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: 1,
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
+              {activeTab === 0 ? `User Accounts (${users.length})` : `Staff Profiles (${staffList.length})`}
+            </Typography>
+
+            <IconButton
+              onClick={() => setMobileFilterOpen(true)}
+              sx={{
+                color: 'text.primary',
+                backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.12)',
+                borderRadius: '12px',
+                p: 1.2,
+              }}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </Box>
+
+          {/* Navigation Tabs Container */}
+          <Paper
+            elevation={0}
+            sx={{
+              borderRadius: '20px',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+              px: 2,
+              boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+            }}
+          >
             <Tabs
               value={activeTab}
               onChange={(_, val) => setActiveTab(val)}
@@ -531,7 +578,18 @@ export const UserManagementPage = () => {
 
           {/* Tab Panel 0: User Accounts */}
           {activeTab === 0 && (
-            <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', width: '100%', overflow: 'hidden' }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 2, sm: 3 },
+                borderRadius: '20px',
+                border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+                backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                width: '100%',
+                overflow: 'hidden',
+                boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+              }}
+            >
               <Box sx={{ mb: 2 }}>
                 <Typography variant="h6" fontWeight={800}>
                   Registered System User Accounts ({users.length})
@@ -546,7 +604,18 @@ export const UserManagementPage = () => {
 
           {/* Tab Panel 1: Staff Profiles */}
           {activeTab === 1 && (
-            <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', width: '100%', overflow: 'hidden' }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 2, sm: 3 },
+                borderRadius: '20px',
+                border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+                backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                width: '100%',
+                overflow: 'hidden',
+                boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+              }}
+            >
               <Box sx={{ mb: 2 }}>
                 <Typography variant="h6" fontWeight={800}>
                   Staff Employment Profiles ({staffList.length})
@@ -560,6 +629,45 @@ export const UserManagementPage = () => {
           )}
         </Box>
       )}
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <Fab
+        onClick={activeTab === 0 ? handleOpenAddUser : handleOpenAddStaff}
+        aria-label="add user or staff"
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          position: 'fixed',
+          bottom: '24px',
+          right: '20px',
+          zIndex: 1000,
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          backgroundColor: '#7C6CFF',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 24px rgba(124, 108, 255, 0.4)',
+          '&:hover': {
+            backgroundColor: '#6854FF',
+          },
+        }}
+      >
+        <AddIcon sx={{ fontSize: 28 }} />
+      </Fab>
+
+      {/* Mobile User Filter Drawer */}
+      <MobileUserFilterDrawer
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        roleFilter={roleFilter}
+        onRoleFilterChange={setRoleFilter}
+        roles={roles}
+        onResetFilters={() => {
+          setSearchTerm('');
+          setRoleFilter('ALL');
+        }}
+      />
 
       {/* User Registration Dialog */}
       <ResponsiveDialog
