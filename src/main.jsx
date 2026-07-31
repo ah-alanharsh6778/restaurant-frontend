@@ -19,7 +19,7 @@ window.addEventListener('error', (event) => {
     msg.includes('Expected a JavaScript-or-Wasm module script') ||
     msg.includes('Importing a module script failed') ||
     msg.includes('Loading chunk') ||
-    msg.includes('404');
+    (msg.includes('404') && (msg.includes('assets/') || msg.includes('.js')));
   if (isChunkError) {
     const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
     if (!lastReload || Date.now() - Number(lastReload) > 10000) {
@@ -36,7 +36,7 @@ window.addEventListener('unhandledrejection', (event) => {
     msg.includes('Expected a JavaScript-or-Wasm module script') ||
     msg.includes('Importing a module script failed') ||
     msg.includes('Loading chunk') ||
-    msg.includes('404');
+    (msg.includes('404') && (msg.includes('assets/') || msg.includes('.js')));
   if (isChunkError) {
     const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
     if (!lastReload || Date.now() - Number(lastReload) > 10000) {
