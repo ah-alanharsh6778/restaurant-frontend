@@ -35,6 +35,10 @@ export const MobileUserFilterDrawer = ({
       anchor="bottom"
       open={open}
       onClose={onClose}
+      disableRestoreFocus
+      ModalProps={{
+        disableRestoreFocus: true,
+      }}
       PaperProps={{
         sx: {
           borderTopLeftRadius: '24px',
