@@ -132,7 +132,7 @@ export const ExpenseDialog = ({
     >
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2.5} sx={{ py: 1 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               label="Invoice Number *"
               name="invoiceNumber"
@@ -144,7 +144,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               label="Supplier / Vendor"
               name="supplierName"
@@ -155,7 +155,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <FormControl fullWidth required>
               <InputLabel id="expense-dialog-category-label">Category</InputLabel>
               <Select
@@ -174,7 +174,7 @@ export const ExpenseDialog = ({
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               label="Invoice Date"
               name="invoiceDate"
@@ -186,7 +186,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid xs={12} sm={4}>
             <TextField
               label="Subtotal Amount ($)"
               name="amount"
@@ -198,7 +198,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid xs={12} sm={4}>
             <TextField
               label="Tax Amount ($)"
               name="tax"
@@ -210,7 +210,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid xs={12} sm={4}>
             <TextField
               label="Total Amount ($)"
               name="total"
@@ -222,7 +222,7 @@ export const ExpenseDialog = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel id="expense-status-select-label">Status</InputLabel>
               <Select
@@ -239,7 +239,7 @@ export const ExpenseDialog = ({
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <TextField
               label="Remarks / Notes"
               name="remarks"

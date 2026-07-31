@@ -12,8 +12,8 @@ export const CommonToolbar = ({
   searchQuery = '',
   onSearchChange,
   searchPlaceholder = 'Search...',
-  filters = null, // Custom JSX filter controls
-  actions = null, // Custom JSX action buttons
+  filters = null,
+  actions = null,
 }) => {
   return (
     <Paper
@@ -21,10 +21,10 @@ export const CommonToolbar = ({
       sx={{
         p: 2,
         mb: 3,
-        borderRadius: '12px',
+        borderRadius: '4px',
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: '#FFFFFF',
+        bgcolor: 'background.paper',
       }}
     >
       <Box
@@ -59,8 +59,8 @@ export const CommonToolbar = ({
               }}
               sx={{
                 width: { xs: '100%', sm: 260 },
-                bgcolor: '#FAFBFD',
-                borderRadius: 2,
+                bgcolor: 'background.paper',
+                borderRadius: '4px',
               }}
             />
           )}

@@ -19,6 +19,8 @@ import MenuItemDialog from './MenuItemDialog';
 import DeleteMenuItemDialog from './DeleteMenuItemDialog';
 import MenuItemDetailsDialog from './MenuItemDetailsDialog';
 
+import dayjs from 'dayjs';
+
 export const MenuItemsPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -29,6 +31,17 @@ export const MenuItemsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [availabilityFilter, setAvailabilityFilter] = useState('ALL');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // Reset all filters helper
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setCategoryFilter('ALL');
+    setAvailabilityFilter('ALL');
+    setStartDate('');
+    setEndDate('');
+  };
 
   // Dialog States
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -125,9 +138,17 @@ export const MenuItemsPage = () => {
         matchesAvail = availabilityFilter === 'AVAILABLE' ? isAvail : !isAvail;
       }
 
-      return matchesSearch && matchesCat && matchesAvail;
+      // Date Range Filter
+      let matchesDate = true;
+      const created = item.createdAt ? dayjs(item.createdAt) : null;
+      if (created) {
+        if (startDate && created.isBefore(dayjs(startDate), 'day')) matchesDate = false;
+        if (endDate && created.isAfter(dayjs(endDate), 'day')) matchesDate = false;
+      }
+
+      return matchesSearch && matchesCat && matchesAvail && matchesDate;
     });
-  }, [menuItems, searchQuery, categoryFilter, availabilityFilter]);
+  }, [menuItems, searchQuery, categoryFilter, availabilityFilter, startDate, endDate]);
 
   const handleOpenAddDialog = () => {
     if (categories.length === 0) {
@@ -189,80 +210,94 @@ export const MenuItemsPage = () => {
     }
   };
 
-  const isSearchOrFilterActive = Boolean(searchQuery || categoryFilter !== 'ALL' || availabilityFilter !== 'ALL');
+  const isSearchOrFilterActive = Boolean(searchQuery || categoryFilter !== 'ALL' || availabilityFilter !== 'ALL' || startDate || endDate);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-      {/* Toolbar */}
-      <MenuToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        categoryFilter={categoryFilter}
-        onCategoryFilterChange={setCategoryFilter}
-        availabilityFilter={availabilityFilter}
-        onAvailabilityFilterChange={setAvailabilityFilter}
-        categories={categories}
-        onRefresh={() => fetchData(true)}
-        onAddMenuItem={handleOpenAddDialog}
-        isRefreshing={isRefreshing}
-      />
-
-      {/* Menu Items List / Loading / Empty State */}
-      {loading ? (
-        <Grid container spacing={2}>
-          {[1, 2, 3, 4, 5].map((item) => (
-            <Grid item xs={12} key={item}>
-              <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 2 }} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : filteredMenuItems.length === 0 ? (
-        <Paper
-          elevation={2}
-          sx={{
-            p: { xs: 4, sm: 6 },
-            textAlign: 'center',
-            borderRadius: 3,
-            backgroundColor: '#FFFFFF',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: 300,
-          }}
-        >
-          <Avatar sx={{ width: 64, height: 64, bgcolor: '#F1F5F9', color: 'primary.main', mb: 2 }}>
-            <RestaurantMenuIcon sx={{ fontSize: 36 }} />
-          </Avatar>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-            {isSearchOrFilterActive ? 'No Matching Menu Items Found' : 'No Menu Items Available'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mb: 3 }}>
-            {isSearchOrFilterActive
-              ? 'Try searching with another item name or adjusting your category/availability filters.'
-              : 'Get started by creating your first restaurant menu item.'}
-          </Typography>
-          {!isSearchOrFilterActive && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={handleOpenAddDialog}
-              sx={{ borderRadius: 2, fontWeight: 700 }}
-            >
-              Add Menu Item
-            </Button>
-          )}
-        </Paper>
-      ) : (
-        <MenuItemTable
-          menuItems={filteredMenuItems}
-          onViewDetails={handleOpenDetailsDialog}
-          onEditMenuItem={handleOpenEditDialog}
-          onDeleteMenuItem={handleOpenDeleteDialog}
-          loading={loading}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 3 },
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
+        {/* Toolbar & Filters */}
+        <MenuToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          categoryFilter={categoryFilter}
+          onCategoryFilterChange={setCategoryFilter}
+          availabilityFilter={availabilityFilter}
+          onAvailabilityFilterChange={setAvailabilityFilter}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          endDate={endDate}
+          onEndDateChange={setEndDate}
+          onResetFilters={handleResetFilters}
+          categories={categories}
+          onRefresh={() => fetchData(true)}
+          onAddMenuItem={handleOpenAddDialog}
+          isRefreshing={isRefreshing}
         />
-      )}
+
+        {/* Menu Items List / Loading / Empty State */}
+        {loading ? (
+          <Grid container spacing={2}>
+            {[1, 2, 3, 4, 5].map((item) => (
+              <Grid xs={12} key={item}>
+                <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 2 }} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : filteredMenuItems.length === 0 ? (
+          <Box
+            sx={{
+              p: { xs: 4, sm: 6 },
+              textAlign: 'center',
+              borderRadius: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 300,
+            }}
+          >
+            <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.light', color: 'primary.main', mb: 2 }}>
+              <RestaurantMenuIcon sx={{ fontSize: 36 }} />
+            </Avatar>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              {isSearchOrFilterActive ? 'No Matching Menu Items Found' : 'No Menu Items Available'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mb: 3 }}>
+              {isSearchOrFilterActive
+                ? 'Try searching with another item name or adjusting your category/availability filters.'
+                : 'Get started by creating your first restaurant menu item.'}
+            </Typography>
+            {!isSearchOrFilterActive && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAddDialog}
+                sx={{ borderRadius: 2, fontWeight: 700 }}
+              >
+                Add Menu Item
+              </Button>
+            )}
+          </Box>
+        ) : (
+          <MenuItemTable
+            menuItems={filteredMenuItems}
+            onViewDetails={handleOpenDetailsDialog}
+            onEditMenuItem={handleOpenEditDialog}
+            onDeleteMenuItem={handleOpenDeleteDialog}
+            loading={loading}
+          />
+        )}
+      </Paper>
 
       {/* Dialogs */}
       <MenuItemDialog
@@ -286,6 +321,8 @@ export const MenuItemsPage = () => {
         open={detailsDialogOpen}
         onClose={() => setDetailsDialogOpen(false)}
         menuItem={itemForDetails}
+        onEdit={handleOpenEditDialog}
+        onDelete={handleOpenDeleteDialog}
       />
     </Box>
   );

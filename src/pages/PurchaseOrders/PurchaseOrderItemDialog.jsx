@@ -17,14 +17,18 @@ export const PurchaseOrderItemDialog = ({
   open,
   onClose,
   onSubmit,
+  initialData = null,
   ingredientsList = [],
   loading = false,
 }) => {
+  const isEdit = Boolean(initialData?.id || initialData?.ingredientId);
+
   const {
     register,
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -36,17 +40,29 @@ export const PurchaseOrderItemDialog = ({
 
   useEffect(() => {
     if (open) {
-      reset({
-        ingredient: null,
-        quantity: 1,
-        price: 0,
-      });
+      if (initialData) {
+        const ingId = initialData.ingredientId || initialData.ingredient?.id || initialData.ingredient?._id;
+        const foundIng = initialData.ingredient || ingredientsList.find((i) => String(i.id || i._id) === String(ingId)) || null;
+        reset({
+          ingredient: foundIng,
+          quantity: initialData.quantity || 1,
+          price: initialData.price !== undefined ? initialData.price : (foundIng?.costPerUnit || 0),
+        });
+      } else {
+        reset({
+          ingredient: null,
+          quantity: 1,
+          price: 0,
+        });
+      }
     }
-  }, [open, reset]);
+  }, [open, initialData, ingredientsList, reset]);
 
   const handleFormSubmit = (data) => {
     if (!data.ingredient) return;
     onSubmit({
+      id: initialData?.id,
+      ingredient: data.ingredient,
       ingredientId: data.ingredient.id || data.ingredient._id,
       quantity: Number(data.quantity),
       price: Number(data.price),
@@ -62,7 +78,7 @@ export const PurchaseOrderItemDialog = ({
       slotProps={{ paper: { elevation: 5, sx: { borderRadius: 3.5 } } }}
     >
       <DialogTitle sx={{ m: 0, p: 2.5, pr: 6, fontWeight: 800 }}>
-        Add Item to Purchase Order
+        {isEdit ? 'Edit Line Item' : 'Add Item to Purchase Order'}
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -80,11 +96,17 @@ export const PurchaseOrderItemDialog = ({
           render={({ field: { onChange, value } }) => (
             <Autocomplete
               options={ingredientsList}
+              isOptionEqualToValue={(option, val) => (option?.id || option?._id) === (val?.id || val?._id)}
               getOptionLabel={(option) =>
                 option ? `${option.name} (${option.unit || 'unit'})` : ''
               }
               value={value}
-              onChange={(_, newValue) => onChange(newValue)}
+              onChange={(_, newValue) => {
+                onChange(newValue);
+                if (newValue && newValue.costPerUnit !== undefined && !isEdit) {
+                  setValue('price', newValue.costPerUnit);
+                }
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -139,7 +161,7 @@ export const PurchaseOrderItemDialog = ({
           disabled={loading}
           sx={{ px: 3, fontWeight: 800 }}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Add Item'}
+          {loading ? <CircularProgress size={24} color="inherit" /> : isEdit ? 'Save Item' : 'Add Item'}
         </Button>
       </DialogActions>
     </Dialog>

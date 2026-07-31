@@ -47,6 +47,21 @@ export const Users = () => {
   };
 
   const columns = [
+    {
+      field: 'sNo',
+      headerName: 'S.No.',
+      align: 'center',
+      renderCell: (row) => {
+        const list = usersList.length > 0 ? usersList : [
+          { id: '1', fullName: 'Harsh Singh', email: 'harsh@gmail.com', role: 'OWNER' },
+          { id: '2', fullName: 'Emily Davis', email: 'emily@restaurant.com', role: 'MANAGER' },
+          { id: '3', fullName: 'Chef Gordon R.', email: 'chef@restaurant.com', role: 'CHEF' },
+          { id: '4', fullName: 'Alex Rivera', email: 'alex@restaurant.com', role: 'WAITER' },
+        ];
+        const idx = list.findIndex((u) => (u.id || u._id) === (row.id || row._id));
+        return idx !== -1 ? idx + 1 : '—';
+      },
+    },
     { field: 'fullName', headerName: 'FULL NAME', renderCell: (row) => <strong>{row.fullName}</strong> },
     { field: 'email', headerName: 'EMAIL ADDRESS' },
     {

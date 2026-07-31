@@ -35,6 +35,13 @@ export const tableService = {
     if (data.tableNumber !== undefined) payload.tableNumber = String(data.tableNumber).trim();
     if (data.capacity !== undefined) payload.capacity = parseInt(data.capacity, 10);
     if (data.status !== undefined) payload.status = data.status;
+    if (data.customerName !== undefined) payload.customerName = data.customerName;
+    if (data.phone !== undefined) payload.phone = data.phone;
+    if (data.email !== undefined) payload.email = data.email;
+    if (data.guests !== undefined) payload.guests = data.guests;
+    if (data.bookingDate !== undefined) payload.bookingDate = data.bookingDate;
+    if (data.bookingTime !== undefined) payload.bookingTime = data.bookingTime;
+    if (data.specialNotes !== undefined) payload.specialNotes = data.specialNotes;
 
     const response = await api.put(`/tables/${id}`, payload);
     return response.data;
@@ -56,6 +63,49 @@ export const tableService = {
   updateStatus: async (id, status) => {
     const response = await api.patch(`/tables/${id}/status`, { status });
     return response.data;
+  },
+
+  // Customer ↔ Table Booking Workflow API Methods with 404 Fallback
+  bookTable: async (tableId, bookingData) => {
+    try {
+      const response = await api.post(`/tables/${tableId}/book`, bookingData);
+      return response.data;
+    } catch (err) {
+      if (err?.status === 404 || err?.response?.status === 404) {
+        const response = await api.put(`/tables/${tableId}`, {
+          ...bookingData,
+          status: 'RESERVED',
+        });
+        return response.data;
+      }
+      throw err;
+    }
+  },
+
+  checkInTable: async (tableId) => {
+    try {
+      const response = await api.post(`/tables/${tableId}/check-in`);
+      return response.data;
+    } catch (err) {
+      if (err?.status === 404 || err?.response?.status === 404) {
+        const response = await api.patch(`/tables/${tableId}/status`, { status: 'OCCUPIED' });
+        return response.data;
+      }
+      throw err;
+    }
+  },
+
+  cancelBooking: async (tableId) => {
+    try {
+      const response = await api.post(`/tables/${tableId}/cancel-booking`);
+      return response.data;
+    } catch (err) {
+      if (err?.status === 404 || err?.response?.status === 404) {
+        const response = await api.patch(`/tables/${tableId}/status`, { status: 'AVAILABLE' });
+        return response.data;
+      }
+      throw err;
+    }
   },
 };
 

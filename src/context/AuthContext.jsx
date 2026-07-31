@@ -66,6 +66,8 @@ export const AuthProvider = ({ children }) => {
 
     const initAuth = async () => {
       const existingToken = getToken();
+      const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+
       if (!existingToken) {
         clearAuth();
         if (isMounted.current) {
@@ -77,8 +79,24 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      // If user is explicitly visiting /login, unblock loading state right away
+      if (isLoginPage) {
+        if (isMounted.current) {
+          setLoading(false);
+        }
+      }
+
       try {
-        const { user: fetchedUser, permissions: fetchedPerms } = await fetchProfileAndPermissions();
+        const profilePromise = fetchProfileAndPermissions();
+        // 3-second timeout guard to ensure session validation never hangs initial page mount
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Auth validation timeout')), 3000)
+        );
+
+        const { user: fetchedUser, permissions: fetchedPerms } = await Promise.race([
+          profilePromise,
+          timeoutPromise,
+        ]);
 
         if (isMounted.current) {
           setTokenState(existingToken);

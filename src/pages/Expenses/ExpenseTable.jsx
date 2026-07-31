@@ -1,12 +1,7 @@
 import React from 'react';
-import { Typography } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DescriptionIcon from '@mui/icons-material/Description';
+import { Typography, Box, Paper } from '@mui/material';
 import dayjs from 'dayjs';
 import CommonDataGrid from '../../components/common/CommonDataGrid';
-import ActionMenu from '../../components/common/ActionMenu';
 import ExpenseStatusChip from './ExpenseStatusChip';
 import EmptyExpenseState from './EmptyExpenseState';
 
@@ -20,6 +15,25 @@ export const ExpenseTable = ({
 }) => {
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 70,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api?.getRowIndexRelativeToVisibleRows
+          ? params.api.getRowIndexRelativeToVisibleRows(params.id)
+          : undefined;
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: '#9CA3AF' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'invoiceNumber',
       headerName: 'Invoice Number',
       width: 170,
@@ -28,12 +42,13 @@ export const ExpenseTable = ({
           variant="body2"
           sx={{
             fontFamily: 'monospace',
-            fontWeight: 700,
-            color: 'primary.main',
+            fontWeight: 800,
+            color: '#7C6CFF',
             cursor: 'pointer',
-            '&:hover': { textDecoration: 'underline' },
+            fontSize: '0.875rem',
+            '&:hover': { textDecoration: 'underline', color: '#6854FF' },
           }}
-          onClick={() => onOpenDetails(params.row)}
+          onClick={() => onOpenDetails && onOpenDetails(params.row)}
         >
           {params.value || 'N/A'}
         </Typography>
@@ -45,7 +60,7 @@ export const ExpenseTable = ({
       flex: 1.2,
       minWidth: 180,
       renderCell: (params) => (
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, color: '#FFFFFF', fontSize: '0.875rem' }}>
           {params.row.supplier?.name || params.row.supplierName || '—'}
         </Typography>
       ),
@@ -56,7 +71,7 @@ export const ExpenseTable = ({
       flex: 1,
       minWidth: 140,
       renderCell: (params) => (
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: '#9CA3AF', fontSize: '0.85rem' }}>
           {params.row.category?.name || 'Uncategorized'}
         </Typography>
       ),
@@ -66,7 +81,7 @@ export const ExpenseTable = ({
       headerName: 'Invoice Date',
       width: 130,
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#9CA3AF', fontSize: '0.85rem' }}>
           {params.value ? dayjs(params.value).format('MMM DD, YYYY') : 'N/A'}
         </Typography>
       ),
@@ -79,7 +94,7 @@ export const ExpenseTable = ({
       headerAlign: 'left',
       align: 'left',
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#9CA3AF', fontWeight: 600, fontSize: '0.85rem' }}>
           ${Number(params.value || 0).toFixed(2)}
         </Typography>
       ),
@@ -92,7 +107,7 @@ export const ExpenseTable = ({
       headerAlign: 'left',
       align: 'left',
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#F59E0B', fontWeight: 600, fontSize: '0.85rem' }}>
           ${Number(params.value || 0).toFixed(2)}
         </Typography>
       ),
@@ -100,12 +115,12 @@ export const ExpenseTable = ({
     {
       field: 'total',
       headerName: 'Total Amount',
-      width: 130,
+      width: 140,
       type: 'number',
       headerAlign: 'left',
       align: 'left',
       renderCell: (params) => (
-        <Typography variant="body2" sx={{ fontWeight: 800, color: 'text.primary' }}>
+        <Typography variant="body2" sx={{ fontWeight: 800, color: '#10B981', fontSize: '0.9rem' }}>
           ${Number(params.value || (Number(params.row.amount || 0) + Number(params.row.tax || 0))).toFixed(2)}
         </Typography>
       ),
@@ -121,69 +136,37 @@ export const ExpenseTable = ({
       headerName: 'Created Date',
       width: 140,
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#9CA3AF', fontSize: '0.85rem' }}>
           {params.value ? dayjs(params.value).format('MMM DD, YYYY') : 'N/A'}
         </Typography>
       ),
     },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 140,
-      sortable: false,
-      align: 'right',
-      headerAlign: 'right',
-      renderCell: (params) => {
-        const rowActions = [
-          {
-            label: 'View Details',
-            icon: <VisibilityIcon fontSize="small" />,
-            color: 'info',
-            onClick: () => onOpenDetails(params.row),
-          },
-        ];
-
-        if (params.row.filePath) {
-          rowActions.push({
-            label: 'Preview Document',
-            icon: <DescriptionIcon fontSize="small" />,
-            color: 'success',
-            onClick: () => onOpenPreviewInvoice(params.row),
-          });
-        }
-
-        rowActions.push(
-          {
-            label: 'Edit Expense',
-            icon: <EditIcon fontSize="small" />,
-            color: 'primary',
-            onClick: () => onOpenEdit(params.row),
-          },
-          {
-            label: 'Delete Expense',
-            icon: <DeleteIcon fontSize="small" />,
-            color: 'error',
-            onClick: () => onOpenDelete(params.row),
-          }
-        );
-
-        return <ActionMenu actions={rowActions} />;
-      },
-    },
   ];
 
   return (
-    <CommonDataGrid
-      rows={expenses}
-      columns={columns}
-      loading={loading}
-      emptyComponent={
-        <EmptyExpenseState
-          title="No Expenses Found"
-          description="No expense records match your current search or filter criteria."
-        />
-      }
-    />
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: '20px',
+        backgroundColor: '#131A24',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+      }}
+    >
+      <CommonDataGrid
+        rows={expenses}
+        columns={columns}
+        loading={loading}
+        onRowClick={(params) => onOpenDetails && onOpenDetails(params.row)}
+        emptyComponent={
+          <EmptyExpenseState
+            title="No Expenses Found"
+            description="No expense records match your current search or filter criteria."
+          />
+        }
+      />
+    </Paper>
   );
 };
 

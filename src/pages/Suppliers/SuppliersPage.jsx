@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Paper, Box, Button } from '@mui/material';
+import { Paper, Box, Button, Grid } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
@@ -7,11 +7,14 @@ import supplierService from '../../services/supplier.service';
 import PageContainer from '../../components/layout/PageContainer';
 import SupplierToolbar from './SupplierToolbar';
 import SupplierTable from './SupplierTable';
+import SupplierCard from './SupplierCard';
 import SupplierDialog from './SupplierDialog';
 import SupplierDetailsDialog from './SupplierDetailsDialog';
 import DeleteSupplierDialog from './DeleteSupplierDialog';
 import EmptySupplierState from './EmptySupplierState';
 import ErrorState from '../../components/common/ErrorState';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import InvoiceUploadDialog from '../Expenses/InvoiceUploadDialog';
 
 export const SuppliersPage = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -26,6 +29,7 @@ export const SuppliersPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
 
   const fetchData = useCallback(async () => {
@@ -96,6 +100,11 @@ export const SuppliersPage = () => {
     setDeleteDialogOpen(true);
   };
 
+  const handleOpenUploadDialog = (supplier = null) => {
+    setSelectedSupplier(supplier);
+    setUploadDialogOpen(true);
+  };
+
   const handleOpenDetailsDialog = async (supplier) => {
     try {
       const res = await supplierService.getSupplierById(supplier.id || supplier._id);
@@ -147,6 +156,33 @@ export const SuppliersPage = () => {
     }
   };
 
+  const handleToggleSupplierStatus = async (supplier) => {
+    if (!supplier) return;
+    setSubmitting(true);
+    try {
+      const id = supplier.id || supplier._id;
+      const currentIsActive = supplier.isActive !== undefined ? supplier.isActive : supplier.status !== 'INACTIVE';
+      const newIsActive = !currentIsActive;
+      const newStatus = newIsActive ? 'ACTIVE' : 'INACTIVE';
+
+      await supplierService.updateSupplier(id, {
+        ...supplier,
+        isActive: newIsActive,
+        status: newStatus,
+      });
+
+      toast.success(
+        `Supplier "${supplier.name}" has been ${newIsActive ? 're-activated (OPEN)' : 'closed & deactivated (INACTIVE)'}!`
+      );
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Status toggle failed';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (error && suppliers.length === 0) {
     return (
       <PageContainer title="Supplier Management" breadcrumbs={['Dashboard', 'Suppliers']}>
@@ -162,13 +198,27 @@ export const SuppliersPage = () => {
   return (
     <PageContainer
       title="Supplier Management"
+      subtitle="Manage raw food suppliers, contact representatives, GST numbers, and vendor profiles"
       breadcrumbs={['Dashboard', 'Suppliers']}
       actions={
         <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Button size="small" variant="outlined" startIcon={<RefreshIcon />} onClick={fetchData}>
-            Refresh
+          <Button
+            variant="outlined"
+            color="info"
+            size="small"
+            startIcon={<CloudUploadIcon />}
+            onClick={() => handleOpenUploadDialog(null)}
+            sx={{ fontWeight: 700, borderRadius: 2.5, px: 2 }}
+          >
+            Upload Invoice OCR
           </Button>
-          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 700 }}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={handleOpenAddDialog}
+            sx={{ fontWeight: 800, borderRadius: 2.5, px: 2.5 }}
+          >
             Add Supplier
           </Button>
         </Box>
@@ -189,7 +239,6 @@ export const SuppliersPage = () => {
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
           onRefresh={fetchData}
-          onAddClick={handleOpenAddDialog}
           loading={loading}
         />
 
@@ -203,6 +252,8 @@ export const SuppliersPage = () => {
               onView={handleOpenDetailsDialog}
               onEdit={handleOpenEditDialog}
               onDelete={handleOpenDeleteDialog}
+              onToggleStatus={handleToggleSupplierStatus}
+              onUploadInvoice={handleOpenUploadDialog}
             />
           )}
         </Box>
@@ -229,6 +280,19 @@ export const SuppliersPage = () => {
         open={detailsDialogOpen}
         onClose={() => setDetailsDialogOpen(false)}
         supplier={selectedSupplier}
+        onToggleStatus={handleToggleSupplierStatus}
+        onEdit={handleOpenEditDialog}
+        onDelete={handleOpenDeleteDialog}
+        onUploadInvoice={handleOpenUploadDialog}
+      />
+
+      <InvoiceUploadDialog
+        open={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        onSuccess={() => {
+          fetchData();
+          toast.success('Supplier invoice auto-processed into Invoice OCR and Expenses!');
+        }}
       />
     </PageContainer>
   );

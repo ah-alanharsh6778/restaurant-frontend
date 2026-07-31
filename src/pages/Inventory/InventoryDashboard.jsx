@@ -194,7 +194,7 @@ export const InventoryDashboard = () => {
           borderRadius: 3,
           border: '1px solid',
           borderColor: 'divider',
-          bgcolor: '#FFFFFF',
+          bgcolor: 'background.paper',
           p: { xs: 2, sm: 3 },
         }}
       >

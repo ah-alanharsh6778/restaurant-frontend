@@ -8,7 +8,7 @@ export const UnauthorizedPage = () => {
 
   return (
     <Box sx={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3 }}>
-      <Paper elevation={0} sx={{ p: 6, textAlign: 'center', maxWidth: 480, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: '#FFFFFF' }}>
+      <Paper elevation={0} sx={{ p: 6, textAlign: 'center', maxWidth: 480, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Box sx={{ width: 72, height: 72, borderRadius: '50%', bgcolor: 'warning.50', color: 'warning.main', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
           <LockOutlinedIcon sx={{ fontSize: 40 }} />
         </Box>

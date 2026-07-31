@@ -28,6 +28,23 @@ export const ProductsPage = ({
 }) => {
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'sku',
       headerName: 'SKU',
       width: 140,
@@ -126,54 +143,6 @@ export const ProductsPage = ({
         </Typography>
       ),
     },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 190,
-      sortable: false,
-      align: 'right',
-      headerAlign: 'right',
-      renderCell: (params) => {
-        const rowActions = [
-          {
-            label: 'Stock In',
-            icon: <MoveToInboxIcon fontSize="small" />,
-            color: 'success',
-            variant: 'button',
-            buttonVariant: 'contained',
-            onClick: () => onOpenStockIn(params.row),
-          },
-          {
-            label: 'Stock Out',
-            icon: <OutboxIcon fontSize="small" />,
-            color: 'warning',
-            variant: 'button',
-            buttonVariant: 'contained',
-            onClick: () => onOpenStockOut(params.row),
-          },
-          {
-            label: 'View Details',
-            icon: <VisibilityIcon fontSize="small" />,
-            color: 'info',
-            onClick: () => onOpenDetails(params.row),
-          },
-          {
-            label: 'Edit Product',
-            icon: <EditIcon fontSize="small" />,
-            color: 'primary',
-            onClick: () => onOpenEdit(params.row),
-          },
-          {
-            label: 'Delete Product',
-            icon: <DeleteIcon fontSize="small" />,
-            color: 'error',
-            onClick: () => onOpenDelete(params.row),
-          },
-        ];
-
-        return <ActionMenu actions={rowActions} />;
-      },
-    },
   ];
 
   return (
@@ -182,21 +151,13 @@ export const ProductsPage = ({
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Products List ({products.length})
         </Typography>
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={onOpenAdd}
-          sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
-        >
-          Add Product
-        </Button>
       </Box>
 
       <CommonDataGrid
         rows={products}
         columns={columns}
         loading={loading}
+        onRowClick={(params) => onOpenDetails && onOpenDetails(params.row)}
         emptyComponent={
           <EmptyInventoryState
             title="No Products Found"

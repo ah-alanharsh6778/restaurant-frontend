@@ -66,7 +66,7 @@ export const RecentOrdersTable = ({ orders = [] }) => {
   ];
 
   return (
-    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: '#FFFFFF' }}>
+    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
       <Box sx={{ mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.05rem' }}>
           Recent Customer Orders ({orders.length})

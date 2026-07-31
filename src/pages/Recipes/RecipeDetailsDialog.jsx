@@ -16,12 +16,17 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import AddIcon from '@mui/icons-material/Add';
 import RecipeIngredientsTable from './RecipeIngredientsTable';
 
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 export const RecipeDetailsDialog = ({
   open,
   onClose,
   recipe = null,
   onAddIngredientClick,
   onRemoveIngredientClick,
+  onEdit,
+  onDelete,
 }) => {
   if (!recipe) return null;
 
@@ -159,10 +164,41 @@ export const RecipeDetailsDialog = ({
         />
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5 }}>
-        <Button onClick={onClose} variant="contained" sx={{ px: 3, fontWeight: 800 }}>
+      <DialogActions sx={{ p: 2.5, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" color="inherit">
           Close
         </Button>
+
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {onEdit && (
+            <Button
+              onClick={() => {
+                onClose();
+                onEdit(recipe);
+              }}
+              variant="outlined"
+              color="primary"
+              startIcon={<EditIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Edit Recipe
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              onClick={() => {
+                onClose();
+                onDelete(recipe);
+              }}
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Delete Recipe
+            </Button>
+          )}
+        </Box>
       </DialogActions>
     </Dialog>
   );

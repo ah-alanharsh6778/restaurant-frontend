@@ -147,12 +147,12 @@ export const InvoiceUploadDialog = ({ open, onClose, onSuccess }) => {
             borderRadius: 3,
             border: '2px dashed',
             borderColor: dragOver ? 'primary.main' : 'divider',
-            bgcolor: dragOver ? 'primary.50' : '#FAFBFD',
+            bgcolor: dragOver ? 'primary.50' : 'background.paper',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             '&:hover': {
               borderColor: 'primary.main',
-              bgcolor: '#F0F7FF',
+              bgcolor: 'action.hover',
             },
           }}
         >

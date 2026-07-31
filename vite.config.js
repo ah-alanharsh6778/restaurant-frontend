@@ -5,17 +5,37 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'axios',
+      '@tanstack/react-query',
+      '@mui/material',
+      '@mui/icons-material',
+      '@emotion/react',
+      '@emotion/styled',
+      'react-hook-form',
+      '@hookform/resolvers/zod',
+      'zod',
+      'react-icons/md',
+    ],
   },
   server: {
+    warmup: {
+      clientFiles: [
+        './src/main.jsx',
+        './src/App.jsx',
+        './src/pages/auth/LoginPage.jsx',
+        './src/context/AuthContext.jsx',
+        './src/styles/global.css',
+      ],
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://restaurant-backend-bgnk.onrender.com',
         changeOrigin: true,
-        secure: false,
-        // Strip browser-set security headers before forwarding server-to-server.
-        // Without this, the backend's CORS check sees Origin: localhost:517x
-        // (not in its allowlist) and throws a 500.
+        secure: true,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.removeHeader('origin');

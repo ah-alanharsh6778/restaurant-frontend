@@ -87,7 +87,7 @@ export const WaitlistDialog = ({ open, onClose, waitlist = [], onAddWaitlist, on
             Waiting Queue ({waitlist.length} Parties)
           </Typography>
 
-          <Box sx={{ maxHeight: 360, overflowY: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1, bgcolor: '#FFFFFF' }}>
+          <Box sx={{ maxHeight: 360, overflowY: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1, bgcolor: 'background.paper' }}>
             {waitlist.length === 0 ? (
               <Box sx={{ p: 4, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">

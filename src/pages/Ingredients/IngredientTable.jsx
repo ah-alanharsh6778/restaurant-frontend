@@ -14,6 +14,25 @@ export const IngredientTable = ({
 }) => {
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api?.getRowIndexRelativeToVisibleRows
+          ? params.api.getRowIndexRelativeToVisibleRows(params.id)
+          : undefined;
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'name',
       headerName: 'Ingredient Name',
       flex: 1.5,
@@ -120,47 +139,6 @@ export const IngredientTable = ({
               day: 'numeric',
             })
           : '—',
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 0.9,
-      minWidth: 110,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Tooltip title="Edit Ingredient">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(params.row);
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Ingredient">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(params.row);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
     },
   ];
 

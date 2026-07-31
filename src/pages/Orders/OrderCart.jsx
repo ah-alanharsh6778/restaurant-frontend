@@ -55,13 +55,15 @@ export const OrderCart = ({
       <Box sx={{ flexGrow: 1, overflowY: 'auto', my: 2, pr: 0.5 }}>
         {cartItems.length === 0 ? (
           <Box
-            py={6}
-            textAlign="center"
-            color="text.secondary"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
+            sx={{
+              py: 6,
+              textAlign: 'center',
+              color: 'text.secondary',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <Typography variant="subtitle2" fontWeight={700}>
               Cart is Empty

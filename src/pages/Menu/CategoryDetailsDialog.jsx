@@ -31,7 +31,7 @@ export const CategoryDetailsDialog = ({ open, onClose, category = null }) => {
       </DialogTitle>
       <DialogContent dividers sx={{ py: 3 }}>
         <Grid container spacing={2.5}>
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography variant="caption" color="text.secondary">
               Category Name
             </Typography>
@@ -40,7 +40,7 @@ export const CategoryDetailsDialog = ({ open, onClose, category = null }) => {
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography variant="caption" color="text.secondary">
               System ID
             </Typography>
@@ -62,7 +62,7 @@ export const CategoryDetailsDialog = ({ open, onClose, category = null }) => {
             <Divider sx={{ my: 1 }} />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography variant="caption" color="text.secondary">
               Created At
             </Typography>
@@ -71,7 +71,7 @@ export const CategoryDetailsDialog = ({ open, onClose, category = null }) => {
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12} sm={6}>
             <Typography variant="caption" color="text.secondary">
               Last Updated
             </Typography>

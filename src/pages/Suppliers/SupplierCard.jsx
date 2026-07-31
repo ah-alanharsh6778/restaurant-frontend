@@ -5,15 +5,22 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SupplierStatusChip from './SupplierStatusChip';
 
-export const SupplierCard = ({ supplier, onView, onEdit, onDelete }) => {
+export const SupplierCard = ({ supplier, onView, onEdit, onDelete, onToggleStatus, onUploadInvoice }) => {
+  const isActive = supplier.isActive !== undefined ? supplier.isActive : supplier.status !== 'INACTIVE';
+
   return (
     <Card
       elevation={2}
+      onClick={() => onView && onView(supplier)}
       sx={{
         borderRadius: 3.5,
         height: '100%',
+        cursor: 'pointer',
         transition: 'all 0.2s ease',
         '&:hover': {
           transform: 'translateY(-3px)',
@@ -66,24 +73,14 @@ export const SupplierCard = ({ supplier, onView, onEdit, onDelete }) => {
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, mt: 2, pt: 1.5, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
-          <Tooltip title="View Supplier Profile">
-            <IconButton size="small" onClick={() => onView(supplier)}>
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, pt: 1.5, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            GST: {supplier.gstNumber || 'N/A'}
+          </Typography>
 
-          <Tooltip title="Edit Supplier">
-            <IconButton size="small" onClick={() => onEdit(supplier)} color="primary">
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Delete Supplier">
-            <IconButton size="small" onClick={() => onDelete(supplier)} color="error">
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <Typography variant="caption" color="primary.main" sx={{ fontWeight: 700 }}>
+            Tap for Details & Actions →
+          </Typography>
         </Box>
       </CardContent>
     </Card>

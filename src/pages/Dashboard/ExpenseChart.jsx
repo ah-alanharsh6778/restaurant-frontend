@@ -20,7 +20,7 @@ export const ExpenseChart = ({ data = [] }) => {
         borderRadius: 3,
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: '#FFFFFF',
+        bgcolor: 'background.paper',
         height: 340,
         display: 'flex',
         flexDirection: 'column',
@@ -38,15 +38,16 @@ export const ExpenseChart = ({ data = [] }) => {
       <Box sx={{ flexGrow: 1, width: '100%', height: 240, minHeight: 240 }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={240}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-            <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748B' }} />
-            <YAxis tick={{ fontSize: 12, fill: '#64748B' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'currentColor' }} />
+            <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                color: '#FFFFFF',
               }}
               formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Total Expense']}
             />

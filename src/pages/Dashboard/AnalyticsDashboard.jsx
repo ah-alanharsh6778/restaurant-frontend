@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -6,27 +6,20 @@ import {
   Chip,
   Alert,
   Stack,
-  Avatar,
   Button,
-  Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TableBarIcon from '@mui/icons-material/TableBar';
 import PeopleIcon from '@mui/icons-material/People';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import dayjs from 'dayjs';
 
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../layout/PageContainer';
@@ -35,14 +28,12 @@ import dashboardService from '../../services/dashboard.service';
 import tableService from '../../services/table.service';
 import orderService from '../../services/order.service';
 import { useAuth } from '../../hooks/useAuth';
+import { normaliseRole } from '../../utils/rbac';
 import {
   StatCard,
   GlassCard,
   Card,
-  Table,
-  Badge,
   Loader,
-  showToast,
 } from '../../components/ui';
 
 const extractArrayData = (res, keys = []) => {
@@ -75,6 +66,10 @@ export const AnalyticsDashboard = () => {
   const [suppliersData, setSuppliersData] = useState([]);
   const [recentOrdersData, setRecentOrdersData] = useState([]);
   const [tablesData, setTablesData] = useState([]);
+
+  // Check RBAC permission for expenses visibility
+  const userRole = normaliseRole(user?.role);
+  const canViewExpenses = !['WAITER', 'CHEF'].includes(userRole);
 
   // Live timer tick
   useEffect(() => {
@@ -116,12 +111,9 @@ export const AnalyticsDashboard = () => {
       setSuppliersData(extractArrayData(suppliersRes, ['suppliers']));
       setRecentOrdersData(extractArrayData(ordersRes, ['orders']));
       setTablesData(extractArrayData(tablesRes, ['tables', 'items']));
-
-      showToast.success('Live dashboard telemetry synced with backend!');
     } catch (err) {
       console.error('Error loading dashboard telemetry:', err);
       setError(err?.message || 'Failed to fetch backend telemetry. Please check API server connection.');
-      showToast.error('Telemetry fetch failed.');
     } finally {
       setLoading(false);
     }
@@ -155,7 +147,7 @@ export const AnalyticsDashboard = () => {
     { label: 'Stock ERP', icon: <InventoryIcon />, route: '/inventory', color: '#8B5CF6', sub: 'Inventory Balance' },
     { label: 'Suppliers', icon: <LocalShippingIcon />, route: '/suppliers', color: '#F59E0B', sub: `${suppliersData.length} Vendors` },
     { label: 'Purchase POs', icon: <ReceiptLongIcon />, route: '/purchase-orders', color: '#EC4899', sub: 'Procurement' },
-    { label: 'Expenses & OCR', icon: <AccountBalanceWalletIcon />, route: '/expenses', color: '#0284C7', sub: `${expensesData.length} Records` },
+    ...(canViewExpenses ? [{ label: 'Expenses & OCR', icon: <AccountBalanceWalletIcon />, route: '/expenses', color: '#0284C7', sub: `${expensesData.length} Records` }] : []),
   ];
 
   return (
@@ -218,7 +210,7 @@ export const AnalyticsDashboard = () => {
           {/* Section 1: KPI Stat Cards Grid */}
           <ResponsiveGrid spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {/* Total Revenue Card */}
-            <ResponsiveGridItem xs={12} sm={6} md={3}>
+            <ResponsiveGridItem xs={12} sm={6} md={canViewExpenses ? 3 : 4}>
               <StatCard
                 title="Total Revenue"
                 value={`$${profitMetrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -230,30 +222,32 @@ export const AnalyticsDashboard = () => {
               />
             </ResponsiveGridItem>
 
-            {/* Total Expenses Card */}
-            <ResponsiveGridItem xs={12} sm={6} md={3}>
-              <StatCard
-                title="Total Expenses"
-                value={`$${profitMetrics.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                subtitle={`${expensesData.length} Recorded ledger bills`}
-                color="danger"
-                icon={<ReceiptLongIcon sx={{ fontSize: 28 }} />}
-              />
-            </ResponsiveGridItem>
+            {/* Total Expenses Card (Hidden for Waiter/Chef roles) */}
+            {canViewExpenses && (
+              <ResponsiveGridItem xs={12} sm={6} md={3}>
+                <StatCard
+                  title="Total Expenses"
+                  value={`$${profitMetrics.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  subtitle={`${expensesData.length} Recorded ledger bills`}
+                  color="danger"
+                  icon={<ReceiptLongIcon sx={{ fontSize: 28 }} />}
+                />
+              </ResponsiveGridItem>
+            )}
 
             {/* Active Customers & Suppliers Card */}
-            <ResponsiveGridItem xs={12} sm={6} md={3}>
+            <ResponsiveGridItem xs={12} sm={6} md={canViewExpenses ? 3 : 4}>
               <StatCard
                 title="Customers & Suppliers"
                 value={`${customersData.length} / ${suppliersData.length}`}
-                subtitle={`${customersData.length} Registered Diners, ${suppliersData.length} Vendors`}
+                subtitle={`${customersData.length} Diners, ${suppliersData.length} Vendors`}
                 color="secondary"
                 icon={<PeopleIcon sx={{ fontSize: 28 }} />}
               />
             </ResponsiveGridItem>
 
-            {/* Open & Occupied Tables Card (Glassmorphism Styled) */}
-            <ResponsiveGridItem xs={12} sm={6} md={3}>
+            {/* Open & Occupied Tables Card */}
+            <ResponsiveGridItem xs={12} sm={6} md={canViewExpenses ? 3 : 4}>
               <GlassCard
                 gradient
                 glowOnHover
@@ -327,14 +321,121 @@ export const AnalyticsDashboard = () => {
             </ResponsiveGridItem>
           </ResponsiveGrid>
 
-          {/* Section 2: Quick Action Modules Navigation */}
+          {/* Section 2: Circular Data Metric Widget (Dining Occupancy Circular Gauge) */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: '20px',
+              backgroundColor: '#131A24',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 3,
+            }}
+          >
+            {/* Left: Circular Gauge Chart */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                <CircularProgress
+                  variant="determinate"
+                  value={100}
+                  size={120}
+                  thickness={6}
+                  sx={{ color: 'rgba(255, 255, 255, 0.08)' }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  value={Math.min(occupancyRate, 100)}
+                  size={120}
+                  thickness={6}
+                  sx={{
+                    color: occupancyRate > 75 ? '#EF4444' : occupancyRate > 40 ? '#F59E0B' : '#10B981',
+                    position: 'absolute',
+                    left: 0,
+                    strokeLinecap: 'round',
+                  }}
+                />
+                <Box
+                  sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1 }}>
+                    {`${occupancyRate}%`}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600, mt: 0.5, fontSize: '0.7rem' }}>
+                    OCCUPIED
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', mb: 0.5 }}>
+                  Real-Time Dining Capacity Gauge
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#9CA3AF', maxWidth: 360, mb: 1.5 }}>
+                  Live visual telemetry of floor tables, seating utilization, and POS customer turnover rate.
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#10B981' }} />
+                    <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      {availableTablesCount} Open Tables
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#7C6CFF' }} />
+                    <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      {occupiedTablesCount} Busy Tables
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+            </Box>
+
+            {/* Right Action Button */}
+            <Button
+              variant="contained"
+              startIcon={<TableBarIcon />}
+              onClick={() => navigate('/tables')}
+              sx={{
+                borderRadius: '12px',
+                backgroundColor: '#7C6CFF',
+                color: '#FFFFFF',
+                px: 3,
+                py: 1.2,
+                fontSize: '14px',
+                fontWeight: 700,
+                textTransform: 'none',
+                boxShadow: '0 4px 16px rgba(124, 108, 255, 0.3)',
+                '&:hover': {
+                  backgroundColor: '#6854FF',
+                },
+              }}
+            >
+              Manage Floor POS
+            </Button>
+          </Paper>
+
+          {/* Section 3: Quick Action Modules Navigation */}
           <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3.5, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'text.secondary', mb: 2 }}>
               Quick Operational Actions
             </Typography>
             <ResponsiveGrid spacing={2}>
               {quickActions.map((act) => (
-                <ResponsiveGridItem key={act.label} xs={6} sm={4} md={2}>
+                <ResponsiveGridItem key={act.label} xs={6} sm={4} md={canViewExpenses ? 2 : 2.4}>
                   <Box
                     onClick={() => navigate(act.route)}
                     sx={{
@@ -384,7 +485,7 @@ export const AnalyticsDashboard = () => {
             </ResponsiveGrid>
           </Paper>
 
-          {/* Section 3: Weekly Sales & Top Selling Dishes */}
+          {/* Section 4: Weekly Sales & Top Selling Dishes */}
           <ResponsiveGrid spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {/* Weekly Sales Breakdown */}
             <ResponsiveGridItem xs={12} md={7}>
@@ -409,7 +510,7 @@ export const AnalyticsDashboard = () => {
 
                       return (
                         <Box key={item.day} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', bgItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                               <Box
                                 sx={{
@@ -499,131 +600,6 @@ export const AnalyticsDashboard = () => {
               </GlassCard>
             </ResponsiveGridItem>
           </ResponsiveGrid>
-
-          {/* Section 4: Recent Orders Table Feed */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                  Recent POS Orders
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Latest transactions recorded by point of sale ticketing
-                </Typography>
-              </Box>
-              <Button size="small" variant="outlined" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/orders')}>
-                View All Orders
-              </Button>
-            </Box>
-
-            <Table
-              columns={[
-                {
-                  id: 'orderNumber',
-                  label: 'Order #',
-                  minWidth: 150,
-                  render: (row) => (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'primary.main', fontFamily: 'monospace' }}>
-                      {row.orderNumber || `ORD-${String(row.id || '').substring(0, 6)}`}
-                    </Typography>
-                  ),
-                },
-                {
-                  id: 'table',
-                  label: 'Table',
-                  minWidth: 130,
-                  render: (row) => row.table?.name || (row.table?.tableNumber ? `Table #${row.table.tableNumber}` : 'Takeaway'),
-                },
-                {
-                  id: 'totalAmount',
-                  label: 'Total ($)',
-                  minWidth: 120,
-                  render: (row) => (
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: 'success.main' }}>
-                      ${Number(row.totalAmount || row.total || 0).toFixed(2)}
-                    </Typography>
-                  ),
-                },
-                {
-                  id: 'status',
-                  label: 'Status',
-                  minWidth: 130,
-                  render: (row) => (
-                    <Badge
-                      label={String(row.status || 'PENDING')}
-                      variant={row.status === 'COMPLETED' || row.status === 'SERVED' ? 'success' : row.status === 'PREPARING' ? 'warning' : 'info'}
-                      dot
-                    />
-                  ),
-                },
-                {
-                  id: 'createdAt',
-                  label: 'Timestamp',
-                  minWidth: 140,
-                  render: (row) => (row.createdAt ? new Date(row.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'),
-                },
-              ]}
-              rows={recentOrdersData.slice(0, 5)}
-              totalCount={recentOrdersData.length}
-              emptyMessage="No recent orders recorded in backend database."
-            />
-          </Box>
-
-          {/* Section 5: Recent Expenses Table Feed */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                  Recent Operational Expenses
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Latest recorded operational expenses and GL bills
-                </Typography>
-              </Box>
-              <Button size="small" variant="outlined" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/expenses')}>
-                View Expense Ledger
-              </Button>
-            </Box>
-
-            <Table
-              columns={[
-                { id: 'invoiceNumber', label: 'Invoice #', minWidth: 140, render: (row) => row.invoiceNumber || 'N/A' },
-                {
-                  id: 'invoiceDate',
-                  label: 'Date',
-                  minWidth: 130,
-                  render: (row) => (row.invoiceDate ? new Date(row.invoiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
-                },
-                { id: 'amount', label: 'Subtotal', minWidth: 110, render: (row) => `$${Number(row.amount || 0).toFixed(2)}` },
-                { id: 'tax', label: 'Tax', minWidth: 90, render: (row) => `$${Number(row.tax || 0).toFixed(2)}` },
-                {
-                  id: 'total',
-                  label: 'Total Amount',
-                  minWidth: 120,
-                  render: (row) => (
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>
-                      ${Number(row.total || row.amount || 0).toFixed(2)}
-                    </Typography>
-                  ),
-                },
-                {
-                  id: 'status',
-                  label: 'Status',
-                  minWidth: 110,
-                  render: (row) => (
-                    <Badge
-                      label={row.status || 'PAID'}
-                      variant={row.status === 'PAID' ? 'success' : row.status === 'PENDING' ? 'warning' : 'info'}
-                      dot
-                    />
-                  ),
-                },
-              ]}
-              rows={expensesData.slice(0, 5)}
-              totalCount={expensesData.length}
-              emptyMessage="No expense records found in backend database."
-            />
-          </Box>
 
         </Box>
       )}

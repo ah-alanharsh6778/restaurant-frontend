@@ -22,7 +22,7 @@ export const OrdersChart = ({ data = [] }) => {
         borderRadius: 3,
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: '#FFFFFF',
+        bgcolor: 'background.paper',
         height: 340,
         display: 'flex',
         flexDirection: 'column',
@@ -57,9 +57,10 @@ export const OrdersChart = ({ data = [] }) => {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
                 borderRadius: '8px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#FFFFFF',
               }}
               formatter={(value, name) => [value, name]}
             />

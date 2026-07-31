@@ -99,7 +99,7 @@ export const DashboardCards = ({ stats = {} }) => {
               borderRadius: 3,
               border: '1px solid',
               borderColor: card.borderColor,
-              bgcolor: '#FFFFFF',
+              bgcolor: 'background.paper',
               transition: 'transform 0.2s, box-shadow 0.2s',
               '&:hover': {
                 transform: 'translateY(-3px)',

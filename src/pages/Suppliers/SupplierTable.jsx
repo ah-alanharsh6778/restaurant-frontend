@@ -1,6 +1,9 @@
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SupplierStatusChip from './SupplierStatusChip';
 import CommonDataGrid from '../../components/common/CommonDataGrid';
 import EmptySupplierState from './EmptySupplierState';
@@ -11,8 +14,27 @@ export const SupplierTable = ({
   onView,
   onEdit,
   onDelete,
+  onToggleStatus,
+  onUploadInvoice,
 }) => {
   const columns = [
+    {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
     {
       field: 'name',
       headerName: 'Supplier Name',
@@ -97,47 +119,6 @@ export const SupplierTable = ({
               day: 'numeric',
             })
           : '—',
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 0.9,
-      minWidth: 110,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Tooltip title="Edit Supplier Profile">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(params.row);
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Supplier Profile">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(params.row);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
     },
   ];
 

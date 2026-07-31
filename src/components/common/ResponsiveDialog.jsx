@@ -21,7 +21,7 @@ export const ResponsiveDialog = ({
   iconColor = 'primary.main',
   children,
   actions,
-  maxWidth = 'sm', // 'xs' | 'sm' | 'md' | 'lg'
+  maxWidth = 'sm',
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -30,11 +30,12 @@ export const ResponsiveDialog = ({
     <Dialog
       open={open}
       onClose={onClose}
+      disableRestoreFocus
       fullScreen={false}
       slotProps={{
         paper: {
           sx: {
-            borderRadius: '16px',
+            borderRadius: '4px',
             width: { xs: '95%', sm: '90%', md: maxWidth === 'md' ? 800 : maxWidth === 'xs' ? 440 : 600 },
             maxWidth: '100%',
             m: { xs: 1, sm: 2 },
@@ -42,7 +43,7 @@ export const ResponsiveDialog = ({
             flexDirection: 'column',
             maxHeight: 'calc(100vh - 48px)',
             overflow: 'hidden',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
           },
         },
       }}
@@ -57,7 +58,7 @@ export const ResponsiveDialog = ({
           py: 2,
           borderBottom: '1px solid',
           borderColor: 'divider',
-          bgcolor: '#FFFFFF',
+          bgcolor: 'background.paper',
           zIndex: 1,
         }}
       >
@@ -67,7 +68,7 @@ export const ResponsiveDialog = ({
               sx={{
                 width: 40,
                 height: 40,
-                borderRadius: '10px',
+                borderRadius: '4px',
                 bgcolor: 'action.hover',
                 color: iconColor,
                 display: 'flex',
@@ -79,7 +80,7 @@ export const ResponsiveDialog = ({
             </Box>
           )}
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1rem', sm: '1.15rem' }, lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.15rem' }, lineHeight: 1.2 }}>
               {title}
             </Typography>
             {subtitle && (
@@ -96,7 +97,7 @@ export const ResponsiveDialog = ({
           aria-label="close dialog"
           sx={{
             color: 'text.secondary',
-            borderRadius: 2,
+            borderRadius: '4px',
             '&:hover': { bgcolor: 'action.hover' },
           }}
         >
@@ -110,7 +111,7 @@ export const ResponsiveDialog = ({
         sx={{
           p: { xs: 2.5, sm: 3 },
           overflowY: 'auto',
-          bgcolor: '#FFFFFF',
+          bgcolor: 'background.paper',
         }}
       >
         {children}
@@ -124,7 +125,7 @@ export const ResponsiveDialog = ({
             py: 2,
             borderTop: '1px solid',
             borderColor: 'divider',
-            bgcolor: '#FAFAFA',
+            bgcolor: 'background.paper',
             gap: 1,
             justifyContent: 'flex-end',
           }}

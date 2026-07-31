@@ -56,98 +56,6 @@ export const TableDataGrid = ({
       width: 160,
       renderCell: (params) => <TableStatusChip status={params.row.status} />,
     },
-    {
-      field: 'actions',
-      headerName: 'Management Actions',
-      flex: 1,
-      minWidth: 300,
-      sortable: false,
-      renderCell: (params) => {
-        const row = params.row;
-        const statusUpper = String(row.status || 'AVAILABLE').toUpperCase();
-        const isAvailable = statusUpper === 'AVAILABLE';
-        const isOccupied = statusUpper === 'OCCUPIED';
-        const isReserved = statusUpper === 'RESERVED';
-        const isMaintenance = statusUpper === 'MAINTENANCE';
-
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'nowrap' }}>
-            {isAvailable && (
-              <Button
-                variant="contained"
-                size="small"
-                color="error"
-                startIcon={<TableBarIcon fontSize="small" />}
-                onClick={() => onUpdateStatus(row.id, 'OCCUPIED')}
-                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, px: 1.5, py: 0.4, flexShrink: 0 }}
-              >
-                Mark Occupied
-              </Button>
-            )}
-
-            {(isOccupied || isMaintenance) && (
-              <Button
-                variant="contained"
-                size="small"
-                color="success"
-                startIcon={<CheckCircleIcon fontSize="small" />}
-                onClick={() => onUpdateStatus(row.id, 'AVAILABLE')}
-                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, px: 1.5, py: 0.4, flexShrink: 0 }}
-              >
-                Release Table
-              </Button>
-            )}
-
-            {isReserved && (
-              <Button
-                variant="contained"
-                size="small"
-                color="error"
-                startIcon={<TableBarIcon fontSize="small" />}
-                onClick={() => onUpdateStatus(row.id, 'OCCUPIED')}
-                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, px: 1.5, py: 0.4, flexShrink: 0 }}
-              >
-                Check In Guest
-              </Button>
-            )}
-
-            <Tooltip title="View Table Details">
-              <IconButton
-                size="small"
-                onClick={() => onView(row)}
-                sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'text.secondary', flexShrink: 0 }}
-              >
-                <VisibilityIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            {canManage && (
-              <>
-                <Tooltip title="Edit Table Config">
-                  <IconButton
-                    size="small"
-                    onClick={() => onEdit(row)}
-                    sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'primary.main', flexShrink: 0 }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Delete Table">
-                  <IconButton
-                    size="small"
-                    onClick={() => onDelete(row)}
-                    sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, color: 'error.main', flexShrink: 0 }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-          </Box>
-        );
-      },
-    },
   ];
 
   return (
@@ -155,6 +63,7 @@ export const TableDataGrid = ({
       rows={tables}
       columns={columns}
       loading={loading}
+      onRowClick={(params) => onView && onView(params.row)}
       emptyComponent={<EmptyTableState searchOrFilterActive={false} />}
     />
   );

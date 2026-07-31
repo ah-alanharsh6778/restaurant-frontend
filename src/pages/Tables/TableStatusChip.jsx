@@ -4,26 +4,26 @@ import { Chip } from '@mui/material';
 export const TableStatusChip = ({ status = 'AVAILABLE', size = 'small' }) => {
   const statusUpper = String(status).toUpperCase();
 
-  let bgColor = '#DCFCE7';
-  let color = '#15803D';
-  let borderColor = '#86EFAC';
+  let badgeBg = 'rgba(16, 185, 129, 0.12)';
+  let color = '#10B981';
+  let borderColor = 'rgba(16, 185, 129, 0.3)';
   let label = 'Available';
 
   if (statusUpper === 'OCCUPIED') {
-    bgColor = '#FEE2E2';
-    color = '#B91C1C';
-    borderColor = '#FCA5A5';
+    badgeBg = 'rgba(239, 68, 68, 0.12)';
+    color = '#EF4444';
+    borderColor = 'rgba(239, 68, 68, 0.3)';
     label = 'Occupied';
   } else if (statusUpper === 'RESERVED') {
-    bgColor = '#FEF3C7';
-    color = '#B45309';
-    borderColor = '#FDE68A';
+    badgeBg = 'rgba(245, 158, 11, 0.12)';
+    color = '#F59E0B';
+    borderColor = 'rgba(245, 158, 11, 0.3)';
     label = 'Reserved';
-  } else if (statusUpper === 'CLOSED') {
-    bgColor = '#F1F5F9';
-    color = '#475569';
-    borderColor = '#CBD5E1';
-    label = 'Closed';
+  } else if (statusUpper === 'MAINTENANCE' || statusUpper === 'CLOSED') {
+    badgeBg = 'rgba(107, 114, 128, 0.12)';
+    color = '#9CA3AF';
+    borderColor = 'rgba(107, 114, 128, 0.3)';
+    label = statusUpper === 'CLOSED' ? 'Closed' : 'Maintenance';
   }
 
   return (
@@ -31,15 +31,17 @@ export const TableStatusChip = ({ status = 'AVAILABLE', size = 'small' }) => {
       label={label}
       size={size}
       sx={{
-        fontWeight: 800,
-        fontSize: size === 'small' ? '0.72rem' : '0.82rem',
-        height: size === 'small' ? 24 : 30,
-        borderRadius: 2,
-        px: 0.5,
-        bgcolor: bgColor,
+        fontWeight: 700,
+        fontSize: '13px',
+        height: 26,
+        borderRadius: '10px',
+        px: 1,
+        bgcolor: badgeBg,
         color: color,
         border: '1px solid',
         borderColor: borderColor,
+        letterSpacing: '0.02em',
+        boxShadow: 'none',
       }}
     />
   );

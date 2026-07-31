@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Tabs, Tab, Paper } from '@mui/material';
+import { Box, Tabs, Tab, Paper, Typography, Button } from '@mui/material';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CategoryIcon from '@mui/icons-material/Category';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddIcon from '@mui/icons-material/Add';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 
-import PageContainer from '../../layout/PageContainer';
-import PageHeader from '../../components/common/PageHeader';
 import expenseService from '../../services/expense.service';
 
 import ExpenseSummaryCards from './ExpenseSummaryCards';
@@ -147,152 +146,218 @@ export const ExpensesDashboard = () => {
   const handleOpenDelete = (itemType, item) => setDeleteDialog({ open: true, itemType, item });
 
   return (
-    <PageContainer maxWidth={false}>
-      {/* Standard Enterprise Page Header */}
-      <PageHeader
-        title="Expense Management"
-        subtitle="Track vendor invoices, automated AI OCR uploads, category breakdowns, and tax registers."
-        breadcrumbs={[
-          { label: 'Dashboard', path: '/dashboard' },
-          { label: 'Expenses', path: '/expenses' },
-        ]}
-        onRefresh={fetchAllData}
-        onExport={handleExportExcel}
-        secondaryAction={{
-          label: 'Upload Invoice',
-          onClick: handleOpenUpload,
-          icon: <CloudUploadIcon />,
-          color: 'info',
-        }}
-        primaryAction={{
-          label: 'Create Expense',
-          onClick: handleOpenAddExpense,
-          icon: <AddIcon />,
-        }}
-      />
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#0B0D14',
+        color: '#FFFFFF',
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3, md: 4 },
+        boxSizing: 'border-box',
+      }}
+    >
+      <Box sx={{ maxWidth: '1440px', mx: 'auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        {/* Page Header */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+          <Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                fontSize: '32px',
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+              }}
+            >
+              Expense Management
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#9CA3AF', fontSize: '15px', mt: 0.5 }}>
+              Track vendor invoices, category breakdowns, tax registers, and supplier OCR feeds.
+            </Typography>
+          </Box>
 
-      {/* Metric Summary Cards */}
-      <ExpenseSummaryCards expenses={expenses} loading={loading} />
-
-      {/* Toolbar / Search & Filters */}
-      <ExpenseToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        startDate={startDate}
-        onStartDateChange={setStartDate}
-        endDate={endDate}
-        onEndDateChange={setEndDate}
-        categories={categories}
-        onRefresh={fetchAllData}
-        onOpenUpload={handleOpenUpload}
-        onExportExcel={handleExportExcel}
-        onOpenCreateExpense={handleOpenAddExpense}
-      />
-
-      {/* Main Tabbed Content */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: 3,
-          border: '1px solid',
-          borderColor: 'divider',
-          bgcolor: '#FFFFFF',
-          p: { xs: 2, sm: 3 },
-        }}
-      >
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs
-            value={currentTab}
-            onChange={(_, newValue) => setCurrentTab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              '& .MuiTab-root': {
-                fontWeight: 700,
-                fontSize: '0.95rem',
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={fetchAllData}
+              sx={{
+                borderRadius: '14px',
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: '#131A24',
+                color: '#FFFFFF',
+                px: 2.5,
+                py: 1,
+                fontSize: '14px',
+                fontWeight: 600,
                 textTransform: 'none',
-                minHeight: 48,
-              },
-            }}
-          >
-            <Tab icon={<ReceiptLongIcon />} iconPosition="start" label={`Expenses (${filteredExpenses.length})`} />
-            <Tab icon={<CategoryIcon />} iconPosition="start" label={`Categories (${categories.length})`} />
-          </Tabs>
+                '&:hover': {
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                },
+              }}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAddExpense}
+              sx={{
+                borderRadius: '14px',
+                backgroundColor: '#7C6CFF',
+                color: '#FFFFFF',
+                px: 3,
+                py: 1,
+                fontSize: '14px',
+                fontWeight: 700,
+                textTransform: 'none',
+                boxShadow: '0 8px 24px rgba(124, 108, 255, 0.35)',
+                '&:hover': {
+                  backgroundColor: '#6854FF',
+                },
+              }}
+            >
+              Create Expense
+            </Button>
+          </Box>
         </Box>
 
-        {/* Tab 0: Expenses List */}
-        {currentTab === 0 && (
-          <ExpensesPage
-            expenses={filteredExpenses}
-            loading={loading}
-            onOpenDetails={handleOpenDetails}
-            onOpenEdit={handleOpenEditExpense}
-            onOpenDelete={(item) => handleOpenDelete('expense', item)}
-            onOpenPreviewInvoice={handleOpenPreviewInvoice}
-          />
-        )}
+        {/* Metric Summary Cards */}
+        <ExpenseSummaryCards expenses={expenses} loading={loading} />
 
-        {/* Tab 1: Expense Categories */}
-        {currentTab === 1 && (
-          <ExpenseCategoriesPage
-            categories={categories}
-            loading={loading}
-            onOpenAdd={handleOpenAddCategory}
-            onOpenEdit={handleOpenEditCategory}
-            onOpenDelete={(item) => handleOpenDelete('category', item)}
-          />
-        )}
-      </Paper>
+        {/* Toolbar / Search & Filters */}
+        <ExpenseToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          endDate={endDate}
+          onEndDateChange={setEndDate}
+          categories={categories}
+          onRefresh={fetchAllData}
+          onOpenUpload={handleOpenUpload}
+          onExportExcel={handleExportExcel}
+          onOpenCreateExpense={handleOpenAddExpense}
+        />
 
-      {/* Dialog Modals */}
-      <ExpenseDialog
-        open={expenseDialog.open}
-        onClose={() => setExpenseDialog({ open: false, expense: null })}
-        onSuccess={fetchAllData}
-        expense={expenseDialog.expense}
-        categories={categories}
-      />
+        {/* Main Tabbed Content Container */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: '20px',
+            backgroundColor: '#131A24',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            p: { xs: 2.5, sm: 3.5 },
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          <Box sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', mb: 3 }}>
+            <Tabs
+              value={currentTab}
+              onChange={(_, newValue) => setCurrentTab(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                '& .MuiTab-root': {
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  textTransform: 'none',
+                  minHeight: 48,
+                  color: '#9CA3AF',
+                  '&.Mui-selected': {
+                    color: '#7C6CFF',
+                  },
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#7C6CFF',
+                  height: 3,
+                  borderRadius: '3px 3px 0 0',
+                },
+              }}
+            >
+              <Tab icon={<ReceiptLongIcon />} iconPosition="start" label={`Expenses (${filteredExpenses.length})`} />
+              <Tab icon={<CategoryIcon />} iconPosition="start" label={`Categories (${categories.length})`} />
+            </Tabs>
+          </Box>
 
-      <ExpenseCategoryDialog
-        open={categoryDialog.open}
-        onClose={() => setCategoryDialog({ open: false, category: null })}
-        onSuccess={fetchAllData}
-        category={categoryDialog.category}
-      />
+          {/* Tab 0: Expenses List */}
+          {currentTab === 0 && (
+            <ExpensesPage
+              expenses={filteredExpenses}
+              loading={loading}
+              onOpenDetails={handleOpenDetails}
+              onOpenEdit={handleOpenEditExpense}
+              onOpenDelete={(item) => handleOpenDelete('expense', item)}
+              onOpenPreviewInvoice={handleOpenPreviewInvoice}
+            />
+          )}
 
-      <InvoiceUploadDialog
-        open={uploadDialog}
-        onClose={() => setUploadDialog(false)}
-        onSuccess={fetchAllData}
-      />
+          {/* Tab 1: Expense Categories */}
+          {currentTab === 1 && (
+            <ExpenseCategoriesPage
+              categories={categories}
+              loading={loading}
+              onOpenAdd={handleOpenAddCategory}
+              onOpenEdit={handleOpenEditCategory}
+              onOpenDelete={(item) => handleOpenDelete('category', item)}
+            />
+          )}
+        </Paper>
 
-      <InvoicePreviewDialog
-        open={previewDialog.open}
-        onClose={() => setPreviewDialog({ open: false, filePath: null, invoiceNumber: '' })}
-        filePath={previewDialog.filePath}
-        invoiceNumber={previewDialog.invoiceNumber}
-      />
+        {/* Dialog Modals */}
+        <ExpenseDialog
+          open={expenseDialog.open}
+          onClose={() => setExpenseDialog({ open: false, expense: null })}
+          onSuccess={fetchAllData}
+          expense={expenseDialog.expense}
+          categories={categories}
+        />
 
-      <ExpenseDetailsDialog
-        open={detailsDialog.open}
-        onClose={() => setDetailsDialog({ open: false, expense: null })}
-        expense={detailsDialog.expense}
-        onOpenEdit={handleOpenEditExpense}
-        onOpenPreviewInvoice={handleOpenPreviewInvoice}
-      />
+        <ExpenseCategoryDialog
+          open={categoryDialog.open}
+          onClose={() => setCategoryDialog({ open: false, category: null })}
+          onSuccess={fetchAllData}
+          category={categoryDialog.category}
+        />
 
-      <DeleteExpenseDialog
-        open={deleteDialog.open}
-        onClose={() => setDeleteDialog({ open: false, itemType: 'expense', item: null })}
-        onSuccess={fetchAllData}
-        itemType={deleteDialog.itemType}
-        item={deleteDialog.item}
-      />
-    </PageContainer>
+        <InvoiceUploadDialog
+          open={uploadDialog}
+          onClose={() => setUploadDialog(false)}
+          onSuccess={fetchAllData}
+        />
+
+        <InvoicePreviewDialog
+          open={previewDialog.open}
+          onClose={() => setPreviewDialog({ open: false, filePath: null, invoiceNumber: '' })}
+          filePath={previewDialog.filePath}
+          invoiceNumber={previewDialog.invoiceNumber}
+        />
+
+        <ExpenseDetailsDialog
+          open={detailsDialog.open}
+          onClose={() => setDetailsDialog({ open: false, expense: null })}
+          expense={detailsDialog.expense}
+          onOpenEdit={handleOpenEditExpense}
+          onOpenPreviewInvoice={handleOpenPreviewInvoice}
+        />
+
+        <DeleteExpenseDialog
+          open={deleteDialog.open}
+          onClose={() => setDeleteDialog({ open: false, itemType: 'expense', item: null })}
+          onSuccess={fetchAllData}
+          itemType={deleteDialog.itemType}
+          item={deleteDialog.item}
+        />
+      </Box>
+    </Box>
   );
 };
 

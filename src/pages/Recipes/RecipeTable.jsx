@@ -14,6 +14,25 @@ export const RecipeTable = ({
 }) => {
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api?.getRowIndexRelativeToVisibleRows
+          ? params.api.getRowIndexRelativeToVisibleRows(params.id)
+          : undefined;
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'name',
       headerName: 'Recipe Name',
       flex: 1.5,

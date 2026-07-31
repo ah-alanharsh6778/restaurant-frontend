@@ -1,8 +1,4 @@
-import { Box, IconButton, Tooltip, Chip, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ReceiptIcon from '@mui/icons-material/Receipt';
+import { Chip, Typography } from '@mui/material';
 import OrderStatusChip from './OrderStatusChip';
 import CommonDataGrid from '../../components/common/CommonDataGrid';
 import EmptyOrderState from './EmptyOrderState';
@@ -18,6 +14,23 @@ export const OrderTable = ({
   onCheckout,
 }) => {
   const columns = [
+    {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
     {
       field: 'orderNumber',
       headerName: 'Order Number',
@@ -98,76 +111,6 @@ export const OrderTable = ({
               minute: '2-digit',
             })
           : '—',
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 1.1,
-      minWidth: 140,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 0.5,
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Tooltip title="Generate Invoice & Pay">
-            <IconButton
-              size="small"
-              color="warning"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onCheckout) onCheckout(params.row);
-              }}
-            >
-              <ReceiptIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Add Item to Order">
-            <IconButton
-              size="small"
-              color="success"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddItem(params.row);
-              }}
-            >
-              <AddCircleIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Update Order Status">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditStatus(params.row);
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Order">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(params.row);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
     },
   ];
 

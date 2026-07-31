@@ -26,7 +26,7 @@ export const InventoryToolbar = ({
   const filterControls = (
     <>
       {/* Category Filter */}
-      <FormControl size="small" sx={{ minWidth: 150, bgcolor: '#FAFBFD' }}>
+      <FormControl size="small" sx={{ minWidth: 150, bgcolor: 'background.paper' }}>
         <InputLabel id="category-filter-label">Category</InputLabel>
         <Select
           labelId="category-filter-label"
@@ -44,7 +44,7 @@ export const InventoryToolbar = ({
       </FormControl>
 
       {/* Warehouse Filter */}
-      <FormControl size="small" sx={{ minWidth: 150, bgcolor: '#FAFBFD' }}>
+      <FormControl size="small" sx={{ minWidth: 150, bgcolor: 'background.paper' }}>
         <InputLabel id="warehouse-filter-label">Warehouse</InputLabel>
         <Select
           labelId="warehouse-filter-label"
@@ -62,7 +62,7 @@ export const InventoryToolbar = ({
       </FormControl>
 
       {/* Status Filter */}
-      <FormControl size="small" sx={{ minWidth: 140, bgcolor: '#FAFBFD' }}>
+      <FormControl size="small" sx={{ minWidth: 140, bgcolor: 'background.paper' }}>
         <InputLabel id="status-filter-label">Stock Status</InputLabel>
         <Select
           labelId="status-filter-label"

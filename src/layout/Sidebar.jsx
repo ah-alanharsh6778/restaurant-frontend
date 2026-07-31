@@ -1,15 +1,3 @@
-/**
- * RestaurantOS — Permission-Driven Sidebar
- *
- * Sidebar visibility is controlled entirely by:
- *   1. The user's role (from AuthContext — fetched from real backend)
- *   2. The hasRoleAccess() function from rbac.js (which uses real backend role names)
- *
- * NEVER hardcode menu visibility.
- * Each nav item declares which roles can see it.
- * Items are filtered at render time based on the current user's real role.
- */
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -33,7 +21,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -42,7 +29,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import SecurityIcon from '@mui/icons-material/Security';
 import PeopleIcon from '@mui/icons-material/People';
-import HelpIcon from '@mui/icons-material/Help';
 import GroupsIcon from '@mui/icons-material/Groups';
 
 import { useAuth } from '../hooks/useAuth';
@@ -53,14 +39,6 @@ export const SIDEBAR_WIDTH = 260;
 export const COLLAPSED_SIDEBAR_WIDTH = 72;
 export const MOBILE_SIDEBAR_WIDTH = 280;
 
-/**
- * Nav item definition:
- *   label         — Display text
- *   path          — Route path
- *   icon          — MUI Icon element
- *   allowedRoles  — Real backend role names allowed to see this item.
- *                   Empty array = all authenticated roles can see it.
- */
 const NAV_SECTIONS = [
   {
     title: 'Overview',
@@ -69,7 +47,7 @@ const NAV_SECTIONS = [
         label: 'Dashboard',
         path: '/dashboard',
         icon: <DashboardIcon />,
-        allowedRoles: [], // All authenticated users
+        allowedRoles: [],
       },
     ],
   },
@@ -154,7 +132,6 @@ const NAV_SECTIONS = [
       },
     ],
   },
-
   {
     title: 'Analytics & Reports',
     items: [
@@ -185,16 +162,17 @@ const NAV_SECTIONS = [
   },
 ];
 
-
 export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { mode } = useColorMode();
 
   const userRole = normaliseRole(user?.role);
 
   const handleNavigate = (path) => {
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
     navigate(path);
     if (mobileOpen) onMobileClose();
   };
@@ -207,15 +185,11 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
   const visibleSections = NAV_SECTIONS.map((section) => ({
     ...section,
     items: section.items.filter((item) => {
-      // Empty allowedRoles = visible to all authenticated users
       if (!item.allowedRoles || item.allowedRoles.length === 0) return true;
-      // ADMIN sees everything
       if (userRole === 'ADMIN') return true;
-      // Otherwise check if role is in the allowed list
       return item.allowedRoles.includes(userRole);
     }),
   })).filter((section) => section.items.length > 0);
-
 
   const drawerContent = (
     <Box
@@ -229,7 +203,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
         overflowX: 'hidden',
       }}
     >
-      {/* ── Brand Header ─────────────────────────────────────────────────── */}
+      {/* ── Brand Header (Strict Rectangular Box) ─────────────────────────────────────────────────── */}
       <Box
         sx={{
           height: { xs: 60, md: 70 },
@@ -240,15 +214,26 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
           px: collapsed ? 1.5 : { xs: 2, sm: 2.5 },
           boxSizing: 'border-box',
           borderBottom: '1px solid var(--border-subdued)',
-          backgroundColor: 'var(--glass-bg)',
-          backdropFilter: 'blur(16px)',
+          backgroundColor: 'var(--bg-surface)',
         }}
       >
         <Box
           sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer', overflow: 'hidden' }}
           onClick={() => handleNavigate('/dashboard')}
         >
-          <Box sx={{ bgcolor: 'var(--primary-600)', width: 38, height: 38, boxShadow: 'var(--shadow-glow-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
+          <Box
+            sx={{
+              bgcolor: 'var(--primary-600)',
+              width: 36,
+              height: 36,
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              color: '#fff',
+            }}
+          >
             <RestaurantIcon fontSize="small" />
           </Box>
           {!collapsed && (
@@ -259,9 +244,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
                 fontSize: '1.1rem',
                 letterSpacing: '-0.02em',
                 whiteSpace: 'nowrap',
-                background: 'linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: 'var(--text-primary)',
               }}
             >
               RestaurantOS
@@ -270,15 +253,13 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
         </Box>
 
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-          <IconButton onClick={onToggleCollapse} size="small" aria-label="toggle sidebar">
+          <IconButton onClick={onToggleCollapse} size="small" aria-label="toggle sidebar" sx={{ borderRadius: '4px' }}>
             {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </Box>
       </Box>
 
-
-      {/* ── Navigation Sections ────────────────────────────────────────────── */}
-
+      {/* ── Navigation Sections (Strict Rectangular Items) ────────────────────────────────────────────── */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto', py: 1, px: 1 }}>
         {visibleSections.map((section, idx) => (
           <Box key={section.title} sx={{ mb: 1.5 }}>
@@ -287,7 +268,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
                 variant="caption"
                 sx={{
                   display: 'block',
-                  px: 2,
+                  px: 1.8,
                   pb: 0.6,
                   fontSize: '0.65rem',
                   fontWeight: 800,
@@ -311,16 +292,15 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
                     selected={isActive}
                     sx={{
                       mb: 0.3,
-                      borderRadius: '10px',
+                      borderRadius: '4px',
                       minHeight: 40,
                       px: collapsed ? 1.5 : 1.8,
                       justifyContent: collapsed ? 'center' : 'initial',
-                      transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'background-color 0.15s ease',
                       '&.Mui-selected': {
                         backgroundColor: 'var(--primary-600)',
                         color: '#FFFFFF',
                         fontWeight: 700,
-                        boxShadow: '0 2px 12px rgba(99,102,241,0.35)',
                         '& .MuiListItemIcon-root': { color: '#FFFFFF' },
                         '&:hover': { backgroundColor: 'var(--primary-700)' },
                       },
@@ -375,14 +355,14 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
 
       <Divider sx={{ borderColor: 'var(--border-subdued)' }} />
 
-      {/* ── Logout ────────────────────────────────────────────────────────── */}
+      {/* ── Logout Button (Strict Rectangular Box) ────────────────────────────────────────────────────────── */}
       <Box sx={{ p: 1 }}>
         {collapsed ? (
           <Tooltip title="Logout" placement="right" arrow>
             <ListItemButton
               onClick={handleLogout}
               sx={{
-                borderRadius: '10px',
+                borderRadius: '4px',
                 minHeight: 44,
                 justifyContent: 'center',
                 color: 'var(--color-danger)',
@@ -398,7 +378,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
           <ListItemButton
             onClick={handleLogout}
             sx={{
-              borderRadius: '10px',
+              borderRadius: '4px',
               minHeight: 44,
               color: 'var(--color-danger)',
               '&:hover': { backgroundColor: 'rgba(239,68,68,0.08)' },
@@ -430,10 +410,10 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
         variant="temporary"
         open={mobileOpen}
         onClose={onMobileClose}
-        ModalProps={{ keepMounted: true }}
+        ModalProps={{ keepMounted: true, disableRestoreFocus: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: MOBILE_SIDEBAR_WIDTH },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: MOBILE_SIDEBAR_WIDTH, borderRadius: 0 },
         }}
       >
         {drawerContent}
@@ -447,6 +427,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, collapsed, onToggleCollapse
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: collapsed ? COLLAPSED_SIDEBAR_WIDTH : SIDEBAR_WIDTH,
+            borderRadius: 0,
             transition: (theme) =>
               theme.transitions.create('width', {
                 easing: theme.transitions.easing.sharp,

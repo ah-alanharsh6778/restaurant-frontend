@@ -19,6 +19,9 @@ import OrderStatusChip from './OrderStatusChip';
 import OrderItemsTable from './OrderItemsTable';
 import { getCleanTableName, getCleanOrderNumber } from '../../utils/formatters';
 
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 export const OrderDetailsDialog = ({
   open,
   onClose,
@@ -26,6 +29,8 @@ export const OrderDetailsDialog = ({
   onAddItemClick,
   onRemoveItemClick,
   onCheckout,
+  onEditStatus,
+  onDelete,
 }) => {
   if (!order) return null;
 
@@ -176,23 +181,53 @@ export const OrderDetailsDialog = ({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5, justifyContent: 'space-between' }}>
+      <DialogActions sx={{ p: 2.5, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
         <Button onClick={onClose} color="inherit">
           Close
         </Button>
-        {onCheckout && (
-          <Button
-            onClick={() => {
-              onClose();
-              onCheckout(order);
-            }}
-            variant="contained"
-            color="warning"
-            sx={{ px: 3, fontWeight: 800, borderRadius: 2 }}
-          >
-            Generate Invoice & Pay
-          </Button>
-        )}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {onEditStatus && (
+            <Button
+              onClick={() => {
+                onClose();
+                onEditStatus(order);
+              }}
+              variant="outlined"
+              color="primary"
+              startIcon={<EditIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Update Status
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              onClick={() => {
+                onClose();
+                onDelete(order);
+              }}
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Cancel Order
+            </Button>
+          )}
+          {onCheckout && (
+            <Button
+              onClick={() => {
+                onClose();
+                onCheckout(order);
+              }}
+              variant="contained"
+              color="warning"
+              sx={{ px: 3, fontWeight: 800, borderRadius: 2 }}
+            >
+              Generate Invoice & Pay
+            </Button>
+          )}
+        </Box>
       </DialogActions>
     </Dialog>
   );

@@ -34,6 +34,7 @@ export const Table = ({
   rowsPerPage = 10,
   onPageChange,
   onRowsPerPageChange,
+  onRowClick,
   totalCount,
   emptyMessage = 'No records found in database',
   sx = {},
@@ -122,8 +123,10 @@ export const Table = ({
                 <TableRow
                   hover
                   key={row.id || row._id || index}
+                  onClick={() => onRowClick && onRowClick(row)}
                   sx={{
                     height: 64, // Consistent row height
+                    cursor: onRowClick ? 'pointer' : 'default',
                     transition: 'background-color 0.15s ease',
                     '&:nth-of-type(even)': {
                       backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.015) : alpha(theme.palette.common.black, 0.012),

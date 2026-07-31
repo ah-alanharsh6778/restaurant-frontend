@@ -11,14 +11,16 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import dayjs from 'dayjs';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ResponsiveDialog from '../../components/common/ResponsiveDialog';
-import ExpenseStatusChip from './ExpenseStatusChip';
+import { ExpenseStatusChip } from './ExpenseStatusChip';
 
 export const ExpenseDetailsDialog = ({
   open,
   onClose,
   expense = null,
   onOpenEdit,
+  onOpenDelete,
   onOpenPreviewInvoice,
 }) => {
   if (!expense) return null;
@@ -61,19 +63,36 @@ export const ExpenseDetailsDialog = ({
           )}
 
           <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
-            <Button
-              size="small"
-              variant="contained"
-              color="primary"
-              startIcon={<EditIcon />}
-              onClick={() => {
-                onClose();
-                onOpenEdit(expense);
-              }}
-              sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
-            >
-              Edit
-            </Button>
+            {onOpenEdit && (
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                startIcon={<EditIcon />}
+                onClick={() => {
+                  onClose();
+                  onOpenEdit(expense);
+                }}
+                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+              >
+                Edit
+              </Button>
+            )}
+            {onOpenDelete && (
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => {
+                  onClose();
+                  onOpenDelete(expense);
+                }}
+                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+              >
+                Delete
+              </Button>
+            )}
             <Button size="small" onClick={onClose} color="inherit" sx={{ textTransform: 'none', fontWeight: 600 }}>
               Close
             </Button>
@@ -96,7 +115,7 @@ export const ExpenseDetailsDialog = ({
       <Divider sx={{ my: 2 }} />
 
       <Grid container spacing={2}>
-        <Grid item xs={6} sm={4}>
+        <Grid xs={6} sm={4}>
           <Typography variant="caption" color="text.secondary" display="block">
             Category
           </Typography>
@@ -105,7 +124,7 @@ export const ExpenseDetailsDialog = ({
           </Typography>
         </Grid>
 
-        <Grid item xs={6} sm={4}>
+        <Grid xs={6} sm={4}>
           <Typography variant="caption" color="text.secondary" display="block">
             Invoice Date
           </Typography>
@@ -114,7 +133,7 @@ export const ExpenseDetailsDialog = ({
           </Typography>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <Typography variant="caption" color="text.secondary" display="block">
             Attached File
           </Typography>
@@ -123,7 +142,7 @@ export const ExpenseDetailsDialog = ({
           </Typography>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <Paper elevation={0} sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="caption" color="text.secondary" display="block">
               Subtotal Amount
@@ -134,7 +153,7 @@ export const ExpenseDetailsDialog = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <Paper elevation={0} sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="caption" color="text.secondary" display="block">
               Tax Amount
@@ -145,7 +164,7 @@ export const ExpenseDetailsDialog = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <Paper elevation={0} sx={{ p: 2, bgcolor: '#ECFDF5', borderRadius: 2.5, border: '1px solid', borderColor: '#A7F3D0' }}>
             <Typography variant="caption" sx={{ color: '#047857', fontWeight: 600 }} display="block">
               Total Expense
@@ -156,7 +175,7 @@ export const ExpenseDetailsDialog = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Typography variant="caption" color="text.secondary" display="block">
             Remarks / Remarks
           </Typography>
@@ -165,7 +184,7 @@ export const ExpenseDetailsDialog = ({
           </Typography>
         </Grid>
 
-        <Grid item xs={6}>
+        <Grid xs={6}>
           <Typography variant="caption" color="text.secondary" display="block">
             Created Timestamp
           </Typography>
@@ -174,7 +193,7 @@ export const ExpenseDetailsDialog = ({
           </Typography>
         </Grid>
 
-        <Grid item xs={6}>
+        <Grid xs={6}>
           <Typography variant="caption" color="text.secondary" display="block">
             Updated Timestamp
           </Typography>

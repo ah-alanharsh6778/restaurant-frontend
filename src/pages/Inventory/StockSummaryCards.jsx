@@ -54,21 +54,6 @@ export const StockSummaryCards = ({
       borderColor: '#99F6E4',
     },
     {
-      title: 'Low Stock Products',
-      value: lowStockCount,
-      icon: <WarningIcon sx={{ color: '#D97706' }} />,
-      bgColor: '#FFFBEB',
-      borderColor: '#FDE68A',
-      isWarning: lowStockCount > 0,
-    },
-    {
-      title: 'Current Inventory Value',
-      value: `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: <AttachMoneyIcon sx={{ color: '#059669' }} />,
-      bgColor: '#ECFDF5',
-      borderColor: '#A7F3D0',
-    },
-    {
       title: 'Recent Transactions',
       value: totalTransactions,
       icon: <HistoryIcon sx={{ color: '#4F46E5' }} />,
@@ -80,7 +65,7 @@ export const StockSummaryCards = ({
   return (
     <Grid container spacing={2.5} sx={{ mb: 3 }}>
       {cards.map((card, index) => (
-        <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
+        <Grid xs={12} sm={6} md={3} key={index}>
           <Card
             elevation={0}
             sx={{
@@ -88,7 +73,7 @@ export const StockSummaryCards = ({
               borderRadius: 3,
               border: '1px solid',
               borderColor: card.borderColor,
-              bgcolor: '#FFFFFF',
+              bgcolor: 'background.paper',
               transition: 'transform 0.2s, box-shadow 0.2s',
               '&:hover': {
                 transform: 'translateY(-3px)',

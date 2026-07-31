@@ -45,7 +45,7 @@ export const DashboardFilters = ({
   const filterControls = (
     <>
       {/* Month Filter */}
-      <FormControl size="small" sx={{ minWidth: 140, bgcolor: '#FAFBFD' }}>
+      <FormControl size="small" sx={{ minWidth: 140, bgcolor: 'background.paper' }}>
         <InputLabel id="month-filter-label">Month</InputLabel>
         <Select
           labelId="month-filter-label"
@@ -62,7 +62,7 @@ export const DashboardFilters = ({
       </FormControl>
 
       {/* Year Filter */}
-      <FormControl size="small" sx={{ minWidth: 130, bgcolor: '#FAFBFD' }}>
+      <FormControl size="small" sx={{ minWidth: 130, bgcolor: 'background.paper' }}>
         <InputLabel id="year-filter-label">Year</InputLabel>
         <Select
           labelId="year-filter-label"
@@ -86,7 +86,7 @@ export const DashboardFilters = ({
         value={startDate}
         onChange={(e) => onStartDateChange(e.target.value)}
         slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ minWidth: 140, bgcolor: '#FAFBFD' }}
+        sx={{ minWidth: 140, bgcolor: 'background.paper' }}
       />
 
       {/* End Date */}
@@ -97,7 +97,7 @@ export const DashboardFilters = ({
         value={endDate}
         onChange={(e) => onEndDateChange(e.target.value)}
         slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ minWidth: 140, bgcolor: '#FAFBFD' }}
+        sx={{ minWidth: 140, bgcolor: 'background.paper' }}
       />
     </>
   );

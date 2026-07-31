@@ -10,11 +10,17 @@ import {
   Grid,
   Paper,
 } from '@mui/material';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SupplierStatusChip from './SupplierStatusChip';
 
-export const SupplierDetailsDialog = ({ open, onClose, supplier = null }) => {
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+export const SupplierDetailsDialog = ({ open, onClose, supplier = null, onEdit, onDelete, onToggleStatus, onUploadInvoice }) => {
   if (!supplier) return null;
 
   const isActive = supplier.isActive !== undefined ? supplier.isActive : supplier.status !== 'INACTIVE';
@@ -155,10 +161,68 @@ export const SupplierDetailsDialog = ({ open, onClose, supplier = null }) => {
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5 }}>
-        <Button onClick={onClose} variant="contained" sx={{ px: 3, fontWeight: 800 }}>
+      <DialogActions sx={{ p: 2.5, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" color="inherit">
           Close
         </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {onUploadInvoice && (
+            <Button
+              onClick={() => {
+                onClose();
+                onUploadInvoice(supplier);
+              }}
+              variant="outlined"
+              color="info"
+              startIcon={<CloudUploadIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Upload Invoice
+            </Button>
+          )}
+          {onToggleStatus && (
+            <Button
+              onClick={() => {
+                onClose();
+                onToggleStatus(supplier);
+              }}
+              variant="outlined"
+              color={isActive ? 'warning' : 'success'}
+              startIcon={isActive ? <PowerSettingsNewIcon /> : <CheckCircleIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              {isActive ? 'Deactivate' : 'Activate'}
+            </Button>
+          )}
+          {onEdit && (
+            <Button
+              onClick={() => {
+                onClose();
+                onEdit(supplier);
+              }}
+              variant="outlined"
+              color="primary"
+              startIcon={<EditIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Edit Profile
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              onClick={() => {
+                onClose();
+                onDelete(supplier);
+              }}
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Delete Profile
+            </Button>
+          )}
+        </Box>
       </DialogActions>
     </Dialog>
   );

@@ -30,6 +30,9 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import SecurityIcon from '@mui/icons-material/Security';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 
@@ -183,98 +186,127 @@ export const ReportsPage = () => {
     });
   };
 
-  // 1. Sales Rows
-  const salesRows = filterByDateAndSearch(orders, 'createdAt', ['orderNumber', 'status', 'orderType']);
-  const salesColumns = [
-    { field: 'orderNumber', headerName: 'Order #', width: 180, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || `ORD-${p.row.id?.substring(0, 4)}`}</Typography> },
-    { field: 'status', headerName: 'Status', width: 140, renderCell: (p) => <Chip label={p.value || 'PENDING'} color={p.value === 'COMPLETED' ? 'success' : 'primary'} size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'orderType', headerName: 'Order Type', width: 140, renderCell: (p) => <Chip label={p.value || 'DINE_IN'} size="small" variant="outlined" sx={{ fontWeight: 700 }} /> },
-    { field: 'totalAmount', headerName: 'Subtotal ($)', width: 140, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'createdAt', headerName: 'Timestamp', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY HH:mm') },
-  ];
+const sNoColumn = {
+  field: 'sNo',
+  headerName: 'S.No.',
+  width: 80,
+  sortable: false,
+  filterable: false,
+  align: 'center',
+  headerAlign: 'center',
+  renderCell: (params) => {
+    const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+    return (
+      <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+        {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+      </Typography>
+    );
+  },
+};
 
-  // 2. Expense Rows
-  const expenseRows = filterByDateAndSearch(expenses, 'invoiceDate', ['invoiceNumber', 'supplierName', 'category', 'status']);
-  const expenseColumns = [
-    { field: 'invoiceNumber', headerName: 'Invoice #', width: 170, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
-    { field: 'category', headerName: 'Category', width: 160, renderCell: (p) => p.row.category?.name || p.value || 'General' },
-    { field: 'amount', headerName: 'Subtotal ($)', width: 130, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'tax', headerName: 'Tax ($)', width: 110, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'total', headerName: 'Total ($)', width: 130, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>${Number(p.value || p.row.amount || 0).toFixed(2)}</Typography> },
-    { field: 'status', headerName: 'Status', width: 140, renderCell: (p) => <Chip label={p.value || 'PAID'} color={p.value === 'PAID' ? 'success' : 'warning'} size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'invoiceDate', headerName: 'Invoice Date', flex: 1, renderCell: (p) => dayjs(p.value || p.row.createdAt).format('MMM DD, YYYY') },
-  ];
+// 1. Sales Rows
+const salesRows = filterByDateAndSearch(orders, 'createdAt', ['orderNumber', 'status', 'orderType']);
+const salesColumns = [
+  sNoColumn,
+  { field: 'orderNumber', headerName: 'Order #', width: 180, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || `ORD-${p.row.id?.substring(0, 4)}`}</Typography> },
+  { field: 'status', headerName: 'Status', width: 140, renderCell: (p) => <Chip label={p.value || 'PENDING'} color={p.value === 'COMPLETED' ? 'success' : 'primary'} size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'orderType', headerName: 'Order Type', width: 140, renderCell: (p) => <Chip label={p.value || 'DINE_IN'} size="small" variant="outlined" sx={{ fontWeight: 700 }} /> },
+  { field: 'totalAmount', headerName: 'Subtotal ($)', width: 140, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 3. Inventory Rows
-  const inventoryRows = filterByDateAndSearch(products, 'createdAt', ['sku', 'name', 'unit', 'category']);
-  const inventoryColumns = [
-    { field: 'sku', headerName: 'SKU', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 800 }}>{p.value || '—'}</Typography> },
-    { field: 'name', headerName: 'Product Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
-    { field: 'currentStock', headerName: 'Current Stock', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: (p.value <= p.row.minimumStock) ? 'error.main' : 'text.primary' }}>{p.value ?? 0} {p.row.unit || ''}</Typography> },
-    { field: 'minimumStock', headerName: 'Min Threshold', width: 130, renderCell: (p) => p.value ?? 0 },
-    { field: 'costPrice', headerName: 'Cost ($)', width: 120, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'sellingPrice', headerName: 'Price ($)', flex: 1, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-  ];
+// 2. Expense Rows
+const expenseRows = filterByDateAndSearch(expenses, 'invoiceDate', ['invoiceNumber', 'supplierName', 'category', 'status']);
+const expenseColumns = [
+  sNoColumn,
+  { field: 'invoiceNumber', headerName: 'Invoice #', width: 170, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
+  { field: 'category', headerName: 'Category', width: 160, renderCell: (p) => p.row.category?.name || p.value || 'General' },
+  { field: 'amount', headerName: 'Subtotal ($)', width: 130, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'tax', headerName: 'Tax ($)', width: 110, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'total', headerName: 'Total ($)', width: 130, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>${Number(p.value || p.row.amount || 0).toFixed(2)}</Typography> },
+  { field: 'status', headerName: 'Status', width: 140, renderCell: (p) => <Chip label={p.value || 'PAID'} color={p.value === 'PAID' ? 'success' : 'warning'} size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'invoiceDate', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value || p.row.createdAt).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 4. Purchase Order Rows
-  const purchaseRows = filterByDateAndSearch(purchaseOrders, 'createdAt', ['poNumber', 'status']);
-  const purchaseColumns = [
-    { field: 'poNumber', headerName: 'PO Number', width: 180, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || `PO-${p.row.id?.substring(0, 4)}`}</Typography> },
-    { field: 'supplier', headerName: 'Supplier Name', width: 220, renderCell: (p) => p.row.supplier?.name || p.value || 'Vendor' },
-    { field: 'status', headerName: 'PO Status', width: 140, renderCell: (p) => <Chip label={p.value || 'ORDERED'} color={p.value === 'RECEIVED' ? 'success' : 'info'} size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'totalAmount', headerName: 'Total Amount ($)', width: 160, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'createdAt', headerName: 'PO Date', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY') },
-  ];
+// 3. Inventory Rows
+const inventoryRows = filterByDateAndSearch(products, 'createdAt', ['sku', 'name', 'unit', 'category']);
+const inventoryColumns = [
+  sNoColumn,
+  { field: 'sku', headerName: 'SKU', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 800 }}>{p.value || '—'}</Typography> },
+  { field: 'name', headerName: 'Product Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
+  { field: 'currentStock', headerName: 'Current Stock', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: (p.value <= p.row.minimumStock) ? 'error.main' : 'text.primary' }}>{p.value ?? 0} {p.row.unit || ''}</Typography> },
+  { field: 'minimumStock', headerName: 'Min Threshold', width: 130, renderCell: (p) => p.value ?? 0 },
+  { field: 'costPrice', headerName: 'Cost ($)', width: 120, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'sellingPrice', headerName: 'Price ($)', width: 120, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value || p.row.updatedAt).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 5. Supplier Rows
-  const supplierRows = filterByDateAndSearch(suppliers, 'createdAt', ['name', 'contactPerson', 'phone', 'email']);
-  const supplierColumns = [
-    { field: 'name', headerName: 'Supplier Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
-    { field: 'contactPerson', headerName: 'Contact Person', width: 180 },
-    { field: 'phone', headerName: 'Phone Number', width: 150 },
-    { field: 'email', headerName: 'Email Address', flex: 1 },
-  ];
+// 4. Purchase Order Rows
+const purchaseRows = filterByDateAndSearch(purchaseOrders, 'createdAt', ['poNumber', 'status']);
+const purchaseColumns = [
+  sNoColumn,
+  { field: 'poNumber', headerName: 'PO Number', width: 180, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || `PO-${p.row.id?.substring(0, 4)}`}</Typography> },
+  { field: 'supplier', headerName: 'Supplier Name', width: 220, renderCell: (p) => p.row.supplier?.name || p.value || 'Vendor' },
+  { field: 'status', headerName: 'PO Status', width: 140, renderCell: (p) => <Chip label={p.value || 'ORDERED'} color={p.value === 'RECEIVED' ? 'success' : 'info'} size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'totalAmount', headerName: 'Total Amount ($)', width: 160, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 6. Customer Rows
-  const customerRows = filterByDateAndSearch(customers, 'createdAt', ['fullName', 'email', 'phone']);
-  const customerColumns = [
-    { field: 'fullName', headerName: 'Customer Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || p.row.name || 'Diner'}</Typography> },
-    { field: 'email', headerName: 'Email Address', width: 220 },
-    { field: 'phone', headerName: 'Phone Number', width: 160 },
-    { field: 'createdAt', headerName: 'Registered Date', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY') },
-  ];
+// 5. Supplier Rows
+const supplierRows = filterByDateAndSearch(suppliers, 'createdAt', ['name', 'contactPerson', 'phone', 'email']);
+const supplierColumns = [
+  sNoColumn,
+  { field: 'name', headerName: 'Supplier Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
+  { field: 'contactPerson', headerName: 'Contact Person', width: 180 },
+  { field: 'phone', headerName: 'Phone Number', width: 150 },
+  { field: 'email', headerName: 'Email Address', width: 220 },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 7. Waste Log Rows
-  const wasteRows = filterByDateAndSearch(wasteLogs, 'createdAt', ['reason', 'remarks']);
-  const wasteColumns = [
-    { field: 'createdAt', headerName: 'Timestamp', width: 170, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY HH:mm') },
-    { field: 'ingredient', headerName: 'Ingredient', width: 200, renderCell: (p) => p.row.ingredient?.name || 'Ingredient' },
-    { field: 'quantity', headerName: 'Quantity', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>{p.value} {p.row.unit}</Typography> },
-    { field: 'costLost', headerName: 'Loss ($)', width: 130, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
-    { field: 'reason', headerName: 'Reason', flex: 1, renderCell: (p) => <Chip label={p.value} color="warning" size="small" sx={{ fontWeight: 800 }} /> },
-  ];
+// 6. Customer Rows
+const customerRows = filterByDateAndSearch(customers, 'createdAt', ['fullName', 'email', 'phone']);
+const customerColumns = [
+  sNoColumn,
+  { field: 'fullName', headerName: 'Customer Name', width: 220, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800 }}>{p.value || p.row.name || 'Diner'}</Typography> },
+  { field: 'email', headerName: 'Email Address', width: 220 },
+  { field: 'phone', headerName: 'Phone Number', width: 160 },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+];
 
-  // 8. Audit Telemetry Log Rows
-  const logRows = filterByDateAndSearch(activityLogs, 'createdAt', ['action', 'module', 'details']);
-  const logColumns = [
-    { field: 'createdAt', headerName: 'Timestamp', width: 170, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY HH:mm:ss') },
-    { field: 'action', headerName: 'Action Executed', width: 180, renderCell: (p) => <Chip label={p.value || 'EVENT'} color="primary" size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'module', headerName: 'Target Module', width: 160, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || 'SYSTEM'}</Typography> },
-    { field: 'user', headerName: 'User / Actor', width: 180, renderCell: (p) => p.row.user?.fullName || p.row.user?.email || p.value || 'System Task' },
-    { field: 'ipAddress', headerName: 'IP Address', width: 140 },
-    { field: 'details', headerName: 'Telemetry Details', flex: 1.5, renderCell: (p) => <Typography variant="body2" color="text.secondary" noWrap>{p.value ? JSON.stringify(p.value) : '—'}</Typography> },
-  ];
+// 7. Waste Log Rows
+const wasteRows = filterByDateAndSearch(wasteLogs, 'createdAt', ['reason', 'remarks']);
+const wasteColumns = [
+  sNoColumn,
+  { field: 'createdAt', headerName: 'Month, Date & Time', width: 200, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+  { field: 'ingredient', headerName: 'Ingredient', width: 200, renderCell: (p) => p.row.ingredient?.name || 'Ingredient' },
+  { field: 'quantity', headerName: 'Quantity', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'error.main' }}>{p.value} {p.row.unit}</Typography> },
+  { field: 'costLost', headerName: 'Loss ($)', width: 130, renderCell: (p) => `$${Number(p.value || 0).toFixed(2)}` },
+  { field: 'reason', headerName: 'Reason', flex: 1, renderCell: (p) => <Chip label={p.value} color="warning" size="small" sx={{ fontWeight: 800 }} /> },
+];
 
-  // 9. AI Invoice OCR Register Rows
-  const invoiceRows = filterByDateAndSearch(invoices, 'createdAt', ['invoiceNumber', 'supplierName', 'status']);
-  const invoiceColumns = [
-    { field: 'invoiceNumber', headerName: 'Invoice #', width: 170, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
-    { field: 'supplierName', headerName: 'Vendor Name', width: 220, renderCell: (p) => p.value || 'Vendor' },
-    { field: 'totalAmount', headerName: 'OCR Total ($)', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'success.main' }}>${Number(p.value || 0).toFixed(2)}</Typography> },
-    { field: 'status', headerName: 'Processing Status', width: 160, renderCell: (p) => <Chip label={p.value || 'PROCESSED'} color={p.value === 'PROCESSED' ? 'success' : 'warning'} size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'ocrConfidence', headerName: 'AI Accuracy', width: 130, renderCell: (p) => <Chip label={`${Math.round((p.value || 0.98) * 100)}%`} color="info" size="small" sx={{ fontWeight: 800 }} /> },
-    { field: 'createdAt', headerName: 'Scan Timestamp', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY HH:mm') },
-  ];
+// 8. Audit Telemetry Log Rows
+const logRows = filterByDateAndSearch(activityLogs, 'createdAt', ['action', 'module', 'details']);
+const logColumns = [
+  sNoColumn,
+  { field: 'createdAt', headerName: 'Month, Date & Time', width: 220, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm:ss A') },
+  { field: 'action', headerName: 'Action Executed', width: 180, renderCell: (p) => <Chip label={p.value || 'EVENT'} color="primary" size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'module', headerName: 'Target Module', width: 160, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || 'SYSTEM'}</Typography> },
+  { field: 'user', headerName: 'User / Actor', width: 180, renderCell: (p) => p.row.user?.fullName || p.row.user?.email || p.value || 'System Task' },
+  { field: 'ipAddress', headerName: 'IP Address', width: 140 },
+  { field: 'details', headerName: 'Telemetry Details', flex: 1.5, renderCell: (p) => <Typography variant="body2" color="text.secondary" noWrap>{p.value ? JSON.stringify(p.value) : '—'}</Typography> },
+];
+
+// 9. AI Invoice OCR Register Rows
+const invoiceRows = filterByDateAndSearch(invoices, 'createdAt', ['invoiceNumber', 'supplierName', 'status']);
+const invoiceColumns = [
+  sNoColumn,
+  { field: 'invoiceNumber', headerName: 'Invoice #', width: 170, renderCell: (p) => <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{p.value || '—'}</Typography> },
+  { field: 'supplierName', headerName: 'Vendor Name', width: 220, renderCell: (p) => p.value || 'Vendor' },
+  { field: 'totalAmount', headerName: 'OCR Total ($)', width: 140, renderCell: (p) => <Typography variant="body2" sx={{ fontWeight: 800, color: 'success.main' }}>${Number(p.value || 0).toFixed(2)}</Typography> },
+  { field: 'status', headerName: 'Processing Status', width: 160, renderCell: (p) => <Chip label={p.value || 'PROCESSED'} color={p.value === 'PROCESSED' ? 'success' : 'warning'} size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'ocrConfidence', headerName: 'AI Accuracy', width: 130, renderCell: (p) => <Chip label={`${Math.round((p.value || 0.98) * 100)}%`} color="info" size="small" sx={{ fontWeight: 800 }} /> },
+  { field: 'createdAt', headerName: 'Month, Date & Time', flex: 1, renderCell: (p) => dayjs(p.value).format('MMM DD, YYYY hh:mm A') },
+];
 
   // KPI Metrics Calculation
   const totalSalesRevenue = useMemo(() => {
@@ -339,96 +371,7 @@ export const ReportsPage = () => {
           </Grid>
         </Grid>
 
-        {/* Global Date & Search Filters Toolbar */}
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-          <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-            <Grid xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search report items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon fontSize="small" />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid>
-
-            <Grid xs={6} sm={3} md={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Month</InputLabel>
-                <Select value={selectedMonth} label="Month" onChange={(e) => setSelectedMonth(e.target.value)}>
-                  <MenuItem value="ALL">All Months</MenuItem>
-                  {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m) => (
-                    <MenuItem key={m} value={m}>{dayjs(`2026-${m}-01`).format('MMM')}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid xs={6} sm={3} md={2}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Year</InputLabel>
-                <Select value={selectedYear} label="Year" onChange={(e) => setSelectedYear(e.target.value)}>
-                  <MenuItem value="ALL">All Years</MenuItem>
-                  <MenuItem value="2026">2026</MenuItem>
-                  <MenuItem value="2025">2025</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid xs={6} sm={3} md={2.5}>
-              <TextField
-                fullWidth
-                type="date"
-                size="small"
-                label="Start Date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-                sx={{
-                  '& .MuiInputLabel-root': {
-                    bgcolor: 'background.paper',
-                    px: 0.6,
-                    borderRadius: 1,
-                  },
-                }}
-              />
-            </Grid>
-
-            <Grid xs={6} sm={3} md={2.5}>
-              <TextField
-                fullWidth
-                type="date"
-                size="small"
-                label="End Date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-                sx={{
-                  '& .MuiInputLabel-root': {
-                    bgcolor: 'background.paper',
-                    px: 0.6,
-                    borderRadius: 1,
-                  },
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {/* Tabbed Report Registers */}
+        {/* Tabbed Report Registers & Embedded Filters */}
         <Paper
           elevation={0}
           sx={{
@@ -439,6 +382,101 @@ export const ReportsPage = () => {
             p: { xs: 2, sm: 3 },
           }}
         >
+          {/* Direct Table Filter Controls */}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <FilterListIcon color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                Repository Table Filters
+              </Typography>
+            </Box>
+
+            <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search report items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={6} sm={3} md={2}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Month</InputLabel>
+                  <Select value={selectedMonth} label="Month" onChange={(e) => setSelectedMonth(e.target.value)}>
+                    <MenuItem value="ALL">All Months</MenuItem>
+                    {['01','02','03','04','05','06','07','08','09','10','11','12'].map((m) => (
+                      <MenuItem key={m} value={m}>{dayjs(`2026-${m}-01`).format('MMM')}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={6} sm={3} md={2}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Year</InputLabel>
+                  <Select value={selectedYear} label="Year" onChange={(e) => setSelectedYear(e.target.value)}>
+                    <MenuItem value="ALL">All Years</MenuItem>
+                    <MenuItem value="2026">2026</MenuItem>
+                    <MenuItem value="2025">2025</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={6} sm={3} md={2.5}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  size="small"
+                  label="Start Date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                  sx={{
+                    '& .MuiInputLabel-root': {
+                      bgcolor: 'background.paper',
+                      px: 0.6,
+                      borderRadius: 1,
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={6} sm={3} md={2.5}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  size="small"
+                  label="End Date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                  sx={{
+                    '& .MuiInputLabel-root': {
+                      bgcolor: 'background.paper',
+                      px: 0.6,
+                      borderRadius: 1,
+                    },
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs
               value={currentTab}
@@ -456,7 +494,6 @@ export const ReportsPage = () => {
             >
               <Tab icon={<ShoppingCartIcon fontSize="small" />} iconPosition="start" label={`Sales Register (${salesRows.length})`} />
               <Tab icon={<ReceiptIcon fontSize="small" />} iconPosition="start" label={`Expense Register (${expenseRows.length})`} />
-              <Tab icon={<InventoryIcon fontSize="small" />} iconPosition="start" label={`Inventory Telemetry (${inventoryRows.length})`} />
               <Tab icon={<AssignmentIcon fontSize="small" />} iconPosition="start" label={`Purchase Orders (${purchaseRows.length})`} />
               <Tab icon={<LocalShippingIcon fontSize="small" />} iconPosition="start" label={`Supplier Register (${supplierRows.length})`} />
               <Tab icon={<PeopleIcon fontSize="small" />} iconPosition="start" label={`Customer Register (${customerRows.length})`} />
@@ -474,13 +511,12 @@ export const ReportsPage = () => {
             <>
               {currentTab === 0 && <CommonDataGrid rows={salesRows} columns={salesColumns} height={520} />}
               {currentTab === 1 && <CommonDataGrid rows={expenseRows} columns={expenseColumns} height={520} />}
-              {currentTab === 2 && <CommonDataGrid rows={inventoryRows} columns={inventoryColumns} height={520} />}
-              {currentTab === 3 && <CommonDataGrid rows={purchaseRows} columns={purchaseColumns} height={520} />}
-              {currentTab === 4 && <CommonDataGrid rows={supplierRows} columns={supplierColumns} height={520} />}
-              {currentTab === 5 && <CommonDataGrid rows={customerRows} columns={customerColumns} height={520} />}
-              {currentTab === 6 && <CommonDataGrid rows={wasteRows} columns={wasteColumns} height={520} />}
-              {currentTab === 7 && <CommonDataGrid rows={logRows} columns={logColumns} height={520} />}
-              {currentTab === 8 && <CommonDataGrid rows={invoiceRows} columns={invoiceColumns} height={520} />}
+              {currentTab === 2 && <CommonDataGrid rows={purchaseRows} columns={purchaseColumns} height={520} />}
+              {currentTab === 3 && <CommonDataGrid rows={supplierRows} columns={supplierColumns} height={520} />}
+              {currentTab === 4 && <CommonDataGrid rows={customerRows} columns={customerColumns} height={520} />}
+              {currentTab === 5 && <CommonDataGrid rows={wasteRows} columns={wasteColumns} height={520} />}
+              {currentTab === 6 && <CommonDataGrid rows={logRows} columns={logColumns} height={520} />}
+              {currentTab === 7 && <CommonDataGrid rows={invoiceRows} columns={invoiceColumns} height={520} />}
             </>
           )}
         </Paper>

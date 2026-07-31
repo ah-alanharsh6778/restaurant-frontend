@@ -20,7 +20,6 @@ import {
   MdVisibilityOff,
   MdRestaurant,
   MdArrowForward,
-  MdBadge,
   MdCheckCircle,
 } from 'react-icons/md';
 
@@ -29,14 +28,11 @@ import { useColorMode } from '../../context/ThemeContext';
 import { registerSchema } from '../../utils/auth.validation';
 import { Button, Input, Select } from '../../components/ui';
 
-// Database Role UUID Options matching PostgreSQL DB
-const REAL_ROLES = [
-  { label: 'System Administrator (ADMIN)', value: '8a5e3842-4614-4655-97d9-4aa583674b17' },
-  { label: 'Restaurant Manager (MANAGER)', value: '65428c97-a5c0-43b8-b6fd-c26aa548e203' },
-  { label: 'Executive Chef (CHEF)', value: 'f336eb26-2dc2-42de-8cab-e8062b9de5b6' },
+// Roles available for public self-registration (ADMIN, MANAGER & INVENTORY MANAGER excluded)
+const PUBLIC_REGISTRATION_ROLES = [
   { label: 'Dining Waiter (WAITER)', value: '5e3f123a-51ea-4fe8-a2d3-51f8eaf783cb' },
+  { label: 'Executive Chef (CHEF)', value: 'f336eb26-2dc2-42de-8cab-e8062b9de5b6' },
   { label: 'General Staff (STAFF)', value: '9c70fb26-3f98-41f4-bb7d-aedd9b5d2b5d' },
-  { label: 'Inventory Manager', value: 'ebd0550f-c6b8-4614-83a8-8519ddab4f2d' },
 ];
 
 export const RegisterPage = () => {
@@ -62,7 +58,7 @@ export const RegisterPage = () => {
       fullName: '',
       email: '',
       phone: '',
-      roleId: '8a5e3842-4614-4655-97d9-4aa583674b17',
+      roleId: '5e3f123a-51ea-4fe8-a2d3-51f8eaf783cb', // Default: Dining Waiter
       password: '',
       confirmPassword: '',
     },
@@ -125,24 +121,22 @@ export const RegisterPage = () => {
       <Container maxWidth="sm" disableGutters>
         <Paper
           elevation={0}
-          className="glass-panel animate-scale-in"
+          className="animate-scale-in"
           sx={{
             p: { xs: 3.5, sm: 5 },
-            borderRadius: '24px',
-            backgroundColor: 'var(--glass-bg)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: '1px solid var(--glass-border)',
+            borderRadius: '4px',
+            backgroundColor: 'var(--bg-surface)',
+            border: '1px solid var(--border-subdued)',
             boxShadow: 'var(--shadow-xl)',
           }}
         >
           {/* Header */}
-          <Box display="flex" flexDirection="column" alignItems="center" textAlign="center" mb={3}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 3 }}>
             <Box
               sx={{
                 width: 52,
                 height: 52,
-                borderRadius: '16px',
+                borderRadius: '4px',
                 backgroundColor: 'var(--primary-600)',
                 color: '#FFFFFF',
                 display: 'flex',
@@ -156,10 +150,10 @@ export const RegisterPage = () => {
             </Box>
 
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-              Register Restaurant<span className="gradient-text-primary">OS</span> Staff
+              Register Restaurant<span className="gradient-text-primary">OS</span> Account
             </Typography>
             <Typography variant="body2" color="var(--text-secondary)" sx={{ mt: 0.5 }}>
-              Create a new user account linked to your restaurant role
+              Create a new user profile to access order service & staff features
             </Typography>
           </Box>
 
@@ -169,7 +163,7 @@ export const RegisterPage = () => {
               severity="error"
               sx={{
                 mb: 3,
-                borderRadius: '12px',
+                borderRadius: '4px',
                 backgroundColor: 'var(--color-danger-bg)',
                 color: 'var(--color-danger)',
                 border: '1px solid var(--color-danger)',
@@ -187,7 +181,7 @@ export const RegisterPage = () => {
               icon={<MdCheckCircle size={20} />}
               sx={{
                 mb: 3,
-                borderRadius: '12px',
+                borderRadius: '4px',
                 backgroundColor: 'var(--color-success-bg)',
                 color: 'var(--color-success)',
                 border: '1px solid var(--color-success)',
@@ -242,10 +236,10 @@ export const RegisterPage = () => {
                   control={control}
                   render={({ field }) => (
                     <Select
-                      label="Assign System Role"
+                      label="Assign Staff Role"
                       value={field.value}
                       onChange={field.onChange}
-                      options={REAL_ROLES}
+                      options={PUBLIC_REGISTRATION_ROLES}
                       error={Boolean(errors.roleId)}
                     />
                   )}
@@ -263,7 +257,7 @@ export const RegisterPage = () => {
                       size="small"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
-                      sx={{ color: 'var(--text-secondary)' }}
+                      sx={{ color: 'var(--text-secondary)', borderRadius: '4px' }}
                     >
                       {showPassword ? <MdVisibilityOff size={20} /> : <MdVisibility size={20} />}
                     </IconButton>
@@ -285,7 +279,7 @@ export const RegisterPage = () => {
                       size="small"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       edge="end"
-                      sx={{ color: 'var(--text-secondary)' }}
+                      sx={{ color: 'var(--text-secondary)', borderRadius: '4px' }}
                     >
                       {showConfirmPassword ? <MdVisibilityOff size={20} /> : <MdVisibility size={20} />}
                     </IconButton>
@@ -306,7 +300,7 @@ export const RegisterPage = () => {
                 loading={isSubmitting}
                 glow
                 endIcon={<MdArrowForward />}
-                sx={{ py: '12px', borderRadius: '14px', fontSize: '0.95rem' }}
+                sx={{ py: '12px', borderRadius: '4px', fontSize: '0.95rem' }}
               >
                 Create Account in RestaurantOS
               </Button>
@@ -314,7 +308,7 @@ export const RegisterPage = () => {
           </form>
 
           {/* Footer Navigation */}
-          <Box textAlign="center" mt={3.5} pt={2.5} sx={{ borderTop: '1px solid var(--border-subdued)' }}>
+          <Box sx={{ textAlign: 'center', mt: 3.5, pt: 2.5, borderTop: '1px solid var(--border-subdued)' }}>
             <Typography variant="body2" color="var(--text-secondary)">
               Already registered?{' '}
               <Typography

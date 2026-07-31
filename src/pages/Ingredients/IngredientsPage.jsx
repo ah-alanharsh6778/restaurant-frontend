@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Paper, Box, Button } from '@mui/material';
+import { Paper, Box, Button, Grid } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
@@ -7,6 +7,7 @@ import ingredientService from '../../services/ingredient.service';
 import PageContainer from '../../components/layout/PageContainer';
 import IngredientToolbar from './IngredientToolbar';
 import IngredientTable from './IngredientTable';
+import IngredientCard from './IngredientCard';
 import IngredientDialog from './IngredientDialog';
 import DeleteIngredientDialog from './DeleteIngredientDialog';
 import IngredientDetailsDialog from './IngredientDetailsDialog';
@@ -24,6 +25,7 @@ export const IngredientsPage = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [unitFilter, setUnitFilter] = useState('ALL');
   const [lowStockOnly, setLowStockOnly] = useState(false);
+  const [viewMode, setViewMode] = useState('list');
 
   // Dialog States
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -102,24 +104,18 @@ export const IngredientsPage = () => {
     setDialogOpen(true);
   };
 
-  const handleOpenEditDialog = (ing) => {
-    setSelectedIngredient(ing);
+  const handleOpenEditDialog = (ingredient) => {
+    setSelectedIngredient(ingredient);
     setDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (ing) => {
-    setSelectedIngredient(ing);
+  const handleOpenDeleteDialog = (ingredient) => {
+    setSelectedIngredient(ingredient);
     setDeleteDialogOpen(true);
   };
 
-  const handleOpenDetailsDialog = async (ing) => {
-    try {
-      const res = await ingredientService.getIngredientById(ing.id || ing._id);
-      const detail = res?.data || res || ing;
-      setSelectedIngredient(detail);
-    } catch (err) {
-      setSelectedIngredient(ing);
-    }
+  const handleOpenDetailsDialog = (ingredient) => {
+    setSelectedIngredient(ingredient);
     setDetailsDialogOpen(true);
   };
 
@@ -130,15 +126,15 @@ export const IngredientsPage = () => {
       if (selectedIngredient) {
         const id = selectedIngredient.id || selectedIngredient._id;
         await ingredientService.updateIngredient(id, formData);
-        toast.success(`Ingredient ${formData.name} updated successfully!`);
+        toast.success(`Ingredient "${formData.name}" updated successfully!`);
       } else {
         await ingredientService.createIngredient(formData);
-        toast.success(`Ingredient ${formData.name} created successfully!`);
+        toast.success(`Ingredient "${formData.name}" created successfully!`);
       }
       setDialogOpen(false);
       fetchIngredients();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Operation failed';
+      const msg = err.response?.data?.message || err.message || 'Failed to save ingredient';
       toast.error(msg);
     } finally {
       setSubmitting(false);
@@ -151,8 +147,9 @@ export const IngredientsPage = () => {
     try {
       const id = selectedIngredient.id || selectedIngredient._id;
       await ingredientService.deleteIngredient(id);
-      toast.success(`Ingredient ${selectedIngredient.name} deleted!`);
+      toast.success(`Ingredient "${selectedIngredient.name}" deleted!`);
       setDeleteDialogOpen(false);
+      setDetailsDialogOpen(false);
       fetchIngredients();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Delete failed';
@@ -164,7 +161,7 @@ export const IngredientsPage = () => {
 
   if (error && ingredients.length === 0) {
     return (
-      <PageContainer title="Ingredient Management" breadcrumbs={['Dashboard', 'Ingredients']}>
+      <PageContainer title="Ingredients Ledger" breadcrumbs={['Dashboard', 'Ingredients']}>
         <ErrorState
           title="Failed to Load Ingredients"
           description={error}
@@ -176,17 +173,13 @@ export const IngredientsPage = () => {
 
   return (
     <PageContainer
-      title="Ingredient Management"
+      title="Ingredients Ledger"
+      subtitle="Track kitchen raw inventory, stock thresholds, cost per unit, and vendor suppliers"
       breadcrumbs={['Dashboard', 'Ingredients']}
       actions={
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Button size="small" variant="outlined" startIcon={<RefreshIcon />} onClick={fetchIngredients}>
-            Refresh
-          </Button>
-          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 700 }}>
-            Add Ingredient
-          </Button>
-        </Box>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 800, borderRadius: 2.5, px: 2.5 }}>
+          Add Ingredient
+        </Button>
       }
     >
       <Paper
@@ -208,11 +201,24 @@ export const IngredientsPage = () => {
           availableUnits={availableUnits}
           lowStockOnly={lowStockOnly}
           onLowStockToggle={() => setLowStockOnly(!lowStockOnly)}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
         <Box p={3}>
           {!loading && filteredIngredients.length === 0 ? (
             <EmptyIngredientState onCreateIngredient={handleOpenAddDialog} />
+          ) : viewMode === 'grid' ? (
+            <Grid container spacing={2.5}>
+              {filteredIngredients.map((ingredient) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={ingredient.id || ingredient._id}>
+                  <IngredientCard
+                    ingredient={ingredient}
+                    onView={handleOpenDetailsDialog}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           ) : (
             <IngredientTable
               ingredients={filteredIngredients}
@@ -246,6 +252,8 @@ export const IngredientsPage = () => {
         open={detailsDialogOpen}
         onClose={() => setDetailsDialogOpen(false)}
         ingredient={selectedIngredient}
+        onEdit={handleOpenEditDialog}
+        onDelete={handleOpenDeleteDialog}
       />
     </PageContainer>
   );

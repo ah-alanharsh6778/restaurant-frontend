@@ -90,30 +90,30 @@ export const designTokens = {
       surface: '#FFFFFF',
       subtle: '#F1F5F9',
       elevated: '#FFFFFF',
-      overlay: 'rgba(15, 23, 42, 0.4)',
+      overlay: 'rgba(15, 23, 42, 0.45)',
     },
     dark: {
-      canvas: '#090D16',
+      canvas: '#0B0F19',
       surface: '#111827',
       subtle: '#1F2937',
       elevated: '#1E293B',
-      overlay: 'rgba(0, 0, 0, 0.75)',
+      overlay: 'rgba(0, 0, 0, 0.8)',
     },
   },
 
   // 3. Glassmorphism
   glass: {
     light: {
-      background: 'rgba(255, 255, 255, 0.82)',
-      border: 'rgba(255, 255, 255, 0.6)',
-      hoverBackground: 'rgba(99, 102, 241, 0.06)',
-      backdropFilter: 'blur(16px) saturate(180%)',
+      background: 'rgba(255, 255, 255, 0.85)',
+      border: 'rgba(226, 232, 240, 0.8)',
+      hoverBackground: 'rgba(99, 102, 241, 0.04)',
+      backdropFilter: 'blur(20px) saturate(180%)',
     },
     dark: {
-      background: 'rgba(17, 24, 39, 0.78)',
+      background: 'rgba(17, 24, 39, 0.82)',
       border: 'rgba(255, 255, 255, 0.08)',
-      hoverBackground: 'rgba(99, 102, 241, 0.15)',
-      backdropFilter: 'blur(16px) saturate(180%)',
+      hoverBackground: 'rgba(99, 102, 241, 0.12)',
+      backdropFilter: 'blur(20px) saturate(180%)',
     },
   },
 

@@ -9,40 +9,52 @@ export const CustomerToolbar = ({
 }) => {
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      gap={2}
-      mb={3}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
+        mb: 3,
+        width: '100%',
+      }}
     >
       {/* Search Input Bar */}
       <Paper
         elevation={0}
-        className="glass-panel"
         sx={{
-          p: '6px 14px',
+          px: 2,
+          py: '8px',
           display: 'flex',
           alignItems: 'center',
-          flexGrow: 1,
-          maxWidth: { sm: 380, md: 440 },
+          width: '100%',
+          maxWidth: { xs: '100%', sm: 480, md: 540 },
           borderRadius: '16px',
-          backgroundColor: 'var(--bg-surface)',
-          border: '1px solid var(--border-subdued)',
-          transition: 'all 0.2s ease',
+          backgroundColor: '#131A24',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          transition: 'all 250ms ease',
           '&:hover, &:focus-within': {
-            borderColor: 'var(--primary-400)',
-            boxShadow: '0 0 0 3px var(--primary-100)',
+            borderColor: '#7C6CFF',
+            boxShadow: '0 0 0 3px rgba(124, 108, 255, 0.2)',
           },
         }}
       >
-        <MdSearch size={22} style={{ color: 'var(--text-secondary)', marginRight: 8 }} />
+        <MdSearch size={22} style={{ color: '#9CA3AF', marginRight: 10 }} />
         <InputBase
           placeholder="Search by customer name, email, or phone..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          sx={{ flex: 1, fontSize: '0.9rem', color: 'var(--text-primary)' }}
+          sx={{
+            flex: 1,
+            fontSize: '0.925rem',
+            color: '#FFFFFF',
+            fontWeight: 500,
+            '& input::placeholder': {
+              color: '#9CA3AF',
+              opacity: 1,
+            },
+          }}
         />
         {searchTerm && (
-          <IconButton size="small" onClick={onClearSearch} sx={{ color: 'var(--text-secondary)' }}>
+          <IconButton size="small" onClick={onClearSearch} sx={{ color: '#9CA3AF' }}>
             <MdClear size={18} />
           </IconButton>
         )}

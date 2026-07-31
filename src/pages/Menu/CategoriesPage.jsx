@@ -165,7 +165,7 @@ export const CategoriesPage = () => {
       {loading ? (
         <Grid container spacing={2}>
           {[1, 2, 3, 4].map((item) => (
-            <Grid item xs={12} key={item}>
+            <Grid xs={12} key={item}>
               <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 2 }} />
             </Grid>
           ))}

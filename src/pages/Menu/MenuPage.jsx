@@ -42,7 +42,7 @@ export const MenuPage = () => {
         </Box>
 
         {/* Navigation Tabs */}
-        <Paper elevation={1} sx={{ borderRadius: 3, backgroundColor: '#FFFFFF', px: 2 }}>
+        <Paper elevation={1} sx={{ borderRadius: 3, backgroundColor: 'background.paper', px: 2 }}>
           <Tabs
             value={activeTab}
             onChange={handleTabChange}

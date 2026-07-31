@@ -29,6 +29,7 @@ const TabPanel = ({ children, value, index }) => (
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
+        style={{ width: '100%' }}
       >
         {children}
       </motion.div>
@@ -89,6 +90,7 @@ export const InvoicesPage = () => {
             variant="outlined"
             startIcon={<RefreshIcon />}
             onClick={handleRefresh}
+            sx={{ borderRadius: '4px', textTransform: 'none', fontWeight: 600 }}
           >
             Refresh
           </Button>
@@ -98,7 +100,7 @@ export const InvoicesPage = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setActiveTab(1)}
-              sx={{ fontWeight: 700 }}
+              sx={{ fontWeight: 700, borderRadius: '4px', textTransform: 'none' }}
             >
               Upload Invoice
             </Button>
@@ -106,16 +108,17 @@ export const InvoicesPage = () => {
         </Box>
       }
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, width: '100%' }}>
         {/* Navigation Tabs Header */}
         <Paper
           elevation={0}
           sx={{
-            borderRadius: 3,
+            borderRadius: '4px',
             border: '1px solid',
             borderColor: 'divider',
             bgcolor: 'background.paper',
             px: 2,
+            width: '100%',
           }}
         >
           <Tabs
@@ -144,18 +147,20 @@ export const InvoicesPage = () => {
           <InvoiceDashboard />
         </TabPanel>
 
-        {/* Tab 1: Upload (ADMIN / MANAGER only) */}
+        {/* Tab 1: Upload (ADMIN / MANAGER only - Full Width Left-to-Right Container) */}
         {isManager && (
           <TabPanel value={activeTab} index={1}>
-            <Box sx={{ maxWidth: 720, mx: 'auto' }}>
+            <Box sx={{ width: '100%', maxWidth: '1440px', mx: 'auto' }}>
               <Paper
                 elevation={0}
                 sx={{
                   p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: 3,
+                  borderRadius: '4px',
                   border: '1px solid',
                   borderColor: 'divider',
                   bgcolor: 'background.paper',
+                  width: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
                 <Box sx={{ mb: 3 }}>
@@ -196,10 +201,12 @@ export const InvoicesPage = () => {
             elevation={0}
             sx={{
               p: { xs: 2, sm: 3 },
-              borderRadius: 3,
+              borderRadius: '4px',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: 'background.paper',
+              width: '100%',
+              boxSizing: 'border-box',
             }}
           >
             <InvoiceList

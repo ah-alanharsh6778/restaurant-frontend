@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Paper, Box, Button } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import { Paper, Box, Button, Grid, Card, CardContent, Typography, Chip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
 import recipeService from '../../services/recipe.service';
@@ -27,6 +26,7 @@ export const RecipesPage = () => {
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
   // Dialog States
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -236,14 +236,9 @@ export const RecipesPage = () => {
       title="Recipe Management"
       breadcrumbs={['Dashboard', 'Recipes']}
       actions={
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Button size="small" variant="outlined" startIcon={<RefreshIcon />} onClick={fetchData}>
-            Refresh
-          </Button>
-          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 700 }}>
-            Create Recipe
-          </Button>
-        </Box>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 800, borderRadius: 2.5, px: 2.5 }}>
+          Add Recipe
+        </Button>
       }
     >
       <Paper
@@ -258,14 +253,83 @@ export const RecipesPage = () => {
         <RecipeToolbar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          onRefresh={fetchData}
-          onAddClick={handleOpenAddDialog}
-          loading={loading}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
         <Box p={3}>
           {!loading && filteredRecipes.length === 0 ? (
             <EmptyRecipeState onCreateRecipe={handleOpenAddDialog} />
+          ) : viewMode === 'grid' ? (
+            <Grid container spacing={2.5}>
+              {filteredRecipes.map((recipe) => {
+                const menuItemName = typeof recipe.menuItem === 'object' ? recipe.menuItem?.name : (recipe.menuItemName || 'Unlinked');
+                const ingredientsCount = recipe.recipeIngredients?.length || recipe.ingredients?.length || 0;
+                return (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={recipe.id || recipe._id}>
+                    <Card
+                      elevation={0}
+                      onClick={() => handleOpenDetailsDialog(recipe)}
+                      sx={{
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        bgcolor: 'background.paper',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                        },
+                      }}
+                    >
+                      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.05rem' }}>
+                            {recipe.name}
+                          </Typography>
+                          <Chip
+                            label={`${ingredientsCount} Items`}
+                            size="small"
+                            color={ingredientsCount === 0 ? 'warning' : 'secondary'}
+                            sx={{ fontWeight: 800 }}
+                          />
+                        </Box>
+
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          Linked Menu Item: <strong>{menuItemName}</strong>
+                        </Typography>
+
+                        {recipe.description && (
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block', mb: 1.5 }}>
+                            {recipe.description}
+                          </Typography>
+                        )}
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justify: 'space-between',
+                            borderTop: '1px solid',
+                            borderColor: 'divider',
+                            pt: 1.5,
+                            mt: 1,
+                          }}
+                        >
+                          <Typography variant="caption" color="text.secondary">
+                            Created: {recipe.createdAt ? new Date(recipe.createdAt).toLocaleDateString() : '—'}
+                          </Typography>
+                          <Typography variant="caption" color="primary.main" fontWeight={700}>
+                            Tap for Details & Actions →
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
           ) : (
             <RecipeTable
               recipes={filteredRecipes}
@@ -303,6 +367,8 @@ export const RecipesPage = () => {
         recipe={selectedRecipe}
         onAddIngredientClick={handleOpenAddIngredientDialog}
         onRemoveIngredientClick={handleOpenRemoveIngredientDialog}
+        onEdit={handleOpenEditDialog}
+        onDelete={handleOpenDeleteDialog}
       />
 
       <RecipeIngredientDialog

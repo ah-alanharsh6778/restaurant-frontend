@@ -9,9 +9,9 @@ import { useNavigate } from 'react-router-dom';
 export const PageHeader = ({
   title,
   subtitle,
-  breadcrumbs = [], // Array of { label, path }
-  primaryAction = null, // { label, onClick, icon }
-  secondaryAction = null, // { label, onClick, icon }
+  breadcrumbs = [],
+  primaryAction = null,
+  secondaryAction = null,
   onRefresh,
   onExport,
 }) => {
@@ -79,7 +79,7 @@ export const PageHeader = ({
         )}
       </Box>
 
-      {/* Right: Actions */}
+      {/* Right: Actions (Strict Rectangular Boxes) */}
       <Stack
         direction="row"
         spacing={1.5}
@@ -99,8 +99,8 @@ export const PageHeader = ({
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
-                bgcolor: '#FFFFFF',
-                borderRadius: 2.5,
+                bgcolor: 'background.paper',
+                borderRadius: '4px',
                 '&:hover': { bgcolor: 'action.hover' },
               }}
             >
@@ -116,10 +116,10 @@ export const PageHeader = ({
             startIcon={<FileDownloadIcon />}
             onClick={onExport}
             sx={{
-              borderRadius: 2.5,
+              borderRadius: '4px',
               textTransform: 'none',
               fontWeight: 600,
-              bgcolor: '#FFFFFF',
+              bgcolor: 'background.paper',
               borderColor: 'divider',
             }}
           >
@@ -133,7 +133,7 @@ export const PageHeader = ({
             color={secondaryAction.color || 'primary'}
             startIcon={secondaryAction.icon}
             onClick={secondaryAction.onClick}
-            sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600 }}
+            sx={{ borderRadius: '4px', textTransform: 'none', fontWeight: 600 }}
           >
             {secondaryAction.label}
           </Button>
@@ -146,7 +146,7 @@ export const PageHeader = ({
             startIcon={primaryAction.icon || <AddIcon />}
             onClick={primaryAction.onClick}
             sx={{
-              borderRadius: 2.5,
+              borderRadius: '4px',
               textTransform: 'none',
               fontWeight: 700,
               px: 2.5,

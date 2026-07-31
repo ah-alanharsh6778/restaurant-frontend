@@ -160,7 +160,7 @@ export const TableList = ({
                 sx={{
                   borderRadius: 3,
                   p: 2,
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: 'background.paper',
                 }}
               >
                 <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -222,7 +222,7 @@ export const TableList = ({
     <Box
       sx={{
         width: '100%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'background.paper',
         borderRadius: 3,
         overflow: 'hidden',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.04)',

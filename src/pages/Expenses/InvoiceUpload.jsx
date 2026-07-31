@@ -4,6 +4,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { toast } from 'react-toastify';
 import InvoiceDropzone from './InvoiceDropzone';
 import OCRPreview from './OCRPreview';
+import { invoiceService } from '../../services/invoice.service';
 import expenseService from '../../services/expense.service';
 
 export const InvoiceUpload = ({ onExpenseCreated }) => {
@@ -13,43 +14,35 @@ export const InvoiceUpload = ({ onExpenseCreated }) => {
 
   const handleFileSelected = async (file) => {
     setUploading(true);
-    setProgress(30);
-
-    const formData = new FormData();
-    formData.append('invoice', file);
+    setProgress(20);
 
     try {
-      setTimeout(() => setProgress(70), 500);
-      const res = await expenseService.uploadInvoice(formData);
-      setTimeout(() => {
-        setProgress(100);
-        setUploading(false);
-        setOcrResult(res.ocr || {
-          supplierName: 'Fresh Produce Direct Inc.',
-          invoiceNumber: 'INV-2026-8801',
-          invoiceDate: new Date().toISOString().slice(0, 10),
-          gstNumber: 'GST-992018273',
-          subtotal: 450.00,
-          taxAmount: 38.25,
-          totalAmount: 488.25,
-          confidenceScore: 96.8,
-        });
-        toast.success('AI OCR Extraction completed!');
-      }, 1000);
+      const res = await invoiceService.uploadInvoice(file, (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setProgress(percentCompleted);
+      });
+
+      setUploading(false);
+      setProgress(100);
+
+      const invoiceData = res?.data || res;
+      setOcrResult({
+        supplierName: invoiceData.supplierName || 'Extracted Vendor',
+        invoiceNumber: invoiceData.invoiceNumber || `INV-${Date.now()}`,
+        invoiceDate: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+        gstNumber: invoiceData.gstNumber || 'N/A',
+        subtotal: invoiceData.subtotal || invoiceData.totalAmount || 0,
+        taxAmount: invoiceData.taxAmount || 0,
+        totalAmount: invoiceData.totalAmount || 0,
+        confidenceScore: invoiceData.confidenceScore || 95.0,
+      });
+
+      toast.success(res.message || 'AI OCR Extraction completed successfully!');
     } catch (error) {
       setUploading(false);
-      // Fallback OCR result if backend mock endpoint fails
-      setOcrResult({
-        supplierName: 'Fresh Produce Direct Inc.',
-        invoiceNumber: 'INV-2026-8801',
-        invoiceDate: new Date().toISOString().slice(0, 10),
-        gstNumber: 'GST-992018273',
-        subtotal: 450.00,
-        taxAmount: 38.25,
-        totalAmount: 488.25,
-        confidenceScore: 96.8,
-      });
-      toast.info('AI OCR Extraction simulated');
+      setProgress(0);
+      const msg = error.response?.data?.message || error.message || 'Failed to extract OCR data from invoice';
+      toast.error(msg);
     }
   };
 

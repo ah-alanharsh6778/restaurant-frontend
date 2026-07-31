@@ -15,30 +15,35 @@ export const KPICard = ({
 
   return (
     <Card
-      elevation={2}
+      elevation={0}
       sx={{
         height: '100%',
         position: 'relative',
         overflow: 'hidden',
+        borderRadius: '4px',
+        border: '1px solid var(--border-subdued)',
+        backgroundColor: 'var(--bg-surface)',
         transition: 'all 0.2s ease-in-out',
         '&:hover': {
-          transform: 'translateY(-3px)',
-          boxShadow: (theme) => theme.shadows[4],
+          transform: 'translateY(-2px)',
+          borderColor: 'var(--primary-500)',
+          boxShadow: 'var(--shadow-md)',
         },
       }}
     >
       <CardContent sx={{ p: 2.5 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
             {title}
           </Typography>
           <Avatar
+            variant="square"
             sx={{
               bgcolor: `${color}.light`,
               color: `${color}.dark`,
               width: 44,
               height: 44,
-              borderRadius: 2.5,
+              borderRadius: '4px',
               opacity: 0.9,
             }}
           >
@@ -50,14 +55,14 @@ export const KPICard = ({
           {value}
         </Typography>
 
-        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           {trend !== undefined && (
             <Chip
               size="small"
               icon={isPositive ? <TrendingUpIcon /> : <TrendingDownIcon />}
               label={`${isPositive ? '+' : ''}${trend}%`}
               color={isPositive ? 'success' : 'error'}
-              sx={{ height: 22, fontSize: '0.75rem', fontWeight: 700 }}
+              sx={{ height: 22, fontSize: '0.75rem', fontWeight: 700, borderRadius: '4px' }}
             />
           )}
 

@@ -357,6 +357,8 @@ export const OrdersPage = () => {
         order={selectedOrder}
         onAddItemClick={handleOpenAddItemDialog}
         onRemoveItemClick={handleOpenRemoveItemDialog}
+        onEditStatus={handleOpenEditStatusDialog}
+        onDelete={handleOpenDeleteDialog}
         onCheckout={(ord) => {
           setSelectedOrder(ord);
           setCheckoutDialogOpen(true);

@@ -222,13 +222,13 @@ const InvoiceList = ({ onView, onDelete }) => {
                     whiteSpace: 'nowrap',
                   },
                 }}>
+                  <TableCell align="center" sx={{ width: 60 }}>S.No.</TableCell>
                   <TableCell>Invoice #</TableCell>
                   <TableCell>Supplier</TableCell>
                   <TableCell>Date</TableCell>
                   <TableCell align="right">Total</TableCell>
                   <TableCell align="center">Status</TableCell>
                   <TableCell align="center">Items</TableCell>
-                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -239,8 +239,14 @@ const InvoiceList = ({ onView, onDelete }) => {
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.03 }}
-                      style={{ display: 'table-row' }}
+                      style={{ display: 'table-row', cursor: 'pointer' }}
+                      onClick={() => onView?.(invoice)}
                     >
+                      <TableCell align="center" sx={{ borderBottom: '1px solid var(--border-subdued)' }}>
+                        <Typography sx={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                          {(page - 1) * PAGE_SIZE + idx + 1}
+                        </Typography>
+                      </TableCell>
                       <TableCell sx={{ borderBottom: '1px solid var(--border-subdued)' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Box sx={{
@@ -277,38 +283,6 @@ const InvoiceList = ({ onView, onDelete }) => {
                         <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
                           {invoice.items?.length ?? 0}
                         </Typography>
-                      </TableCell>
-                      <TableCell align="center" sx={{ borderBottom: '1px solid var(--border-subdued)' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
-                          <Tooltip title="View Details">
-                            <IconButton
-                              size="small"
-                              onClick={() => onView?.(invoice)}
-                              sx={{
-                                borderRadius: '8px',
-                                color: 'var(--primary-500)',
-                                '&:hover': { backgroundColor: 'rgba(99,102,241,0.08)' },
-                              }}
-                            >
-                              <Eye size={15} />
-                            </IconButton>
-                          </Tooltip>
-                          {isManager && (
-                            <Tooltip title="Delete">
-                              <IconButton
-                                size="small"
-                                onClick={() => onDelete?.(invoice)}
-                                sx={{
-                                  borderRadius: '8px',
-                                  color: 'var(--text-muted)',
-                                  '&:hover': { color: 'var(--color-danger)', backgroundColor: 'var(--color-danger-bg)' },
-                                }}
-                              >
-                                <Trash2 size={15} />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
                       </TableCell>
                     </motion.tr>
                   ))}

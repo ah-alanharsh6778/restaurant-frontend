@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Grid,
-  Card,
-  CardContent,
   Typography,
   Paper,
   Chip,
@@ -21,6 +19,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../layout/PageContainer';
 import { useAuth } from '../../hooks/useAuth';
+import { normaliseRole } from '../../utils/rbac';
 import tableService from '../../services/table.service';
 import { GlassCard } from '../../components/ui';
 
@@ -32,6 +31,9 @@ export const DashboardPage = () => {
   // Tables data state for live open tables counter
   const [tables, setTables] = useState([]);
   const [loadingTables, setLoadingTables] = useState(true);
+
+  const userRole = normaliseRole(user?.role);
+  const canViewExpenses = !['WAITER', 'CHEF'].includes(userRole);
 
   const fetchTables = useCallback(async () => {
     try {
@@ -116,43 +118,46 @@ export const DashboardPage = () => {
       color: 'secondary',
       tag: 'Stock',
     },
-    {
-      title: 'Operational Expenses',
-      metric: 'Financial Ledger',
-      subtitle: 'OCR invoices & expense entries',
-      icon: <AttachMoneyIcon fontSize="large" sx={{ color: '#F59E0B' }} />,
-      route: '/expenses',
-      color: 'warning',
-      tag: 'Expenses',
-    },
+    ...(canViewExpenses
+      ? [
+          {
+            title: 'Operational Expenses',
+            metric: 'Financial Ledger',
+            subtitle: 'OCR invoices & expense entries',
+            icon: <AttachMoneyIcon fontSize="large" sx={{ color: '#F59E0B' }} />,
+            route: '/expenses',
+            color: 'warning',
+            tag: 'Expenses',
+          },
+        ]
+      : []),
   ];
 
   return (
     <PageContainer maxWidth={false}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
-        {/* Welcome Header Banner with Glassmorphism Overlay */}
+        {/* Welcome Header Banner (Strict Rectangular Layout) */}
         <Paper
           elevation={0}
           sx={{
             p: { xs: 3, sm: 4 },
-            borderRadius: 4,
+            borderRadius: '4px',
             background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.95) 0%, rgba(0, 172, 193, 0.9) 100%)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(255, 255, 255, 0.25)',
             boxShadow: '0 12px 32px -4px rgba(25, 118, 210, 0.3)',
             color: '#FFFFFF',
           }}
         >
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={7}>
+            <Grid xs={12} md={7}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, mb: 1 }}>
                 <Avatar
+                  variant="square"
                   sx={{
                     bgcolor: 'rgba(255, 255, 255, 0.25)',
                     width: 56,
                     height: 56,
-                    backdropFilter: 'blur(8px)',
+                    borderRadius: '4px',
                     border: '1px solid rgba(255, 255, 255, 0.4)',
                   }}
                 >
@@ -170,14 +175,14 @@ export const DashboardPage = () => {
                       color: '#FFFFFF',
                       fontWeight: 800,
                       mt: 0.5,
-                      borderRadius: 2,
+                      borderRadius: '4px',
                     }}
                   />
                 </Box>
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={5}>
+            <Grid xs={12} md={5}>
               <Box
                 sx={{
                   display: 'flex',
@@ -186,13 +191,13 @@ export const DashboardPage = () => {
                   gap: 0.8,
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255, 255, 255, 0.15)', px: 2, py: 0.6, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255, 255, 255, 0.15)', px: 2, py: 0.6, borderRadius: '4px' }}>
                   <CalendarTodayIcon fontSize="small" />
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {formattedDate}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255, 255, 255, 0.15)', px: 2, py: 0.6, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255, 255, 255, 0.15)', px: 2, py: 0.6, borderRadius: '4px' }}>
                   <AccessTimeIcon fontSize="small" />
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {formattedTime}
@@ -210,7 +215,7 @@ export const DashboardPage = () => {
 
         <Grid container spacing={3}>
           {overviewCards.map((card) => (
-            <Grid item xs={12} sm={6} md={3} key={card.title}>
+            <Grid xs={12} sm={6} md={canViewExpenses ? 3 : 4} key={card.title}>
               <GlassCard
                 gradient
                 glowOnHover
@@ -218,6 +223,7 @@ export const DashboardPage = () => {
                 sx={{
                   height: '100%',
                   cursor: 'pointer',
+                  borderRadius: '4px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
@@ -227,11 +233,12 @@ export const DashboardPage = () => {
                 <Box>
                   <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
                     <Avatar
+                      variant="square"
                       sx={{
                         bgcolor: 'rgba(0, 0, 0, 0.04)',
                         width: 52,
                         height: 52,
-                        borderRadius: 3,
+                        borderRadius: '4px',
                       }}
                     >
                       {card.icon}
@@ -240,7 +247,7 @@ export const DashboardPage = () => {
                       label={card.tag}
                       color={card.color}
                       size="small"
-                      sx={{ fontWeight: 800, borderRadius: 2 }}
+                      sx={{ fontWeight: 800, borderRadius: '4px' }}
                     />
                   </Box>
 
@@ -261,7 +268,7 @@ export const DashboardPage = () => {
                   <Button
                     size="small"
                     endIcon={<ArrowForwardIcon fontSize="small" />}
-                    sx={{ fontWeight: 800, textTransform: 'none' }}
+                    sx={{ fontWeight: 800, textTransform: 'none', borderRadius: '4px' }}
                   >
                     Open Module
                   </Button>

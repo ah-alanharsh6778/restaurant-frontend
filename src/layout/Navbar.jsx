@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -23,9 +23,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PersonIcon from '@mui/icons-material/Person';
 import SecurityIcon from '@mui/icons-material/Security';
-import HelpIcon from '@mui/icons-material/Help';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
 import SearchIcon from '@mui/icons-material/Search';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -39,7 +37,6 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
   const { user, logout } = useAuth();
   const { mode, toggleColorMode } = useColorMode();
   const isDark = mode === 'dark';
-  const location = useLocation();
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -108,11 +105,14 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
             }),
-          backgroundColor: 'var(--glass-bg)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          borderRadius: 0,
+          top: 0,
+          left: 'auto',
+          right: 0,
+          backgroundColor: 'var(--bg-surface)',
           borderBottom: '1px solid var(--border-subdued)',
           color: 'var(--text-primary)',
+          boxShadow: 'none',
           zIndex: (theme) => theme.zIndex.drawer - 1,
         }}
       >
@@ -123,21 +123,20 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
             px: { xs: 2, sm: 3 },
           }}
         >
-          {/* Left Controls: Mobile Toggle & Page Title */}
+          {/* Left Controls: Mobile Toggle */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={onMobileToggle}
-              sx={{ display: { md: 'none' } }}
+              sx={{ display: { md: 'none' }, borderRadius: '4px' }}
             >
               <MenuIcon />
             </IconButton>
-
           </Box>
 
-          {/* Center: Global Search Bar */}
+          {/* Center: Global Search Bar - Strict Rectangular Box */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1, maxWidth: 420, mx: 3 }}>
             <Paper
               elevation={0}
@@ -146,13 +145,12 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                 display: 'flex',
                 alignItems: 'center',
                 width: '100%',
-                borderRadius: '14px',
+                borderRadius: '4px',
                 backgroundColor: 'var(--bg-surface)',
                 border: '1px solid var(--border-subdued)',
-                transition: 'all 0.2s ease',
+                transition: 'border-color 0.2s ease',
                 '&:hover, &:focus-within': {
-                  borderColor: 'var(--primary-400)',
-                  boxShadow: '0 0 0 3px var(--primary-100)',
+                  borderColor: 'var(--primary-500)',
                 },
               }}
             >
@@ -164,7 +162,7 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
             </Paper>
           </Box>
 
-          {/* Right Controls: Theme Toggle, Notifications, User Menu */}
+          {/* Right Controls: Theme Toggle, Notifications, User Menu - Strict Rectangular Controls */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             {/* Theme Toggle Controller */}
             <Tooltip title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`} arrow>
@@ -173,7 +171,7 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                 color="inherit"
                 sx={{
                   border: '1px solid var(--border-subdued)',
-                  borderRadius: '12px',
+                  borderRadius: '4px',
                   backgroundColor: 'var(--bg-surface)',
                   '&:hover': { backgroundColor: 'var(--bg-subtle)' },
                 }}
@@ -189,18 +187,26 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                 color="inherit"
                 sx={{
                   border: '1px solid var(--border-subdued)',
-                  borderRadius: '12px',
+                  borderRadius: '4px',
                   backgroundColor: 'var(--bg-surface)',
                   '&:hover': { backgroundColor: 'var(--bg-subtle)' },
                 }}
               >
-                <Badge badgeContent={3} color="primary">
+                <Badge
+                  badgeContent={3}
+                  color="primary"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      borderRadius: '2px',
+                    },
+                  }}
+                >
                   <NotificationsIcon sx={{ fontSize: 20, color: 'var(--text-secondary)' }} />
                 </Badge>
               </IconButton>
             </Tooltip>
 
-            {/* User Profile Avatar Trigger */}
+            {/* User Profile Trigger - Strict Rectangle Avatar */}
             <Box
               onClick={handleOpenMenu}
               sx={{
@@ -210,22 +216,23 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                 cursor: 'pointer',
                 p: 0.5,
                 pr: { xs: 0.5, sm: 1.5 },
-                borderRadius: '14px',
+                borderRadius: '4px',
                 border: '1px solid var(--border-subdued)',
                 backgroundColor: 'var(--bg-surface)',
-                transition: 'all 0.2s ease',
-                '&:hover': { borderColor: 'var(--primary-400)', backgroundColor: 'var(--bg-subtle)' },
+                transition: 'border-color 0.2s ease',
+                '&:hover': { borderColor: 'var(--primary-500)', backgroundColor: 'var(--bg-subtle)' },
               }}
             >
               <Avatar
+                variant="square"
                 sx={{
                   bgcolor: 'var(--primary-600)',
                   color: '#FFFFFF',
-                  width: 36,
-                  height: 36,
-                  fontSize: '0.875rem',
+                  width: 34,
+                  height: 34,
+                  borderRadius: '4px',
+                  fontSize: '0.85rem',
                   fontWeight: 800,
-                  boxShadow: 'var(--shadow-glow-primary)',
                 }}
               >
                 {initials}
@@ -240,7 +247,7 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
               </Box>
             </Box>
 
-            {/* Profile Dropdown Menu */}
+            {/* Profile Dropdown Menu - Strict Rectangular Box */}
             <Menu
               anchorEl={anchorEl}
               open={openMenu}
@@ -250,14 +257,12 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                 elevation: 0,
                 sx: {
                   overflow: 'visible',
-                  filter: 'drop-shadow(0px 10px 30px rgba(0,0,0,0.15))',
                   mt: 1.5,
                   minWidth: 220,
-                  borderRadius: '16px',
+                  borderRadius: '4px',
                   border: '1px solid var(--border-subdued)',
-                  backgroundColor: 'var(--glass-bg)',
-                  backdropFilter: 'blur(16px)',
-                  boxShadow: 'var(--shadow-lg)',
+                  backgroundColor: 'var(--bg-surface)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                 },
               }}
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -274,27 +279,27 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
                   label={roleDisplay}
                   size="small"
                   color="primary"
-                  sx={{ mt: 1, fontWeight: 800, height: 20, fontSize: '0.65rem' }}
+                  sx={{ mt: 1, fontWeight: 800, height: 20, fontSize: '0.65rem', borderRadius: '2px' }}
                 />
               </Box>
 
               <Divider sx={{ my: 1, borderColor: 'var(--border-subdued)' }} />
 
-              <MenuItem onClick={() => handleNavigate('/profile')} sx={{ py: 1, borderRadius: '10px' }}>
+              <MenuItem onClick={() => handleNavigate('/profile')} sx={{ py: 1, borderRadius: '4px', mx: 0.5 }}>
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText primary="User Profile" />
               </MenuItem>
 
-              <MenuItem onClick={() => handleNavigate('/settings')} sx={{ py: 1, borderRadius: '10px' }}>
+              <MenuItem onClick={() => handleNavigate('/settings')} sx={{ py: 1, borderRadius: '4px', mx: 0.5 }}>
                 <ListItemIcon>
                   <SettingsIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText primary="Account Settings" />
               </MenuItem>
 
-              <MenuItem onClick={() => handleNavigate('/roles')} sx={{ py: 1, borderRadius: '10px' }}>
+              <MenuItem onClick={() => handleNavigate('/roles')} sx={{ py: 1, borderRadius: '4px', mx: 0.5 }}>
                 <ListItemIcon>
                   <SecurityIcon fontSize="small" />
                 </ListItemIcon>
@@ -303,7 +308,7 @@ export const Navbar = ({ onMobileToggle, collapsed }) => {
 
               <Divider sx={{ my: 1, borderColor: 'var(--border-subdued)' }} />
 
-              <MenuItem onClick={handleLogout} sx={{ py: 1, borderRadius: '10px', color: 'var(--color-danger)' }}>
+              <MenuItem onClick={handleLogout} sx={{ py: 1, borderRadius: '4px', mx: 0.5, color: 'var(--color-danger)' }}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" sx={{ color: 'var(--color-danger)' }} />
                 </ListItemIcon>

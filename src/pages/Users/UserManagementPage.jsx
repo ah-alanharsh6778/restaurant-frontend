@@ -16,6 +16,13 @@ import {
   Tab,
   IconButton,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+  Divider,
+  Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
@@ -249,6 +256,23 @@ export const UserManagementPage = () => {
   // User Accounts DataGrid Columns
   const userColumns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'fullName',
       headerName: 'User Profile & Identity',
       flex: 1.8,
@@ -346,6 +370,23 @@ export const UserManagementPage = () => {
 
   // Staff Profiles DataGrid Columns
   const staffColumns = [
+    {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
     {
       field: 'employeeCode',
       headerName: 'Employee Code',
@@ -530,15 +571,13 @@ export const UserManagementPage = () => {
         icon={PersonIcon}
         iconColor="primary.main"
       >
-        <Box component="form" onSubmit={handleCreateUser} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+        <Box component="form" onSubmit={handleCreateUser} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <Alert severity="info" sx={{ borderRadius: 2 }}>
             Registering a user creates an active authentication profile with an assigned backend role.
           </Alert>
 
           <TextField
-            fullWidth
-            required
-            size="small"
+            fullWidth required size="small"
             label="Full Name"
             placeholder="e.g. Sarah Connor"
             value={userForm.fullName}
@@ -546,10 +585,7 @@ export const UserManagementPage = () => {
           />
 
           <TextField
-            fullWidth
-            required
-            type="email"
-            size="small"
+            fullWidth required type="email" size="small"
             label="Email Address"
             placeholder="e.g. sarah@restaurant.com"
             value={userForm.email}
@@ -557,10 +593,7 @@ export const UserManagementPage = () => {
           />
 
           <TextField
-            fullWidth
-            required
-            type="password"
-            size="small"
+            fullWidth required type="password" size="small"
             label="Password"
             placeholder="At least 6 characters"
             value={userForm.password}
@@ -568,8 +601,7 @@ export const UserManagementPage = () => {
           />
 
           <TextField
-            fullWidth
-            size="small"
+            fullWidth size="small"
             label="Phone Number (Optional)"
             placeholder="e.g. +1 555-0199"
             value={userForm.phone}
@@ -586,158 +618,252 @@ export const UserManagementPage = () => {
             >
               {roles.map((r) => (
                 <MenuItem key={r.id} value={r.id}>
-                  {r.name} {r.description ? `— ${r.description}` : ''}
+                  {r.name}{r.description ? ` — ${r.description}` : ''}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mt: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
             <Button onClick={() => setUserDialogOpen(false)} color="inherit" disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" disabled={submitting} sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={submitting}
+              startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
+              sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
+            >
               {submitting ? 'Registering...' : 'Register User'}
             </Button>
           </Box>
         </Box>
       </ResponsiveDialog>
 
-      {/* Staff Profile Dialog (Create / Edit) */}
-      <ResponsiveDialog
+      {/* ── Staff Profile Dialog (Create / Edit) ─────────────── */}
+      <Dialog
         open={staffDialogOpen}
         onClose={() => setStaffDialogOpen(false)}
+        fullWidth
         maxWidth="sm"
-        title={selectedStaff ? 'Edit Staff Profile' : 'Create Staff Profile'}
-        subtitle="Manage employment code, department, shift, and compensation"
-        icon={BadgeIcon}
-        iconColor="secondary.main"
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: { borderRadius: 3, overflow: 'hidden', bgcolor: 'background.paper' },
+          },
+        }}
       >
-        <Box component="form" onSubmit={handleSaveStaff} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          {!selectedStaff && (
-            <FormControl fullWidth size="small" required>
-              <InputLabel>Associated User Account</InputLabel>
-              <Select
-                value={staffForm.userId}
-                label="Associated User Account"
-                onChange={(e) => setStaffForm({ ...staffForm, userId: e.target.value })}
-              >
-                {users.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.fullName || u.email} ({u.email})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-
-          <TextField
-            fullWidth
-            required
-            size="small"
-            label="Employee Code"
-            placeholder="e.g. EMP-9918"
-            value={staffForm.employeeCode}
-            onChange={(e) => setStaffForm({ ...staffForm, employeeCode: e.target.value })}
-          />
-
-          <FormControl fullWidth size="small" required>
-            <InputLabel>Department</InputLabel>
-            <Select
-              value={staffForm.department}
-              label="Department"
-              onChange={(e) => setStaffForm({ ...staffForm, department: e.target.value })}
+        {/* Header */}
+        <DialogTitle sx={{ p: 0 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              px: 3,
+              py: 2.5,
+              bgcolor: 'secondary.main',
+              color: 'secondary.contrastText',
+            }}
+          >
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: 2,
+                bgcolor: 'rgba(255,255,255,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
             >
-              <MenuItem value="KITCHEN">Kitchen & Food Prep</MenuItem>
-              <MenuItem value="SERVICE">Dining Service & POS</MenuItem>
-              <MenuItem value="MANAGEMENT">Management & Ops</MenuItem>
-              <MenuItem value="INVENTORY">Inventory & Logistics</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            required
-            size="small"
-            label="Designation / Job Title"
-            placeholder="e.g. Executive Chef, Waiter, Manager"
-            value={staffForm.designation}
-            onChange={(e) => setStaffForm({ ...staffForm, designation: e.target.value })}
-          />
-
-          <FormControl fullWidth size="small">
-            <InputLabel>Shift</InputLabel>
-            <Select
-              value={staffForm.shift}
-              label="Shift"
-              onChange={(e) => setStaffForm({ ...staffForm, shift: e.target.value })}
+              <BadgeIcon />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="h6" fontWeight={800} noWrap>
+                {selectedStaff ? 'Edit Staff Profile' : 'Create Staff Profile'}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                Employment code, department, shift and compensation
+              </Typography>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={() => setStaffDialogOpen(false)}
+              sx={{ color: 'inherit', '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}
             >
-              <MenuItem value="MORNING">Morning Shift</MenuItem>
-              <MenuItem value="EVENING">Evening Shift</MenuItem>
-              <MenuItem value="NIGHT">Night Shift</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            type="date"
-            size="small"
-            label="Hire Date"
-            InputLabelProps={{ shrink: true }}
-            value={staffForm.hireDate}
-            onChange={(e) => setStaffForm({ ...staffForm, hireDate: e.target.value })}
-          />
-
-          <TextField
-            fullWidth
-            type="number"
-            size="small"
-            label="Salary ($ / Mo)"
-            placeholder="e.g. 3500"
-            value={staffForm.salary}
-            onChange={(e) => setStaffForm({ ...staffForm, salary: e.target.value })}
-          />
-
-          <TextField
-            fullWidth
-            size="small"
-            label="Emergency Contact"
-            placeholder="e.g. John (Spouse) +1 555-0922"
-            value={staffForm.emergencyContact}
-            onChange={(e) => setStaffForm({ ...staffForm, emergencyContact: e.target.value })}
-          />
-
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mt: 1 }}>
-            <Button onClick={() => setStaffDialogOpen(false)} color="inherit" disabled={submitting}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained" color="secondary" disabled={submitting} sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}>
-              {submitting ? 'Saving...' : selectedStaff ? 'Update Profile' : 'Create Profile'}
-            </Button>
+              ✕
+            </IconButton>
           </Box>
-        </Box>
-      </ResponsiveDialog>
+        </DialogTitle>
 
-      {/* Staff Delete Dialog */}
-      <ResponsiveDialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        maxWidth="xs"
-        title="Delete Staff Profile"
-        subtitle="Confirm deletion of staff employment profile"
-      >
-        <Typography variant="body2" sx={{ py: 1 }}>
-          Are you sure you want to delete staff profile <strong>{staffToDelete?.employeeCode}</strong> ({staffToDelete?.fullName})? This action cannot be undone.
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mt: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit" disabled={submitting}>
+        {/* Scrollable Content */}
+        <DialogContent sx={{ px: 3, py: 3, bgcolor: 'background.paper', overflowY: 'auto' }}>
+          <Box component="form" id="staff-profile-form" onSubmit={handleSaveStaff}>
+
+            {/* Link to user account (create only) */}
+            {!selectedStaff && (
+              <FormControl fullWidth size="small" required sx={{ mb: 2 }}>
+                <InputLabel>Associated User Account</InputLabel>
+                <Select
+                  value={staffForm.userId}
+                  label="Associated User Account"
+                  onChange={(e) => setStaffForm({ ...staffForm, userId: e.target.value })}
+                >
+                  {users.map((u) => (
+                    <MenuItem key={u.id} value={u.id}>
+                      {u.fullName || u.email} ({u.email})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Row 1: Employee Code + Designation */}
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth required size="small"
+                  label="Employee Code"
+                  placeholder="e.g. EMP-9918"
+                  value={staffForm.employeeCode}
+                  onChange={(e) => setStaffForm({ ...staffForm, employeeCode: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth required size="small"
+                  label="Designation / Job Title"
+                  placeholder="e.g. Executive Chef"
+                  value={staffForm.designation}
+                  onChange={(e) => setStaffForm({ ...staffForm, designation: e.target.value })}
+                />
+              </Grid>
+            </Grid>
+
+            {/* Row 2: Department + Shift */}
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small" required>
+                  <InputLabel>Department</InputLabel>
+                  <Select
+                    value={staffForm.department}
+                    label="Department"
+                    onChange={(e) => setStaffForm({ ...staffForm, department: e.target.value })}
+                  >
+                    <MenuItem value="KITCHEN">Kitchen &amp; Food Prep</MenuItem>
+                    <MenuItem value="SERVICE">Dining Service &amp; POS</MenuItem>
+                    <MenuItem value="MANAGEMENT">Management &amp; Ops</MenuItem>
+                    <MenuItem value="INVENTORY">Inventory &amp; Logistics</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Shift</InputLabel>
+                  <Select
+                    value={staffForm.shift}
+                    label="Shift"
+                    onChange={(e) => setStaffForm({ ...staffForm, shift: e.target.value })}
+                  >
+                    <MenuItem value="MORNING">Morning Shift</MenuItem>
+                    <MenuItem value="EVENING">Evening Shift</MenuItem>
+                    <MenuItem value="NIGHT">Night Shift</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
+            {/* Row 3: Hire Date + Salary */}
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth size="small"
+                  type="date"
+                  label="Hire Date"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                  value={staffForm.hireDate}
+                  onChange={(e) => setStaffForm({ ...staffForm, hireDate: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth size="small"
+                  type="number"
+                  label="Salary ($ / Month)"
+                  placeholder="e.g. 3500"
+                  value={staffForm.salary}
+                  onChange={(e) => setStaffForm({ ...staffForm, salary: e.target.value })}
+                />
+              </Grid>
+            </Grid>
+
+            {/* Emergency Contact */}
+            <TextField
+              fullWidth size="small"
+              label="Emergency Contact"
+              placeholder="e.g. John (Spouse) +1 555-0922"
+              value={staffForm.emergencyContact}
+              onChange={(e) => setStaffForm({ ...staffForm, emergencyContact: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, py: 2, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider', gap: 1 }}>
+          <Button onClick={() => setStaffDialogOpen(false)} color="inherit" disabled={submitting} sx={{ fontWeight: 600 }}>
             Cancel
           </Button>
-          <Button onClick={handleConfirmDeleteStaff} variant="contained" color="error" disabled={submitting} sx={{ fontWeight: 700 }}>
+          <Button
+            type="submit"
+            form="staff-profile-form"
+            variant="contained"
+            color="secondary"
+            disabled={submitting}
+            startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={{ px: 3, fontWeight: 700, borderRadius: 2 }}
+          >
+            {submitting ? 'Saving...' : selectedStaff ? 'Update Profile' : 'Create Profile'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Staff Delete Confirmation Dialog ──────────────────── */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+        slotProps={{ paper: { elevation: 8, sx: { borderRadius: 3, bgcolor: 'background.paper' } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Delete Staff Profile</DialogTitle>
+        <DialogContent sx={{ bgcolor: 'background.paper' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Are you sure you want to delete staff profile{' '}
+            <strong>{staffToDelete?.employeeCode}</strong>
+            {staffToDelete?.fullName ? ` (${staffToDelete.fullName})` : ''}?
+          </Typography>
+          <Alert severity="warning" sx={{ borderRadius: 2 }}>
+            This action is permanent and cannot be undone.
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider', gap: 1 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit" disabled={submitting} sx={{ fontWeight: 600 }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDeleteStaff}
+            variant="contained"
+            color="error"
+            disabled={submitting}
+            startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon />}
+            sx={{ fontWeight: 700 }}
+          >
             {submitting ? 'Deleting...' : 'Delete Profile'}
           </Button>
-        </Box>
-      </ResponsiveDialog>
+        </DialogActions>
+      </Dialog>
     </PageContainer>
   );
 };

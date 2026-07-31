@@ -63,7 +63,7 @@ export const CategoryDialog = ({
       <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} noValidate>
         <DialogContent dividers>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Controller
                 name="name"
                 control={control}
@@ -84,7 +84,7 @@ export const CategoryDialog = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Controller
                 name="description"
                 control={control}

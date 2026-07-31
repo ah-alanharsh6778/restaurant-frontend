@@ -7,10 +7,14 @@ import {
   MenuItem,
   IconButton,
   Tooltip,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'All Statuses' },
@@ -28,32 +32,24 @@ export const PurchaseOrderToolbar = ({
   supplierFilter = 'ALL',
   onSupplierFilterChange,
   availableSuppliers = [],
-  onRefresh,
-  onAddClick,
-  loading = false,
+  viewMode = 'list',
+  onViewModeChange,
+  onCreatePO,
 }) => {
   return (
     <Box
       sx={{
-        p: 3,
+        p: 2.5,
         display: 'flex',
-        flexDirection: { xs: 'column', lg: 'row' },
-        alignItems: { xs: 'stretch', lg: 'center' },
-        justifyContent: 'space-between',
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'stretch', md: 'center' },
+        justify: 'space-between',
         gap: 2,
         borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Box>
-        <Typography variant="h6" fontWeight={800}>
-          Purchase Order Management
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Create raw ingredient procurement orders, track supplier fulfillments, and monitor procurement spend
-        </Typography>
-      </Box>
-
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+      {/* Left Side: Search & Filters */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
         <TextField
           size="small"
           placeholder="Search PO number or supplier..."
@@ -68,7 +64,7 @@ export const PurchaseOrderToolbar = ({
               ),
             },
           }}
-          sx={{ minWidth: 240 }}
+          sx={{ minWidth: { xs: '100%', sm: 240, md: 280 } }}
         />
 
         <TextField
@@ -89,7 +85,7 @@ export const PurchaseOrderToolbar = ({
         <TextField
           select
           size="small"
-          label="Supplier Filter"
+          label="Supplier"
           value={supplierFilter}
           onChange={(e) => onSupplierFilterChange(e.target.value)}
           sx={{ minWidth: 160 }}
@@ -101,25 +97,27 @@ export const PurchaseOrderToolbar = ({
             </MenuItem>
           ))}
         </TextField>
-
-        <Tooltip title="Refresh Purchase Orders">
-          <span>
-            <IconButton onClick={onRefresh} disabled={loading} color="primary">
-              <RefreshIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
-
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={onAddClick}
-          sx={{ py: 0.9, px: 2.5, fontWeight: 800, whiteSpace: 'nowrap', borderRadius: 2.5 }}
-        >
-          Create PO
-        </Button>
       </Box>
+
+      {/* Right Side: View Mode Toggle */}
+      {onViewModeChange && (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, val) => val && onViewModeChange(val)}
+            size="small"
+            sx={{ bgcolor: 'background.paper', borderRadius: 2, display: { xs: 'none', md: 'inline-flex' } }}
+          >
+            <ToggleButton value="grid" aria-label="cards view">
+              <GridViewIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards View
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="datagrid view">
+              <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> DataGrid View
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+      )}
     </Box>
   );
 };

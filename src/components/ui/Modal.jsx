@@ -7,14 +7,12 @@ import {
   IconButton,
   Typography,
   Box,
-  Slide,
-  Fade,
 } from '@mui/material';
 import { MdClose } from 'react-icons/md';
 
 /**
  * RestaurantOS Modal (Dialog) Component
- * Glassmorphic popup modal with backdrop blur, scale entrance animation, header close button, and footer actions.
+ * Solid rectangular popup modal with header close button and footer actions.
  */
 export const Modal = ({
   open,
@@ -23,10 +21,11 @@ export const Modal = ({
   subtitle,
   children,
   actions,
-  maxWidth = 'sm', // 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  maxWidth = 'sm',
   fullWidth = true,
   disableBackdropClick = false,
   sx = {},
+  PaperProps,
   ...props
 }) => {
   const handleClose = (event, reason) => {
@@ -36,31 +35,30 @@ export const Modal = ({
     if (onClose) onClose();
   };
 
+  const paperSx = {
+    borderRadius: '4px',
+    backgroundColor: 'var(--bg-surface)',
+    border: '1px solid var(--border-subdued)',
+    boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+    overflow: 'hidden',
+    ...PaperProps?.sx,
+    ...sx,
+  };
+
   return (
     <Dialog
       open={open}
       onClose={handleClose}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
-      PaperProps={{
-        elevation: 0,
-        sx: {
-          borderRadius: '24px',
-          backgroundColor: 'var(--glass-bg)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid var(--glass-border)',
-          boxShadow: 'var(--shadow-xl)',
-          overflow: 'hidden',
-          animation: 'scaleIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-          ...sx,
-        },
-      }}
       slotProps={{
+        paper: {
+          elevation: 0,
+          sx: paperSx,
+        },
         backdrop: {
           sx: {
             backgroundColor: 'var(--bg-overlay)',
-            backdropFilter: 'blur(6px)',
           },
         },
       }}
@@ -93,7 +91,7 @@ export const Modal = ({
             size="small"
             sx={{
               color: 'var(--text-secondary)',
-              borderRadius: '10px',
+              borderRadius: '4px',
               '&:hover': { backgroundColor: 'var(--bg-subtle)' },
             }}
           >

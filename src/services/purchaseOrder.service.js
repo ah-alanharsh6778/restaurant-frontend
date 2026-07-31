@@ -1,13 +1,13 @@
 import api from './api';
 
 export const purchaseOrderService = {
-  getPurchaseOrders: async () => {
-    const response = await api.get('/purchase-orders');
+  getPurchaseOrders: async (params = {}) => {
+    const response = await api.get('/purchase-orders', { params });
     return response.data;
   },
 
-  getAll: async () => {
-    const response = await api.get('/purchase-orders');
+  getAll: async (params = {}) => {
+    const response = await api.get('/purchase-orders', { params });
     return response.data;
   },
 
@@ -41,6 +41,52 @@ export const purchaseOrderService = {
     return response.data;
   },
 
+  approvePurchaseOrder: async (id) => {
+    const response = await api.patch(`/purchase-orders/${id}/approve`);
+    return response.data;
+  },
+
+  updateStatus: async (id, status) => {
+    const response = await api.patch(`/purchase-orders/${id}/status`, { status });
+    return response.data;
+  },
+
+  updatePaymentStatus: async (id, paymentStatus) => {
+    const response = await api.patch(`/purchase-orders/${id}/payment-status`, { paymentStatus });
+    return response.data;
+  },
+
+  receiveItems: async (id, data) => {
+    const response = await api.post(`/purchase-orders/${id}/receive`, data);
+    return response.data;
+  },
+
+  uploadSupplierInvoice: async (id, formData) => {
+    const response = await api.post(`/purchase-orders/${id}/upload-invoice`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  createPayment: async (id, data) => {
+    const response = await api.post(`/purchase-orders/${id}/payments`, data);
+    return response.data;
+  },
+
+  getPrintData: async (id) => {
+    const response = await api.get(`/purchase-orders/${id}/print`, {
+      headers: { Accept: 'text/html' },
+    });
+    return response.data;
+  },
+
+  getPdfData: async (id) => {
+    const response = await api.get(`/purchase-orders/${id}/pdf`);
+    return response.data;
+  },
+
   deletePurchaseOrder: async (id) => {
     const response = await api.delete(`/purchase-orders/${id}`);
     return response.data;
@@ -48,26 +94,6 @@ export const purchaseOrderService = {
 
   delete: async (id) => {
     const response = await api.delete(`/purchase-orders/${id}`);
-    return response.data;
-  },
-
-  addPurchaseOrderItem: async (data) => {
-    const response = await api.post('/purchase-orders/items', data);
-    return response.data;
-  },
-
-  addItem: async (data) => {
-    const response = await api.post('/purchase-orders/items', data);
-    return response.data;
-  },
-
-  deletePurchaseOrderItem: async (id) => {
-    const response = await api.delete(`/purchase-orders/items/${id}`);
-    return response.data;
-  },
-
-  removeItem: async (id) => {
-    const response = await api.delete(`/purchase-orders/items/${id}`);
     return response.data;
   },
 };

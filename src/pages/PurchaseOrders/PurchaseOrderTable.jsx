@@ -1,7 +1,4 @@
-import { Box, IconButton, Tooltip, Chip, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Chip, Typography } from '@mui/material';
 import PurchaseOrderStatusChip from './PurchaseOrderStatusChip';
 import CommonDataGrid from '../../components/common/CommonDataGrid';
 import EmptyPurchaseOrderState from './EmptyPurchaseOrderState';
@@ -10,16 +7,36 @@ export const PurchaseOrderTable = ({
   purchaseOrders = [],
   loading = false,
   onView,
-  onEditStatus,
+  onEdit,
+  onReceive,
+  onUploadInvoice,
+  onRecordPayment,
+  onPrint,
   onDelete,
-  onAddItem,
 }) => {
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'poNumber',
       headerName: 'PO Number',
-      flex: 1.4,
-      minWidth: 170,
+      flex: 1.2,
+      minWidth: 140,
       renderCell: (params) => (
         <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'text.primary' }}>
           {params.value || `PO-${String(params.row.id || '').substring(0, 6)}`}
@@ -28,9 +45,9 @@ export const PurchaseOrderTable = ({
     },
     {
       field: 'supplier',
-      headerName: 'Supplier',
+      headerName: 'Supplier Vendor',
       flex: 1.4,
-      minWidth: 170,
+      minWidth: 160,
       renderCell: (params) => {
         const val = params.value;
         let supName = 'Unknown Vendor';
@@ -47,40 +64,39 @@ export const PurchaseOrderTable = ({
     },
     {
       field: 'status',
-      headerName: 'Status',
-      flex: 1.2,
-      minWidth: 140,
+      headerName: 'PO Status',
+      flex: 1.1,
+      minWidth: 130,
       renderCell: (params) => <PurchaseOrderStatusChip status={params.value} />,
     },
     {
-      field: 'itemsCount',
-      headerName: 'Items',
-      flex: 0.9,
+      field: 'paymentStatus',
+      headerName: 'Payment',
+      flex: 1.0,
       minWidth: 110,
-      type: 'number',
-      headerAlign: 'left',
-      align: 'left',
-      valueGetter: (value, row) => row.purchaseItems?.length || row.items?.length || 0,
       renderCell: (params) => {
-        const count = params.row.purchaseItems?.length || params.row.items?.length || 0;
+        const pStatus = params.value || 'PENDING';
+        const isPaid = pStatus === 'PAID';
+        const isPartial = pStatus === 'PARTIAL';
         return (
           <Chip
-            label={`${count} ${count === 1 ? 'Item' : 'Items'}`}
+            label={pStatus}
             size="small"
-            color={count === 0 ? 'warning' : 'secondary'}
+            color={isPaid ? 'success' : isPartial ? 'warning' : 'default'}
             sx={{ fontWeight: 800 }}
           />
         );
       },
     },
     {
-      field: 'totalAmount',
-      headerName: 'Total Amount',
-      flex: 1.2,
-      minWidth: 140,
+      field: 'grandTotal',
+      headerName: 'Grand Total',
+      flex: 1.1,
+      minWidth: 120,
       type: 'number',
       headerAlign: 'left',
       align: 'left',
+      valueGetter: (value, row) => row.grandTotal || row.totalAmount || 0,
       renderCell: (params) => (
         <Typography variant="body2" sx={{ fontWeight: 800, color: 'success.main' }}>
           ${Number(params.value || 0).toFixed(2)}
@@ -89,8 +105,8 @@ export const PurchaseOrderTable = ({
     },
     {
       field: 'createdAt',
-      headerName: 'PO Date',
-      flex: 1.3,
+      headerName: 'Date Created',
+      flex: 1.2,
       minWidth: 140,
       renderCell: (params) =>
         params.value
@@ -100,59 +116,6 @@ export const PurchaseOrderTable = ({
               day: 'numeric',
             })
           : '—',
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 1.1,
-      minWidth: 140,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Tooltip title="Add Item to PO">
-            <IconButton
-              size="small"
-              color="success"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddItem(params.row);
-              }}
-            >
-              <AddCircleIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Update PO Status">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditStatus(params.row);
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete PO">
-            <IconButton
-              size="small"
-              color="error"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(params.row);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
     },
   ];
 

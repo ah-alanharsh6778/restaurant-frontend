@@ -1,39 +1,40 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Grid,
   Typography,
   Paper,
   Button,
-  ToggleButtonGroup,
-  ToggleButton,
+  IconButton,
+  Fab,
 } from '@mui/material';
 import TableBarIcon from '@mui/icons-material/TableBar';
-import PeopleIcon from '@mui/icons-material/People';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import BuildIcon from '@mui/icons-material/Build';
-import GridViewIcon from '@mui/icons-material/GridView';
-import ViewListIcon from '@mui/icons-material/ViewList';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
 
-import PageContainer from '../../layout/PageContainer';
-import SummaryCard from '../../components/common/SummaryCard';
 import tableService from '../../services/table.service';
 import { useAuth } from '../../hooks/useAuth';
 import { Loader } from '../../components/ui';
 
-import TableToolbar from './TableToolbar';
+import TableToolbar, { MobileTableFilterDrawer } from './TableToolbar';
 import TableCard from './TableCard';
 import TableDataGrid from './TableDataGrid';
 import TableDialog from './TableDialog';
+import BookTableDialog from './BookTableDialog';
 import DeleteTableDialog from './DeleteTableDialog';
 import TableDetailsModal from './TableDetailsModal';
 import EmptyTableState from './EmptyTableState';
 import TableQrModal from '../../components/tables/TableQrModal';
 
 export const TablesPage = () => {
+  const navigate = useNavigate();
   const { hasRole } = useAuth();
   const canManageTables = hasRole(['ADMIN', 'MANAGER']);
 
@@ -45,11 +46,17 @@ export const TablesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [capacityFilter, setCapacityFilter] = useState('ALL');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Dialog States
   const [tableDialogOpen, setTableDialogOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Booking Dialog State
+  const [bookDialogOpen, setBookDialogOpen] = useState(false);
+  const [tableToBook, setTableToBook] = useState(null);
+  const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tableToDelete, setTableToDelete] = useState(null);
@@ -114,7 +121,7 @@ export const TablesPage = () => {
     });
   }, [tables, searchQuery, statusFilter, capacityFilter]);
 
-  // Actions
+  // Table Management Actions
   const handleOpenAdd = () => {
     setSelectedTable(null);
     setTableDialogOpen(true);
@@ -132,19 +139,66 @@ export const TablesPage = () => {
 
   const handleOpenDetails = (table) => {
     setTableForDetails(table);
-    setDetailsModalOpen(true);
+    const statusUpper = String(table.status || '').toUpperCase();
+    if (statusUpper === 'AVAILABLE') {
+      setTableToBook(table);
+      setBookDialogOpen(true);
+    } else {
+      setDetailsModalOpen(true);
+    }
   };
 
-  // Update Status directly via PUT /api/tables/:id
-  const handleUpdateStatus = async (tableId, newStatus) => {
+  // Open Book Table Dialog explicitly
+  const handleOpenBookTable = (table) => {
+    setTableToBook(table);
+    setBookDialogOpen(true);
+  };
+
+  // Submit Booking Workflow
+  const handleConfirmBooking = async (tableId, bookingData) => {
+    setIsBookingSubmitting(true);
     try {
-      await tableService.updateTable(tableId, { status: newStatus });
-      toast.success(`Table status updated to ${newStatus}!`);
+      const targetId = tableId || tableToBook?.id;
+      const res = await tableService.bookTable(targetId, bookingData);
+      toast.success(res?.message || `Table reserved for ${bookingData.customerName}!`);
+      setBookDialogOpen(false);
+      setDetailsModalOpen(false);
       fetchTables();
     } catch (err) {
-      console.error('Error updating status:', err);
-      toast.error(err.response?.data?.message || 'Failed to update table status');
+      console.error('Booking Error:', err);
+      toast.error(err.response?.data?.message || err.message || 'Failed to book table');
+    } finally {
+      setIsBookingSubmitting(false);
     }
+  };
+
+  // Check-In Action
+  const handleCheckInTable = async (tableId) => {
+    try {
+      const res = await tableService.checkInTable(tableId);
+      toast.success(res?.message || 'Guest checked in! Table is now occupied.');
+      fetchTables();
+    } catch (err) {
+      console.error('Check in error:', err);
+      toast.error(err.response?.data?.message || 'Failed to check in table');
+    }
+  };
+
+  // Cancel Booking Action
+  const handleCancelBooking = async (tableId) => {
+    try {
+      const res = await tableService.cancelBooking(tableId);
+      toast.success(res?.message || 'Table booking cancelled and freed.');
+      fetchTables();
+    } catch (err) {
+      console.error('Cancel booking error:', err);
+      toast.error(err.response?.data?.message || 'Failed to cancel booking');
+    }
+  };
+
+  // Create Order Action
+  const handleCreateOrder = (table) => {
+    navigate(`/orders?tableId=${table.id}&customerId=${table.customerId || ''}`);
   };
 
   // Save Table (Create or Update)
@@ -182,99 +236,254 @@ export const TablesPage = () => {
     }
   };
 
+  const summaryCardData = [
+    {
+      title: 'Total Tables',
+      value: metrics.total,
+      description: 'Restaurant Tables',
+      icon: <TableBarIcon sx={{ color: '#7C6CFF', fontSize: 20 }} />,
+      circleBg: 'rgba(124, 108, 255, 0.12)',
+    },
+    {
+      title: 'Available',
+      value: metrics.available,
+      description: 'Ready to Seat',
+      icon: <CheckCircleIcon sx={{ color: '#10B981', fontSize: 20 }} />,
+      circleBg: 'rgba(16, 185, 129, 0.12)',
+    },
+    {
+      title: 'Occupied',
+      value: metrics.occupied,
+      description: 'Currently Serving',
+      icon: <RestaurantIcon sx={{ color: '#EF4444', fontSize: 20 }} />,
+      circleBg: 'rgba(239, 68, 68, 0.12)',
+    },
+    {
+      title: 'Reserved',
+      value: metrics.reserved,
+      description: 'Upcoming Guests',
+      icon: <HourglassTopIcon sx={{ color: '#F59E0B', fontSize: 20 }} />,
+      circleBg: 'rgba(245, 158, 11, 0.12)',
+    },
+    {
+      title: 'Maintenance',
+      value: metrics.maintenance,
+      description: 'Unavailable',
+      icon: <BuildIcon sx={{ color: '#6B7280', fontSize: 20 }} />,
+      circleBg: 'rgba(107, 114, 128, 0.12)',
+    },
+  ];
+
   return (
-    <PageContainer
-      title="Restaurant Table Management"
-      subtitle="Manage seating capacity, real-time table statuses, and POS floor seating"
-      breadcrumbs={[{ label: 'Restaurant Tables' }]}
-      actions={
-        <Box sx={{ display: 'flex', gap: 1.5, ml: 'auto', alignItems: 'center' }}>
-          <Button size="small" variant="outlined" startIcon={<RefreshIcon />} onClick={fetchTables}>
-            Refresh
-          </Button>
-          {canManageTables && (
-            <Button
-              size="small"
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleOpenAdd}
-              sx={{ fontWeight: 700 }}
-            >
-              Add New Table
-            </Button>
-          )}
-        </Box>
-      }
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#0B0D14',
+        color: '#FFFFFF',
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3, md: 4 },
+        boxSizing: 'border-box',
+      }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        {/* Metric Cards Summary */}
-        <Grid container spacing={2}>
-          <Grid xs={12} sm={6} md={3} lg={2.4}>
-            <SummaryCard title="Total Tables" value={metrics.total} icon={<TableBarIcon color="primary" />} />
-          </Grid>
-          <Grid xs={12} sm={6} md={3} lg={2.4}>
-            <SummaryCard title="Available (Green)" value={metrics.available} icon={<PeopleIcon color="success" />} />
-          </Grid>
-          <Grid xs={12} sm={6} md={3} lg={2.4}>
-            <SummaryCard title="Occupied (Red)" value={metrics.occupied} icon={<TableBarIcon color="error" />} />
-          </Grid>
-          <Grid xs={12} sm={6} md={3} lg={2.4}>
-            <SummaryCard title="Reserved (Orange)" value={metrics.reserved} icon={<HourglassTopIcon color="warning" />} />
-          </Grid>
-          <Grid xs={12} sm={6} md={3} lg={2.4}>
-            <SummaryCard title="Maintenance (Grey)" value={metrics.maintenance} icon={<BuildIcon color="action" />} />
-          </Grid>
-        </Grid>
-
-        {/* Toolbar & Filter Bar */}
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-            <TableToolbar
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              capacityFilter={capacityFilter}
-              onCapacityFilterChange={setCapacityFilter}
-              onRefresh={fetchTables}
-              onAddTable={handleOpenAdd}
-              canManage={canManageTables}
-            />
-
-            <ToggleButtonGroup
-              value={viewMode}
-              exclusive
-              onChange={(_, val) => val && setViewMode(val)}
-              size="small"
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
+      <Box sx={{ maxWidth: '1440px', mx: 'auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        {/* Desktop Page Header */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                fontSize: '32px',
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+              }}
             >
-              <ToggleButton value="grid" aria-label="grid view">
-                <GridViewIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards View
-              </ToggleButton>
-              <ToggleButton value="list" aria-label="list view">
-                <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> DataGrid View
-              </ToggleButton>
-            </ToggleButtonGroup>
+              Restaurant Tables
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#9CA3AF', fontSize: '15px', mt: 0.5 }}>
+              Manage seating capacity, reservations, occupancy, and floor operations.
+            </Typography>
           </Box>
-        </Paper>
 
-        {/* Main Content Area: Cards or DataGrid */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={fetchTables}
+              sx={{
+                borderRadius: '14px',
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: '#131A24',
+                color: '#FFFFFF',
+                px: 2.5,
+                py: 1,
+                fontSize: '14px',
+                fontWeight: 600,
+                textTransform: 'none',
+                transition: 'all 250ms ease',
+                '&:hover': {
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  transform: 'translateY(-2px)',
+                },
+              }}
+            >
+              Refresh
+            </Button>
+            {canManageTables && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAdd}
+                sx={{
+                  borderRadius: '14px',
+                  backgroundColor: '#7C6CFF',
+                  color: '#FFFFFF',
+                  px: 3,
+                  py: 1,
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  boxShadow: '0 8px 24px rgba(124, 108, 255, 0.35)',
+                  transition: 'all 250ms ease',
+                  '&:hover': {
+                    backgroundColor: '#6854FF',
+                    boxShadow: '0 12px 30px rgba(124, 108, 255, 0.5)',
+                    transform: 'translateY(-2px)',
+                  },
+                }}
+              >
+                Add Table
+              </Button>
+            )}
+          </Box>
+        </Box>
+
+        {/* Mobile Header (Hidden on Desktop) */}
+        <Box
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: '24px', color: '#FFFFFF' }}>
+            Tables
+          </Typography>
+          <IconButton
+            onClick={() => setMobileFilterOpen(true)}
+            sx={{
+              color: '#FFFFFF',
+              backgroundColor: '#131A24',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              p: 1.2,
+            }}
+          >
+            <FilterListIcon />
+          </IconButton>
+        </Box>
+
+        {/* Summary Cards Grid (Hidden on Mobile) */}
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Grid container spacing={3}>
+            {summaryCardData.map((card, idx) => (
+              <Grid xs={12} sm={6} md={2.4} key={idx}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: '24px',
+                    borderRadius: '20px',
+                    backgroundColor: '#131A24',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    height: '100%',
+                    boxSizing: 'border-box',
+                    transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      borderColor: 'rgba(255, 255, 255, 0.12)',
+                      boxShadow: '0 12px 30px rgba(0, 0, 0, 0.5)',
+                    },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#9CA3AF', fontWeight: 600, fontSize: '14px' }}>
+                      {card.title}
+                    </Typography>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        backgroundColor: card.circleBg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {card.icon}
+                    </Box>
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '28px', mb: 0.5 }}>
+                    {card.value}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '13px' }}>
+                    {card.description}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* Filter Toolbar (Hidden on Mobile) */}
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <TableToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            capacityFilter={capacityFilter}
+            onCapacityFilterChange={setCapacityFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
+        </Box>
+
+        {/* Main Content Area: Table Cards Grid or DataGrid */}
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
             <Loader size="large" />
           </Box>
         ) : filteredTables.length === 0 ? (
-          <EmptyTableState onAddTable={handleOpenAdd} canManage={canManageTables} />
+          <EmptyTableState
+            onAddTable={handleOpenAdd}
+            searchOrFilterActive={Boolean(searchQuery || statusFilter !== 'ALL' || capacityFilter !== 'ALL')}
+            canManage={canManageTables}
+          />
         ) : viewMode === 'grid' ? (
-          <Grid container spacing={2.5}>
+          <Grid container spacing={3}>
             {filteredTables.map((table) => (
-              <Grid xs={12} sm={6} md={4} lg={3} key={table.id}>
+              <Grid xs={6} sm={6} md={4} lg={3} key={table.id || table.tableNumber}>
                 <TableCard
                   table={table}
                   onViewDetails={handleOpenDetails}
                   onEditTable={handleOpenEdit}
                   onDeleteTable={handleOpenDelete}
-                  onUpdateStatus={handleUpdateStatus}
+                  onUpdateStatus={handleConfirmBooking}
                   onOpenQrModal={handleOpenQrModal}
                   canManage={canManageTables}
                 />
@@ -287,13 +496,62 @@ export const TablesPage = () => {
             onView={handleOpenDetails}
             onEdit={handleOpenEdit}
             onDelete={handleOpenDelete}
-            onUpdateStatus={handleUpdateStatus}
+            onUpdateStatus={handleConfirmBooking}
             canManage={canManageTables}
           />
         )}
       </Box>
 
-      {/* Dialog Modals */}
+      {/* Mobile Floating Action Button (FAB) */}
+      {canManageTables && (
+        <Fab
+          onClick={handleOpenAdd}
+          aria-label="add table"
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+            position: 'fixed',
+            bottom: '24px',
+            right: '20px',
+            zIndex: 1000,
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            backgroundColor: '#7C6CFF',
+            color: '#FFFFFF',
+            boxShadow: '0 8px 24px rgba(124, 108, 255, 0.4)',
+            '&:hover': {
+              backgroundColor: '#6854FF',
+            },
+          }}
+        >
+          <AddIcon sx={{ fontSize: 28 }} />
+        </Fab>
+      )}
+
+      {/* Mobile Bottom Sheet Filter Drawer */}
+      <MobileTableFilterDrawer
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        capacityFilter={capacityFilter}
+        onCapacityFilterChange={setCapacityFilter}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
+
+      {/* Book Table Dialog */}
+      <BookTableDialog
+        open={bookDialogOpen}
+        onClose={() => setBookDialogOpen(false)}
+        onSubmit={handleConfirmBooking}
+        table={tableToBook}
+        isSubmitting={isBookingSubmitting}
+      />
+
+      {/* Table Dialog (Create/Edit Table Admin) */}
       <TableDialog
         open={tableDialogOpen}
         onClose={() => setTableDialogOpen(false)}
@@ -302,6 +560,7 @@ export const TablesPage = () => {
         isSubmitting={isSubmitting}
       />
 
+      {/* Delete Confirmation Dialog */}
       <DeleteTableDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -309,18 +568,28 @@ export const TablesPage = () => {
         table={tableToDelete}
       />
 
+      {/* Table Details Modal */}
       <TableDetailsModal
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
         table={tableForDetails}
+        onCheckIn={handleCheckInTable}
+        onCancelBooking={handleCancelBooking}
+        onEditBooking={handleOpenBookTable}
+        onCreateOrder={handleCreateOrder}
+        onEditTable={handleOpenEdit}
+        onDeleteTable={handleOpenDelete}
+        onOpenQrModal={handleOpenQrModal}
+        canManage={canManageTables}
       />
 
+      {/* QR Modal */}
       <TableQrModal
         open={qrModalOpen}
         onClose={() => setQrModalOpen(false)}
         table={tableForQr}
       />
-    </PageContainer>
+    </Box>
   );
 };
 

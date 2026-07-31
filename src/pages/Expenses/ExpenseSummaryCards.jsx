@@ -25,85 +25,101 @@ export const ExpenseSummaryCards = ({ expenses = [], loading = false }) => {
 
   const cards = [
     {
+      id: 'total',
       title: 'Total Expenses',
       value: `$${totalExpenseSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: <AttachMoneyIcon sx={{ color: '#2563EB' }} />,
-      bgColor: '#EFF6FF',
-      borderColor: '#93C5FD',
+      icon: <AttachMoneyIcon sx={{ color: '#7C6CFF', fontSize: 20 }} />,
+      circleBg: 'rgba(124, 108, 255, 0.12)',
+      hideOnMobile: false,
     },
     {
+      id: 'today',
       title: "Today's Expenses",
       value: `$${todayExpenseSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: <TodayIcon sx={{ color: '#059669' }} />,
-      bgColor: '#ECFDF5',
-      borderColor: '#A7F3D0',
+      icon: <TodayIcon sx={{ color: '#10B981', fontSize: 20 }} />,
+      circleBg: 'rgba(16, 185, 129, 0.12)',
+      hideOnMobile: false,
     },
     {
+      id: 'monthly',
       title: 'Monthly Expenses',
       value: `$${monthlyExpenseSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: <CalendarMonthIcon sx={{ color: '#7C3AED' }} />,
-      bgColor: '#F5F3FF',
-      borderColor: '#C4B5FD',
+      icon: <CalendarMonthIcon sx={{ color: '#3B82F6', fontSize: 20 }} />,
+      circleBg: 'rgba(59, 130, 246, 0.12)',
+      hideOnMobile: true,
     },
     {
+      id: 'processed',
       title: 'Processed Invoices',
       value: processedCount,
-      icon: <CheckCircleIcon sx={{ color: '#16A34A' }} />,
-      bgColor: '#F0FDF4',
-      borderColor: '#86EFAC',
+      icon: <CheckCircleIcon sx={{ color: '#10B981', fontSize: 20 }} />,
+      circleBg: 'rgba(16, 185, 129, 0.12)',
+      hideOnMobile: true,
     },
     {
+      id: 'pending',
       title: 'Pending Review',
       value: pendingCount,
-      icon: <HourglassEmptyIcon sx={{ color: '#D97706' }} />,
-      bgColor: '#FFFBEB',
-      borderColor: '#FDE68A',
-      isWarning: pendingCount > 0,
+      icon: <HourglassEmptyIcon sx={{ color: '#F59E0B', fontSize: 20 }} />,
+      circleBg: 'rgba(245, 158, 11, 0.12)',
+      hideOnMobile: true,
     },
   ];
 
   return (
-    <Grid container spacing={2.5} sx={{ mb: 3 }}>
-      {cards.map((card, index) => (
-        <Grid item xs={12} sm={6} md={4} lg={2.4} key={index}>
+    <Grid container spacing={2} sx={{ mb: 3 }}>
+      {cards.map((card) => (
+        <Grid
+          xs={6}
+          sm={6}
+          md={4}
+          lg={2.4}
+          key={card.id}
+          sx={{
+            display: card.hideOnMobile ? { xs: 'none', sm: 'block' } : 'block',
+          }}
+        >
           <Card
             elevation={0}
             sx={{
               p: 0.5,
-              borderRadius: 3,
-              border: '1px solid',
-              borderColor: card.borderColor,
-              bgcolor: '#FFFFFF',
-              transition: 'transform 0.2s, box-shadow 0.2s',
+              borderRadius: '4px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: '#131A24',
+              height: '100%',
+              boxSizing: 'border-box',
+              transition: 'all 250ms ease',
               '&:hover': {
-                transform: 'translateY(-3px)',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.06)',
+                transform: 'translateY(-2px)',
+                borderColor: 'rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
               },
             }}
           >
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CardContent sx={{ p: { xs: '12px !important', sm: '20px !important' } }}>
               {loading ? (
                 <Box>
-                  <Skeleton variant="circular" width={40} height={40} sx={{ mb: 1 }} />
-                  <Skeleton variant="text" width="60%" height={20} />
-                  <Skeleton variant="text" width="40%" height={32} />
+                  <Skeleton variant="circular" width={36} height={36} sx={{ mb: 1, bgcolor: 'rgba(255,255,255,0.06)' }} />
+                  <Skeleton variant="text" width="60%" height={16} sx={{ bgcolor: 'rgba(255,255,255,0.06)' }} />
+                  <Skeleton variant="text" width="40%" height={24} sx={{ bgcolor: 'rgba(255,255,255,0.06)' }} />
                 </Box>
               ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600, fontSize: { xs: '11px', sm: '13px' }, display: 'block' }} noWrap>
                       {card.title}
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5, color: card.isWarning ? 'warning.main' : 'text.primary' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.4, color: '#FFFFFF', fontSize: { xs: '16px', sm: '22px' } }} noWrap>
                       {card.value}
                     </Typography>
                   </Box>
                   <Avatar
                     sx={{
-                      bgcolor: card.bgColor,
-                      width: 44,
-                      height: 44,
-                      borderRadius: 2.5,
+                      backgroundColor: card.circleBg,
+                      width: { xs: 36, sm: 44 },
+                      height: { xs: 36, sm: 44 },
+                      borderRadius: '50%',
+                      flexShrink: 0,
                     }}
                   >
                     {card.icon}

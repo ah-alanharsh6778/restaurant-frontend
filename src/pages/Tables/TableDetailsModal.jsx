@@ -3,149 +3,374 @@ import {
   Box,
   Typography,
   Button,
-  Divider,
   Grid,
   Paper,
   Chip,
-  Switch,
-  FormControlLabel,
 } from '@mui/material';
 import TableBarIcon from '@mui/icons-material/TableBar';
-import PeopleIcon from '@mui/icons-material/People';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 import EventIcon from '@mui/icons-material/Event';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import PersonIcon from '@mui/icons-material/Person';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import dayjs from 'dayjs';
 
 import ResponsiveDialog from '../../components/common/ResponsiveDialog';
 import TableStatusChip from './TableStatusChip';
 
-export const TableDetailsModal = ({ open, onClose, table, onToggleOpenClose }) => {
+export const TableDetailsModal = ({
+  open,
+  onClose,
+  table,
+  onCheckIn,
+  onCancelBooking,
+  onEditBooking,
+  onCreateOrder,
+  onEditTable,
+  onDeleteTable,
+  canManage = false,
+}) => {
   if (!table) return null;
 
-  const tableNum = table.tableNumber || table.number || `#${table.id}`;
-  const isOpen = table.isOpen !== false;
+  const tableNum = table.tableNumber || table.number || (table.id ? `#${table.id.substring(0, 4)}` : '');
   const statusUpper = String(table.status || 'AVAILABLE').toUpperCase();
+  const isAvailable = statusUpper === 'AVAILABLE';
   const isOccupied = statusUpper === 'OCCUPIED';
   const isReserved = statusUpper === 'RESERVED';
 
-  const currentOrder = table.currentOrder || (isOccupied ? { orderNumber: 'ORD-9918', amount: 84.50, status: 'Open', paymentStatus: 'Pending' } : null);
-  const booking = table.booking || (isReserved ? { customerName: 'David Miller', phone: '+1 (555) 443-8899', guests: 4, date: '2026-07-26', time: '19:30' } : null);
+  const customerName = table.booking?.customerName || table.customer?.fullName || null;
+  const customerPhone = table.booking?.phone || table.customer?.phone || null;
+  const customerEmail = table.booking?.email || table.customer?.email || null;
+  const bookingTime = table.booking?.time || '19:30';
+  const bookingDate = table.booking?.date ? dayjs(table.booking.date).format('MMM DD, YYYY') : 'Today';
+  const guestCount = table.booking?.guests || table.capacity || 4;
+  const specialNotes = table.booking?.specialNotes || null;
 
   return (
     <ResponsiveDialog
       open={open}
       onClose={onClose}
       maxWidth="sm"
-      title={`Table ${tableNum} Specifications`}
-      subtitle={`Detailed telemetry, owner status, active order, and booking information`}
+      title={`Table #${tableNum} Details & Operations`}
+      subtitle={`Seating capacity: ${table.capacity || 4} Guests • Current Status: ${statusUpper}`}
       icon={TableBarIcon}
-      iconColor="primary.main"
+      iconColor="#7C6CFF"
+      PaperProps={{
+        sx: {
+          backgroundColor: '#131A24',
+          color: '#FFFFFF',
+          borderRadius: { xs: '20px', sm: '24px' },
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        },
+      }}
       actions={
-        <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2, px: 3 }}>
-          Close Specifications
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', width: '100%', justifyContent: 'flex-end' }}>
+          {canManage && onEditTable && (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<EditIcon />}
+              onClick={() => {
+                onClose();
+                onEditTable(table);
+              }}
+              sx={{
+                borderRadius: '12px',
+                borderColor: 'rgba(255,255,255,0.12)',
+                color: '#FFFFFF',
+              }}
+            >
+              Edit Table
+            </Button>
+          )}
+
+          {canManage && onDeleteTable && (
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => {
+                onClose();
+                onDeleteTable(table);
+              }}
+              sx={{
+                borderRadius: '12px',
+                borderColor: 'rgba(239,68,68,0.3)',
+                color: '#EF4444',
+              }}
+            >
+              Delete
+            </Button>
+          )}
+
+          <Button
+            onClick={onClose}
+            variant="contained"
+            size="small"
+            sx={{
+              borderRadius: '12px',
+              backgroundColor: '#7C6CFF',
+              color: '#FFFFFF',
+              px: 3,
+              fontWeight: 700,
+            }}
+          >
+            Close
+          </Button>
+        </Box>
       }
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, py: 1 }}>
-        {/* Owner Toggle & Status Header */}
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, py: 1 }}>
+        {/* Status Header Banner */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            bgcolor: 'rgba(255, 255, 255, 0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <TableStatusChip status={table.status} size="medium" />
-            {!isOpen && <Chip label="CLOSED" color="default" size="small" sx={{ fontWeight: 800 }} />}
+            <Typography variant="body2" sx={{ color: '#9CA3AF', fontWeight: 600 }}>
+              Table #{tableNum}
+            </Typography>
           </Box>
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isOpen}
-                onChange={(e) => onToggleOpenClose(table.id, e.target.checked)}
-                color="success"
-              />
-            }
-            label={
-              <Typography variant="caption" sx={{ fontWeight: 800, color: isOpen ? 'success.main' : 'text.secondary' }}>
-                {isOpen ? 'Table OPEN' : 'Table CLOSED'}
-              </Typography>
-            }
-          />
+          <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+            Capacity: {table.capacity || 4} Guests
+          </Typography>
         </Paper>
 
-        {/* Specs Grid */}
-        <Grid container spacing={2}>
-          <Grid xs={6} sm={3}>
-            <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <Typography variant="caption" color="text.secondary">Table Number</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>{tableNum}</Typography>
-            </Paper>
-          </Grid>
-          <Grid xs={6} sm={3}>
-            <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <Typography variant="caption" color="text.secondary">Max Capacity</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>{table.capacity || 4} Guests</Typography>
-            </Paper>
-          </Grid>
-          <Grid xs={6} sm={3}>
-            <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <Typography variant="caption" color="text.secondary">Current Guests</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>{isOccupied ? (table.currentGuests || table.capacity || 4) : 0}</Typography>
-            </Paper>
-          </Grid>
-          <Grid xs={6} sm={3}>
-            <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-              <Typography variant="caption" color="text.secondary">Created Date</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700, mt: 0.5 }}>{dayjs(table.createdAt || Date.now()).format('MMM DD, YYYY')}</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        {/* Booking Details Section */}
-        {booking && (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <EventIcon color="warning" fontSize="small" />
-              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                Active Reservation Booking
+        {/* Customer Information (If Reserved or Occupied) */}
+        {(isReserved || isOccupied || customerName) && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              borderRadius: '16px',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              backgroundColor: 'rgba(245, 158, 11, 0.06)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+              <EventIcon sx={{ color: '#F59E0B', fontSize: 20 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '16px' }}>
+                Customer & Reservation Details
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-              Customer: {booking.customerName} ({booking.phone})
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              Guests: {booking.guests} • Time: {booking.date} at {booking.time}
-            </Typography>
-            {booking.specialNotes && (
-              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic', display: 'block', mt: 0.5 }}>
-                Notes: "{booking.specialNotes}"
-              </Typography>
-            )}
+
+            <Grid container spacing={2}>
+              <Grid xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                  Customer Name
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#FFFFFF', fontSize: '15px' }}>
+                  {customerName || 'Walk-in Guest'}
+                </Typography>
+              </Grid>
+
+              <Grid xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                  Phone Number
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#FFFFFF', fontSize: '15px' }}>
+                  {customerPhone || 'N/A'}
+                </Typography>
+              </Grid>
+
+              {customerEmail && (
+                <Grid xs={12} sm={6}>
+                  <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                    Email Address
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#FFFFFF', fontSize: '14px' }}>
+                    {customerEmail}
+                  </Typography>
+                </Grid>
+              )}
+
+              <Grid xs={6} sm={3}>
+                <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                  Guest Count
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#F59E0B', fontSize: '15px' }}>
+                  {guestCount} Guests
+                </Typography>
+              </Grid>
+
+              <Grid xs={6} sm={3}>
+                <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                  Booking Slot
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#FFFFFF', fontSize: '14px' }}>
+                  {bookingTime} ({bookingDate})
+                </Typography>
+              </Grid>
+
+              {specialNotes && (
+                <Grid xs={12}>
+                  <Typography variant="caption" sx={{ color: '#9CA3AF', display: 'block' }}>
+                    Special Request / Notes
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#FFFFFF', fontStyle: 'italic', fontSize: '14px' }}>
+                    "{specialNotes}"
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
           </Paper>
         )}
 
-        {/* Active Order & Payment Status */}
-        {isOccupied && currentOrder && (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+        {/* Active Order Telemetry */}
+        {isOccupied && table.currentOrder && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              borderRadius: '16px',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              backgroundColor: 'rgba(239, 68, 68, 0.06)',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <ReceiptIcon color="error" fontSize="small" />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                <ReceiptIcon sx={{ color: '#EF4444', fontSize: 20 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
                   Active Order Details
                 </Typography>
               </Box>
               <Chip
-                label={currentOrder.paymentStatus || 'Pending'}
-                color={currentOrder.paymentStatus === 'Paid' ? 'success' : 'warning'}
+                label={table.currentOrder.paymentStatus || 'UNPAID'}
+                color={table.currentOrder.paymentStatus === 'PAID' ? 'success' : 'error'}
                 size="small"
                 sx={{ fontWeight: 800 }}
               />
             </Box>
-            <Typography variant="body2" sx={{ fontWeight: 800, color: 'primary.main' }}>
-              Order #{currentOrder.orderNumber}
+
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#7C6CFF' }}>
+              Order #{table.currentOrder.orderNumber || table.currentOrder.id}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Total Amount: ${Number(currentOrder.amount).toFixed(2)} • Order Status: {currentOrder.status}
+            <Typography variant="caption" sx={{ color: '#9CA3AF' }}>
+              Total Amount: ${Number(table.currentOrder.finalAmount || table.currentOrder.totalAmount || 0).toFixed(2)} • Status: {table.currentOrder.status}
             </Typography>
           </Paper>
         )}
+
+        {/* Quick Action Operations Bar */}
+        <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 700, letterSpacing: '0.05em', mt: 1 }}>
+          QUICK TABLE OPERATIONS
+        </Typography>
+
+        <Grid container spacing={1.5}>
+          {isReserved && (
+            <Grid xs={12} sm={6}>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<CheckCircleIcon />}
+                onClick={() => {
+                  onClose();
+                  onCheckIn && onCheckIn(table.id);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  backgroundColor: '#10B981',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  py: 1.2,
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: '#059669' },
+                }}
+              >
+                Check In Party
+              </Button>
+            </Grid>
+          )}
+
+          {isReserved && (
+            <Grid xs={12} sm={6}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={() => {
+                  onClose();
+                  onEditBooking && onEditBooking(table);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  color: '#FFFFFF',
+                  py: 1.2,
+                  textTransform: 'none',
+                  '&:hover': { borderColor: '#7C6CFF', color: '#7C6CFF' },
+                }}
+              >
+                Edit Booking
+              </Button>
+            </Grid>
+          )}
+
+          {isReserved && (
+            <Grid xs={12} sm={6}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<CancelIcon />}
+                onClick={() => {
+                  onClose();
+                  onCancelBooking && onCancelBooking(table.id);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                  color: '#EF4444',
+                  py: 1.2,
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: '#EF4444' },
+                }}
+              >
+                Cancel Booking
+              </Button>
+            </Grid>
+          )}
+
+          {(isOccupied || isReserved || isAvailable) && (
+            <Grid xs={12} sm={isReserved ? 6 : 12}>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<AddShoppingCartIcon />}
+                onClick={() => {
+                  onClose();
+                  onCreateOrder && onCreateOrder(table);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  backgroundColor: '#7C6CFF',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  py: 1.2,
+                  textTransform: 'none',
+                  '&:hover': { backgroundColor: '#6854FF' },
+                }}
+              >
+                Create Order
+              </Button>
+            </Grid>
+          )}
+        </Grid>
       </Box>
     </ResponsiveDialog>
   );

@@ -64,13 +64,14 @@ export const Navbar = ({ onToggleSidebar }) => {
         position="sticky"
         elevation={0}
         sx={{
+          borderRadius: 0,
           backgroundColor: (theme) =>
             theme.palette.mode === 'dark'
-              ? 'rgba(15, 23, 42, 0.85)'
-              : 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(16px)',
+              ? 'var(--bg-surface)'
+              : 'var(--bg-surface)',
           borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
           color: 'text.primary',
+          boxShadow: 'none',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >

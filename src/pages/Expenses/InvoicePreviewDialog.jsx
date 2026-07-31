@@ -7,15 +7,15 @@ import ResponsiveDialog from '../../components/common/ResponsiveDialog';
 export const InvoicePreviewDialog = ({ open, onClose, filePath = null, invoiceNumber = 'N/A' }) => {
   if (!open) return null;
 
-  // Format API URL if relative path
   let fullUrl = null;
   if (filePath) {
     if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
       fullUrl = filePath;
     } else {
-      // Normalize backslashes or local server upload path
+      // Normalize backslashes or server upload path
       const cleanPath = filePath.replace(/\\/g, '/').replace(/^.*\/uploads\//, '/uploads/');
-      fullUrl = `http://localhost:5000${cleanPath}`;
+      const backendHost = (import.meta.env.VITE_API_BASE_URL || 'https://restaurant-backend-bgnk.onrender.com/api').replace(/\/api\/?$/, '');
+      fullUrl = `${backendHost}${cleanPath}`;
     }
   }
 
@@ -74,7 +74,7 @@ export const InvoicePreviewDialog = ({ open, onClose, filePath = null, invoiceNu
               p: 6,
               textAlign: 'center',
               borderRadius: 3,
-              bgcolor: '#FAFBFD',
+              bgcolor: 'background.paper',
               border: '1px dashed',
               borderColor: 'divider',
               width: '100%',

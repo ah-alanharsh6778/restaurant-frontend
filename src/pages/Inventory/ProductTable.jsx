@@ -6,8 +6,25 @@ import ActionMenu from '../../components/common/ActionMenu';
 import StockStatusChip from './StockStatusChip';
 import EmptyInventoryState from './EmptyInventoryState';
 
-export const ProductTable = ({ products = [], loading = false, onEdit, onDelete, onCreateClick }) => {
+export const ProductTable = ({ products = [], loading = false, onViewDetails, onEdit, onDelete, onCreateClick }) => {
   const columns = [
+    {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
     {
       field: 'name',
       headerName: 'Product Name',
@@ -91,31 +108,6 @@ export const ProductTable = ({ products = [], loading = false, onEdit, onDelete,
         />
       ),
     },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 80,
-      sortable: false,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <ActionMenu
-          actions={[
-            {
-              label: 'Edit Product',
-              icon: <EditIcon fontSize="small" />,
-              onClick: () => onEdit(params.row),
-            },
-            {
-              label: 'Delete Product',
-              icon: <DeleteIcon fontSize="small" />,
-              color: 'error',
-              onClick: () => onDelete(params.row),
-            },
-          ]}
-        />
-      ),
-    },
   ];
 
   return (
@@ -123,6 +115,7 @@ export const ProductTable = ({ products = [], loading = false, onEdit, onDelete,
       rows={products}
       columns={columns}
       loading={loading}
+      onRowClick={(params) => (onViewDetails ? onViewDetails(params.row) : onEdit ? onEdit(params.row) : null)}
       getRowId={(row) => row.id || row._id}
       emptyComponent={
         <EmptyInventoryState

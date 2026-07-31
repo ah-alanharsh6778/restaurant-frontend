@@ -46,6 +46,23 @@ export const MenuItemTable = ({
 
   const columns = [
     {
+      field: 'sNo',
+      headerName: 'S.No.',
+      width: 80,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+        return (
+          <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            {rowIndex !== undefined && rowIndex !== null ? rowIndex + 1 : '—'}
+          </Typography>
+        );
+      },
+    },
+    {
       field: 'name',
       headerName: 'Item Name',
       flex: 1.2,
@@ -116,39 +133,9 @@ export const MenuItemTable = ({
     {
       field: 'createdAt',
       headerName: 'Created Date',
-      flex: 1,
+      flex: 1.2,
       minWidth: 140,
       valueGetter: (value, row) => formatDate(row.createdAt || row.created_at),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      sortable: false,
-      filterable: false,
-      width: 150,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <Stack direction="row" spacing={0.5} alignItems="center">
-          <Tooltip title="View Details">
-            <IconButton size="small" color="info" onClick={() => onViewDetails(params.row)}>
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Edit Menu Item">
-            <IconButton size="small" color="primary" onClick={() => onEditMenuItem(params.row)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Delete Menu Item">
-            <IconButton size="small" color="error" onClick={() => onDeleteMenuItem(params.row)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      ),
     },
   ];
 
@@ -160,7 +147,21 @@ export const MenuItemTable = ({
           const isAvail = Boolean(item.isAvailable ?? item.available);
           return (
             <Grid item xs={12} sm={6} key={item.id || item.name}>
-              <Card elevation={2} sx={{ borderRadius: 3, p: 2, bgcolor: 'background.paper' }}>
+              <Card
+                elevation={2}
+                onClick={() => onViewDetails && onViewDetails(item)}
+                sx={{
+                  borderRadius: 3,
+                  p: 2,
+                  bgcolor: 'background.paper',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
+                  },
+                }}
+              >
                 <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>
@@ -201,17 +202,9 @@ export const MenuItemTable = ({
                       Created: {formatDate(item.createdAt)}
                     </Typography>
 
-                    <Stack direction="row" spacing={0.5}>
-                      <IconButton size="small" color="info" onClick={() => onViewDetails(item)}>
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="primary" onClick={() => onEditMenuItem(item)}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="error" onClick={() => onDeleteMenuItem(item)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
+                    <Typography variant="caption" color="primary.main" sx={{ fontWeight: 700 }}>
+                      Tap for Details & Actions →
+                    </Typography>
                   </Box>
                 </CardContent>
               </Card>
@@ -228,6 +221,7 @@ export const MenuItemTable = ({
       rows={menuItems}
       columns={columns}
       loading={loading}
+      onRowClick={(params) => onViewDetails && onViewDetails(params.row)}
       getRowId={(row) => row.id || row.name}
     />
   );

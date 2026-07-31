@@ -10,7 +10,6 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  TrendingUp,
   CalendarCheck,
 } from 'lucide-react';
 import { useInvoiceStats } from '../../hooks/useInvoices';
@@ -62,20 +61,27 @@ const StatCard = ({ stat, value, delay }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
+      style={{ height: '100%', width: '100%' }}
     >
       <Box
         sx={{
-          p: 3,
-          borderRadius: '20px',
+          p: 2.5,
+          height: '100%',
+          minHeight: 125,
+          borderRadius: '4px',
           border: '1px solid var(--border-subdued)',
-          backgroundColor: 'var(--glass-bg)',
-          backdropFilter: 'blur(16px)',
+          backgroundColor: 'var(--bg-surface)',
           boxShadow: 'var(--shadow-md)',
           position: 'relative',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
           transition: 'all 0.25s ease',
+          boxSizing: 'border-box',
           '&:hover': {
-            transform: 'translateY(-3px)',
+            transform: 'translateY(-2px)',
+            borderColor: 'var(--primary-500)',
             boxShadow: `var(--shadow-lg), 0 0 24px ${glow}`,
           },
           '&::before': {
@@ -86,50 +92,50 @@ const StatCard = ({ stat, value, delay }) => {
             right: 0,
             height: '3px',
             background: gradient,
-            borderRadius: '20px 20px 0 0',
           },
         }}
       >
-        <Box
-          sx={{
-            width: 44,
-            height: 44,
-            borderRadius: '14px',
-            background: gradient,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mb: 2,
-            boxShadow: `0 6px 16px ${glow}`,
-          }}
-        >
-          <Icon size={20} color="#fff" strokeWidth={2} />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              color: 'var(--text-secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+            }}
+          >
+            {label}
+          </Typography>
+
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '4px',
+              background: gradient,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 4px 12px ${glow}`,
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={20} color="#fff" strokeWidth={2} />
+          </Box>
         </Box>
 
         <Typography
           sx={{
-            fontSize: '2rem',
+            fontSize: '1.85rem',
             fontWeight: 800,
             lineHeight: 1,
             color: 'var(--text-primary)',
             letterSpacing: '-0.03em',
-            mb: 0.5,
             fontFamily: 'var(--font-family-sans)',
           }}
         >
           {value ?? 0}
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: '0.82rem',
-            fontWeight: 600,
-            color: 'var(--text-secondary)',
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
-          {label}
         </Typography>
       </Box>
     </motion.div>
@@ -143,7 +149,7 @@ const InvoiceDashboard = () => {
     return (
       <Grid container spacing={2.5}>
         {STAT_CARDS.map((_, i) => (
-          <Grid xs={12} sm={6} md={4} lg={2.4} key={i}>
+          <Grid xs={6} sm={6} md={4} lg={2.4} key={i}>
             <InvoiceStatSkeleton />
           </Grid>
         ))}
@@ -154,7 +160,7 @@ const InvoiceDashboard = () => {
   return (
     <Grid container spacing={2.5}>
       {STAT_CARDS.map((stat, i) => (
-        <Grid xs={12} sm={6} md={4} lg={2.4} key={stat.key}>
+        <Grid xs={6} sm={6} md={4} lg={2.4} key={stat.key}>
           <StatCard
             stat={stat}
             value={stats?.[stat.key] ?? 0}

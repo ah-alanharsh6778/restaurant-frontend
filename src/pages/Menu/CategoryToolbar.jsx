@@ -25,7 +25,7 @@ export const CategoryToolbar = ({
       sx={{
         p: 2,
         borderRadius: 3,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'background.paper',
         mb: 3,
       }}
     >

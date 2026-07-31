@@ -11,7 +11,10 @@ import {
   Divider,
 } from '@mui/material';
 
-export const MenuItemDetailsDialog = ({ open, onClose, menuItem = null }) => {
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+export const MenuItemDetailsDialog = ({ open, onClose, menuItem = null, onEdit, onDelete }) => {
   if (!menuItem) return null;
 
   const isAvail = Boolean(menuItem.isAvailable ?? menuItem.available);
@@ -120,8 +123,36 @@ export const MenuItemDetailsDialog = ({ open, onClose, menuItem = null }) => {
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="contained" color="primary">
+      <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+        {onEdit && (
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<EditIcon />}
+            onClick={() => {
+              onClose();
+              onEdit(menuItem);
+            }}
+            sx={{ borderRadius: 2 }}
+          >
+            Edit Item
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteIcon />}
+            onClick={() => {
+              onClose();
+              onDelete(menuItem);
+            }}
+            sx={{ borderRadius: 2 }}
+          >
+            Delete Item
+          </Button>
+        )}
+        <Button onClick={onClose} variant="contained" color="primary" sx={{ borderRadius: 2 }}>
           Close
         </Button>
       </DialogActions>

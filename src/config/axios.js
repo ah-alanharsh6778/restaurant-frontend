@@ -16,7 +16,7 @@ import { getToken, getRefreshToken, setTokens, clearAuth } from '../utils/storag
 //
 // NEVER use an absolute localhost:5000 URL from the browser — that crosses origins
 // and triggers CORS rejection, regardless of the backend's CORS config.
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

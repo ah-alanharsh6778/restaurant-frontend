@@ -15,7 +15,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import RiceBowlIcon from '@mui/icons-material/RiceBowl';
 import IngredientStatusChip from './IngredientStatusChip';
 
-export const IngredientDetailsDialog = ({ open, onClose, ingredient = null }) => {
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+export const IngredientDetailsDialog = ({ open, onClose, ingredient = null, onEdit, onDelete }) => {
   if (!ingredient) return null;
 
   const qty = Number(ingredient.quantity !== undefined ? ingredient.quantity : 0);
@@ -170,10 +173,40 @@ export const IngredientDetailsDialog = ({ open, onClose, ingredient = null }) =>
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5 }}>
-        <Button onClick={onClose} variant="contained" sx={{ px: 3, fontWeight: 800 }}>
+      <DialogActions sx={{ p: 2.5, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" color="inherit">
           Close
         </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {onEdit && (
+            <Button
+              onClick={() => {
+                onClose();
+                onEdit(ingredient);
+              }}
+              variant="outlined"
+              color="primary"
+              startIcon={<EditIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Edit Ingredient
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              onClick={() => {
+                onClose();
+                onDelete(ingredient);
+              }}
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ fontWeight: 700, borderRadius: 2 }}
+            >
+              Delete Ingredient
+            </Button>
+          )}
+        </Box>
       </DialogActions>
     </Dialog>
   );
