@@ -11,11 +11,15 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { ThemeContextProvider } from './context/ThemeContext.jsx';
 import './styles/global.css';
 
-// Auto-recovery for Vercel deployment chunk updates
+// Auto-recovery for Vercel deployment chunk updates & stale dynamic imports
 window.addEventListener('error', (event) => {
+  const msg = String(event?.message || '');
   const isChunkError =
-    event?.message?.includes('Failed to fetch dynamically imported module') ||
-    event?.message?.includes('Expected a JavaScript-or-Wasm module script');
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Expected a JavaScript-or-Wasm module script') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('404');
   if (isChunkError) {
     const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
     if (!lastReload || Date.now() - Number(lastReload) > 10000) {
@@ -26,11 +30,15 @@ window.addEventListener('error', (event) => {
 });
 
 window.addEventListener('unhandledrejection', (event) => {
+  const msg = String(event?.reason?.message || event?.reason || '');
   const isChunkError =
-    event?.reason?.message?.includes('Failed to fetch dynamically imported module') ||
-    event?.reason?.message?.includes('Expected a JavaScript-or-Wasm module script');
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Expected a JavaScript-or-Wasm module script') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('404');
   if (isChunkError) {
-    const lastReload = sessionStorage.setItem('chunk_reload_timestamp', String(Date.now()));
+    const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
     if (!lastReload || Date.now() - Number(lastReload) > 10000) {
       sessionStorage.setItem('chunk_reload_timestamp', String(Date.now()));
       window.location.reload();
