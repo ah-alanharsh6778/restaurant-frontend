@@ -57,13 +57,18 @@ export const CustomersPage = () => {
           search: search.trim() || undefined,
         });
 
-        if (res?.success) {
-          setCustomers(res.data || []);
-          if (res.pagination) {
-            setPagination(res.pagination);
-          }
-        } else {
-          setCustomers(Array.isArray(res) ? res : res?.data || []);
+        let list = [];
+        if (Array.isArray(res)) {
+          list = res;
+        } else if (Array.isArray(res?.data)) {
+          list = res.data;
+        } else if (Array.isArray(res?.customers)) {
+          list = res.customers;
+        }
+        setCustomers(list);
+
+        if (res?.pagination) {
+          setPagination(res.pagination);
         }
       } catch (err) {
         console.error('Error fetching customers:', err);
@@ -73,7 +78,7 @@ export const CustomersPage = () => {
         setLoading(false);
       }
     },
-    [pagination.limit]
+    [cachedCustomers, pagination.limit]
   );
 
   useEffect(() => {

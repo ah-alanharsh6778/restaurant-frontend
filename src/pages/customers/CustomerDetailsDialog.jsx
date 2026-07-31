@@ -17,9 +17,12 @@ export const CustomerDetailsDialog = ({ open, onClose, customer, onEdit, onDelet
 
   const tier = getTier(points);
 
-  const activeTable = (customer.tables && customer.tables.length > 0) ? customer.tables[0] : null;
-  const activeReservation = (customer.reservations && customer.reservations.length > 0) ? customer.reservations[0] : null;
-  const ordersList = customer.orders || [];
+  const tablesList = Array.isArray(customer.tables) ? customer.tables : [];
+  const reservationsList = Array.isArray(customer.reservations) ? customer.reservations : [];
+  const ordersList = Array.isArray(customer.orders) ? customer.orders : [];
+
+  const activeTable = tablesList.length > 0 ? tablesList[0] : null;
+  const activeReservation = reservationsList.length > 0 ? reservationsList[0] : null;
   const totalOrders = ordersList.length;
   const totalSpent = ordersList.reduce((sum, o) => sum + Number(o.finalAmount || o.totalAmount || 0), 0);
 
@@ -144,16 +147,19 @@ export const CustomerDetailsDialog = ({ open, onClose, customer, onEdit, onDelet
 
         {totalOrders > 0 ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {ordersList.slice(0, 3).map((ord) => (
-              <Paper key={ord.id} elevation={0} sx={{ p: 1.5, borderRadius: '4px', border: '1px solid var(--border-subdued)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography variant="body2" fontWeight={800}>
-                    Order #{ord.orderNumber || ord.id.substring(0, 8)}
-                  </Typography>
-                  <Typography variant="caption" color="var(--text-secondary)">
-                    {ord.createdAt ? dayjs(ord.createdAt).format('MMM DD, YYYY HH:mm') : 'Recent'}
-                  </Typography>
-                </Box>
+            {ordersList.slice(0, 3).map((ord) => {
+              const orderIdStr = ord.id || ord._id || '';
+              const orderNum = ord.orderNumber || (orderIdStr ? String(orderIdStr).substring(0, 8) : 'N/A');
+              return (
+                <Paper key={orderIdStr || Math.random()} elevation={0} sx={{ p: 1.5, borderRadius: '4px', border: '1px solid var(--border-subdued)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box>
+                    <Typography variant="body2" fontWeight={800}>
+                      Order #{orderNum}
+                    </Typography>
+                    <Typography variant="caption" color="var(--text-secondary)">
+                      {ord.createdAt ? dayjs(ord.createdAt).format('MMM DD, YYYY HH:mm') : 'Recent'}
+                    </Typography>
+                  </Box>
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="body2" fontWeight={800} color="var(--primary-600)">
                     ${Number(ord.finalAmount || 0).toFixed(2)}
@@ -161,7 +167,8 @@ export const CustomerDetailsDialog = ({ open, onClose, customer, onEdit, onDelet
                   <Chip label={ord.status} size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: '0.675rem', borderRadius: '4px' }} />
                 </Box>
               </Paper>
-            ))}
+              );
+            })}
           </Box>
         ) : (
           <Typography variant="body2" color="var(--text-secondary)" fontStyle="italic">
