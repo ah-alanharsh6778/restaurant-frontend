@@ -5,15 +5,17 @@ import {
   Box,
   Typography,
   Avatar,
+  Chip,
+  Button,
   useTheme,
 } from '@mui/material';
 import TableBarIcon from '@mui/icons-material/TableBar';
-import BuildIcon from '@mui/icons-material/Build';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 import TableStatusChip from './TableStatusChip';
 import dayjs from 'dayjs';
 
@@ -35,67 +37,53 @@ export const TableCard = ({
   const isAvailable = statusUpper === 'AVAILABLE';
   const isOccupied = statusUpper === 'OCCUPIED';
   const isReserved = statusUpper === 'RESERVED';
-  const isMaintenance = statusUpper === 'MAINTENANCE';
 
-  // Status configuration — Subtle border & soft glow
+  // Status configuration with vibrant HSL colors & glowing accent borders
   const getStatusTheme = () => {
     if (isOccupied) {
       return {
         accent: '#EF4444',
-        border: isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.4)',
-        borderHover: 'rgba(239, 68, 68, 0.6)',
+        border: isDark ? 'rgba(239, 68, 68, 0.35)' : 'rgba(239, 68, 68, 0.45)',
+        borderHover: '#EF4444',
         bgIcon: 'rgba(239, 68, 68, 0.12)',
-        glow: '0 12px 28px -6px rgba(239, 68, 68, 0.25)',
+        glow: '0 12px 28px -4px rgba(239, 68, 68, 0.3)',
         icon: <RestaurantIcon sx={{ fontSize: 20, color: '#EF4444' }} />,
         label: 'Currently Serving',
+        cardBg: isDark ? 'rgba(239, 68, 68, 0.04)' : '#FFF5F5',
       };
     }
     if (isReserved) {
       return {
         accent: '#F59E0B',
-        border: isDark ? 'rgba(245, 158, 11, 0.3)' : 'rgba(245, 158, 11, 0.4)',
-        borderHover: 'rgba(245, 158, 11, 0.6)',
+        border: isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.45)',
+        borderHover: '#F59E0B',
         bgIcon: 'rgba(245, 158, 11, 0.12)',
-        glow: '0 12px 28px -6px rgba(245, 158, 11, 0.25)',
+        glow: '0 12px 28px -4px rgba(245, 158, 11, 0.3)',
         icon: <HourglassTopIcon sx={{ fontSize: 20, color: '#F59E0B' }} />,
-        label: 'Upcoming Guests',
+        label: 'Upcoming Booking',
+        cardBg: isDark ? 'rgba(245, 158, 11, 0.04)' : '#FFFBEB',
       };
     }
-    if (isMaintenance) {
-      return {
-        accent: '#6B7280',
-        border: isDark ? 'rgba(107, 114, 128, 0.3)' : 'rgba(107, 114, 128, 0.4)',
-        borderHover: 'rgba(107, 114, 128, 0.6)',
-        bgIcon: 'rgba(107, 114, 128, 0.12)',
-        glow: '0 12px 28px -6px rgba(107, 114, 128, 0.2)',
-        icon: <BuildIcon sx={{ fontSize: 20, color: '#6B7280' }} />,
-        label: 'Unavailable',
-      };
-    }
-    // Default: Available (Green)
+    // Default: Available (Emerald Green)
     return {
       accent: '#10B981',
-      border: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.4)',
-      borderHover: 'rgba(16, 185, 129, 0.6)',
+      border: isDark ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.45)',
+      borderHover: '#10B981',
       bgIcon: 'rgba(16, 185, 129, 0.12)',
-      glow: '0 12px 28px -6px rgba(16, 185, 129, 0.25)',
+      glow: '0 12px 28px -4px rgba(16, 185, 129, 0.3)',
       icon: <CheckCircleIcon sx={{ fontSize: 20, color: '#10B981' }} />,
       label: 'Ready to Seat',
+      cardBg: isDark ? 'rgba(16, 185, 129, 0.04)' : '#ECFDF5',
     };
   };
 
   const statusTheme = getStatusTheme();
 
-  // Customer & Booking details from table relations
+  // Customer & Booking details
   const customerName = table?.booking?.customerName || table?.customer?.fullName || table?.reservationName || null;
   const customerPhone = table?.booking?.phone || table?.customer?.phone || null;
   const bookingGuests = table?.booking?.guests || table?.capacity || 4;
   const bookingTime = table?.booking?.time || '07:30 PM';
-  const bookingDate = table?.booking?.date
-    ? dayjs(table.booking.date).isSame(dayjs(), 'day')
-      ? 'Today'
-      : dayjs(table.booking.date).format('MMM DD')
-    : 'Today';
 
   return (
     <Card
@@ -116,7 +104,7 @@ export const TableCard = ({
         overflow: 'hidden',
         boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
         '&:hover': {
-          transform: 'translateY(-6px) scale(1.02)',
+          transform: 'translateY(-4px)',
           borderColor: statusTheme.borderHover,
           boxShadow: statusTheme.glow,
           '& .action-hint': {
@@ -126,9 +114,12 @@ export const TableCard = ({
         },
       }}
     >
+      {/* Top Accent Line */}
+      <Box sx={{ height: 4, width: '100%', backgroundColor: statusTheme.accent }} />
+
       <CardContent
         sx={{
-          p: '24px !important',
+          p: '20px !important',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -136,16 +127,15 @@ export const TableCard = ({
           boxSizing: 'border-box',
         }}
       >
-        {/* Top Header Row */}
+        {/* Header Row */}
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Avatar
               sx={{
-                width: 40,
-                height: 40,
+                width: 42,
+                height: 42,
                 bgcolor: statusTheme.bgIcon,
-                border: '1px solid',
-                borderColor: statusTheme.border,
+                border: `1px solid ${statusTheme.border}`,
               }}
             >
               {statusTheme.icon}
@@ -155,7 +145,7 @@ export const TableCard = ({
                 variant="h6"
                 sx={{
                   fontWeight: 800,
-                  fontSize: '22px',
+                  fontSize: '20px',
                   color: 'text.primary',
                   lineHeight: 1.2,
                   letterSpacing: '-0.02em',
@@ -163,8 +153,9 @@ export const TableCard = ({
               >
                 Table #{tableNum}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px', display: 'block' }}>
-                Capacity: <span style={{ color: isDark ? '#FFFFFF' : '#0F172A', fontWeight: 700 }}>{table?.capacity || 4} Guests</span>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+                <PersonIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <span>Capacity: <strong>{table?.capacity || 4} Guests</strong></span>
               </Typography>
             </Box>
           </Box>
@@ -172,37 +163,37 @@ export const TableCard = ({
           <TableStatusChip status={table?.status} />
         </Box>
 
-        {/* Middle Details Section (Reserved vs Available vs Occupied) */}
-        <Box sx={{ my: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {/* Dynamic Telemetry Box */}
+        <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
           {isReserved && customerName ? (
             <Box
               sx={{
                 backgroundColor: 'rgba(245, 158, 11, 0.08)',
                 p: 1.5,
                 borderRadius: '14px',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
+                border: '1px solid rgba(245, 158, 11, 0.25)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.5,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '15px' }}>
+                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '14px' }}>
                   {customerName}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#F59E0B', fontWeight: 800, fontSize: '13px' }}>
-                  {bookingGuests} Guests
-                </Typography>
+                <Chip
+                  label={`${bookingGuests} Guests`}
+                  size="small"
+                  sx={{ fontWeight: 800, fontSize: '11px', height: 22, backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#F59E0B' }}
+                />
               </Box>
-
               {customerPhone && (
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <PhoneIcon sx={{ fontSize: 14, color: 'text.secondary' }} /> {customerPhone}
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '12px', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <PhoneIcon sx={{ fontSize: 13, color: 'text.secondary' }} /> {customerPhone}
                 </Typography>
               )}
-
-              <Typography variant="caption" sx={{ color: '#F59E0B', fontWeight: 600, fontSize: '13px', mt: 0.25 }}>
-                {bookingTime} • {bookingDate}
+              <Typography variant="caption" sx={{ color: '#F59E0B', fontWeight: 700, fontSize: '12px', mt: 0.25 }}>
+                Reserved for {bookingTime}
               </Typography>
             </Box>
           ) : isOccupied ? (
@@ -211,40 +202,39 @@ export const TableCard = ({
                 backgroundColor: 'rgba(239, 68, 68, 0.08)',
                 p: 1.5,
                 borderRadius: '14px',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.5,
               }}
             >
-              <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '15px' }}>
+              <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '14px' }}>
                 {customerName ? customerName : `Occupied Party (${table?.capacity || 4} Guests)`}
               </Typography>
-              {table?.currentOrder && (
-                <Typography variant="caption" sx={{ color: '#EF4444', fontWeight: 700, fontSize: '13px' }}>
-                  Active Order #{table.currentOrder?.orderNumber || table.currentOrder?.id}
-                </Typography>
-              )}
+              <Typography variant="caption" sx={{ color: '#EF4444', fontWeight: 700, fontSize: '12px' }}>
+                Active Order #{table?.currentOrder?.orderNumber || table?.currentOrder?.id || 'POS-Live'}
+              </Typography>
             </Box>
           ) : (
-            <Typography
-              variant="body1"
+            <Box
               sx={{
-                color: 'text.secondary',
-                fontSize: '15px',
-                fontWeight: 500,
-                py: 0.5,
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#F8FAFC',
+                p: 1.5,
+                borderRadius: '14px',
+                border: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.06)',
               }}
             >
-              Ready for walk-in or guest reservation.
-            </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px', fontWeight: 500 }}>
+                Ready for immediate guest walk-in or phone reservation.
+              </Typography>
+            </Box>
           )}
         </Box>
 
-        {/* Bottom Action Footer */}
+        {/* Footer Actions */}
         <Box
           sx={{
-            pt: 2,
+            pt: 1.5,
             mt: 'auto',
             display: 'flex',
             alignItems: 'center',
@@ -255,10 +245,11 @@ export const TableCard = ({
           <Typography
             variant="caption"
             sx={{
-              fontWeight: 700,
-              fontSize: '13px',
+              fontWeight: 800,
+              fontSize: '12px',
               color: statusTheme.accent,
-              letterSpacing: '0.03em',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
             }}
           >
             {statusTheme.label}
@@ -268,10 +259,13 @@ export const TableCard = ({
             variant="caption"
             className="action-hint"
             sx={{
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: '13px',
               color: 'text.secondary',
               transition: 'all 250ms ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
             }}
           >
             Details & Actions →

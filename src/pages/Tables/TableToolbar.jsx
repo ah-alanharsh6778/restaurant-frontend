@@ -39,7 +39,6 @@ export const TableToolbar = ({
     { label: 'Available', value: 'AVAILABLE' },
     { label: 'Occupied', value: 'OCCUPIED' },
     { label: 'Reserved', value: 'RESERVED' },
-    { label: 'Maintenance', value: 'MAINTENANCE' },
   ];
 
   return (
@@ -47,12 +46,9 @@ export const TableToolbar = ({
       sx={{
         width: '100%',
         minHeight: '64px',
-        backgroundColor: isDark ? '#131A24' : '#FFFFFF',
-        borderRadius: '20px',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.08)',
-        boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)',
-        px: '24px',
-        py: '10px',
+        borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+        px: { xs: 2, sm: 3 },
+        py: '14px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
