@@ -34,6 +34,8 @@ import WarehouseDialog from './WarehouseDialog';
 import StockInDialog from './StockInDialog';
 import StockOutDialog from './StockOutDialog';
 import DeleteDialog from './DeleteDialog';
+import ProductDetailsDialog from './ProductDetailsDialog';
+import MobileInventoryFilterDrawer from './MobileInventoryFilterDrawer';
 import { getCachedData } from '../../utils/apiCache';
 
 export const InventoryDashboard = () => {

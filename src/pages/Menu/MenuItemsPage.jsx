@@ -22,6 +22,7 @@ import MenuItemTable from './MenuItemTable';
 import MenuItemDialog from './MenuItemDialog';
 import DeleteMenuItemDialog from './DeleteMenuItemDialog';
 import MenuItemDetailsDialog from './MenuItemDetailsDialog';
+import MobileMenuFilterDrawer from './MobileMenuFilterDrawer';
 import { getCachedData } from '../../utils/apiCache';
 
 import dayjs from 'dayjs';
