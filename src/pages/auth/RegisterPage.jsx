@@ -30,9 +30,9 @@ import { Button, Input, Select } from '../../components/ui';
 
 // Roles available for public self-registration (ADMIN, MANAGER & INVENTORY MANAGER excluded)
 const PUBLIC_REGISTRATION_ROLES = [
-  { label: 'Dining Waiter (WAITER)', value: '5e3f123a-51ea-4fe8-a2d3-51f8eaf783cb' },
-  { label: 'Executive Chef (CHEF)', value: 'f336eb26-2dc2-42de-8cab-e8062b9de5b6' },
-  { label: 'General Staff (STAFF)', value: '9c70fb26-3f98-41f4-bb7d-aedd9b5d2b5d' },
+  { label: 'Dining Waiter (WAITER)', value: 'WAITER' },
+  { label: 'Executive Chef (CHEF)', value: 'CHEF' },
+  { label: 'General Staff (STAFF)', value: 'STAFF' },
 ];
 
 export const RegisterPage = () => {
@@ -58,7 +58,7 @@ export const RegisterPage = () => {
       fullName: '',
       email: '',
       phone: '',
-      roleId: '5e3f123a-51ea-4fe8-a2d3-51f8eaf783cb', // Default: Dining Waiter
+      roleId: 'WAITER', // Default: Dining Waiter
       password: '',
       confirmPassword: '',
     },
