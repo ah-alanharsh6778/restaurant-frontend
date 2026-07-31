@@ -1,8 +1,6 @@
 import React from 'react';
-import { Box, Button, IconButton, Tooltip, Paper, InputBase } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import { Box, Button, Paper, InputBase, useTheme } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DownloadIcon from '@mui/icons-material/Download';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpenseFilters from './ExpenseFilters';
@@ -19,26 +17,22 @@ export const ExpenseToolbar = ({
   endDate = '',
   onEndDateChange,
   categories = [],
-  onRefresh,
   onOpenUpload,
-  onExportExcel,
   onOpenCreateExpense,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
         p: '16px 20px',
-        mb: 3,
-        borderRadius: '20px',
-        backgroundColor: '#131A24',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
         display: 'flex',
         flexDirection: { xs: 'column', lg: 'row' },
         alignItems: { xs: 'stretch', lg: 'center' },
         justifyContent: 'space-between',
         gap: 2,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
       }}
     >
       {/* Left Section: Search Input + Filters */}
@@ -52,15 +46,15 @@ export const ExpenseToolbar = ({
             alignItems: 'center',
             minWidth: { xs: '100%', sm: 260 },
             borderRadius: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : '#F8FAFC',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.12)',
             transition: 'all 200ms ease',
             '&:hover, &:focus-within': {
               borderColor: '#7C6CFF',
             },
           }}
         >
-          <SearchIcon sx={{ color: '#9CA3AF', mr: 1, fontSize: 20 }} />
+          <SearchIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />
           <InputBase
             placeholder="Search Invoice # or Supplier..."
             value={searchQuery}
@@ -68,9 +62,9 @@ export const ExpenseToolbar = ({
             sx={{
               flex: 1,
               fontSize: '0.875rem',
-              color: '#FFFFFF',
+              color: 'text.primary',
               fontWeight: 500,
-              '& input::placeholder': { color: '#9CA3AF', opacity: 1 },
+              '& input::placeholder': { color: 'text.secondary', opacity: 0.8 },
             }}
           />
         </Paper>
@@ -90,28 +84,6 @@ export const ExpenseToolbar = ({
 
       {/* Right Section: Action Buttons */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-        {onRefresh && (
-          <Tooltip title="Refresh Data">
-            <IconButton
-              onClick={onRefresh}
-              sx={{
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#FFFFFF',
-                p: 1.2,
-                transition: 'all 200ms ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  borderColor: '#7C6CFF',
-                },
-              }}
-            >
-              <RefreshIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </Tooltip>
-        )}
-
         {onOpenUpload && (
           <Button
             variant="outlined"
@@ -119,9 +91,9 @@ export const ExpenseToolbar = ({
             onClick={onOpenUpload}
             sx={{
               borderRadius: '12px',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              color: '#FFFFFF',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)',
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : '#FFFFFF',
+              color: 'text.primary',
               px: 2.2,
               py: 1,
               fontSize: '13px',
@@ -129,37 +101,11 @@ export const ExpenseToolbar = ({
               textTransform: 'none',
               '&:hover': {
                 borderColor: '#7C6CFF',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(124, 108, 255, 0.04)',
               },
             }}
           >
             Upload OCR Invoice
-          </Button>
-        )}
-
-        {onExportExcel && (
-          <Button
-            variant="outlined"
-            startIcon={<DownloadIcon />}
-            onClick={onExportExcel}
-            sx={{
-              borderRadius: '12px',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              color: '#FFFFFF',
-              px: 2.2,
-              py: 1,
-              fontSize: '13px',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': {
-                borderColor: '#10B981',
-                color: '#10B981',
-                backgroundColor: 'rgba(16, 185, 129, 0.08)',
-              },
-            }}
-          >
-            Export Excel
           </Button>
         )}
 
@@ -187,7 +133,7 @@ export const ExpenseToolbar = ({
           </Button>
         )}
       </Box>
-    </Paper>
+    </Box>
   );
 };
 

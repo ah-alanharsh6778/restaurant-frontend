@@ -183,28 +183,6 @@ export const ExpensesDashboard = () => {
 
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
             <Button
-              variant="outlined"
-              startIcon={<RefreshIcon />}
-              onClick={fetchAllData}
-              sx={{
-                borderRadius: '14px',
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-                backgroundColor: '#131A24',
-                color: '#FFFFFF',
-                px: 2.5,
-                py: 1,
-                fontSize: '14px',
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                },
-              }}
-            >
-              Refresh
-            </Button>
-            <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleOpenAddExpense}
@@ -231,36 +209,35 @@ export const ExpensesDashboard = () => {
         {/* Metric Summary Cards */}
         <ExpenseSummaryCards expenses={expenses} loading={loading} />
 
-        {/* Toolbar / Search & Filters */}
-        <ExpenseToolbar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          selectedStatus={selectedStatus}
-          onStatusChange={setSelectedStatus}
-          startDate={startDate}
-          onStartDateChange={setStartDate}
-          endDate={endDate}
-          onEndDateChange={setEndDate}
-          categories={categories}
-          onRefresh={fetchAllData}
-          onOpenUpload={handleOpenUpload}
-          onExportExcel={handleExportExcel}
-          onOpenCreateExpense={handleOpenAddExpense}
-        />
-
-        {/* Main Tabbed Content Container */}
+        {/* Main Merged Content Container (Search Toolbar + Tabs + Table) */}
         <Paper
           elevation={0}
           sx={{
             borderRadius: '20px',
-            backgroundColor: '#131A24',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            p: { xs: 2.5, sm: 3.5 },
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
           }}
         >
+          {/* Merged Search & Filter Toolbar */}
+          <ExpenseToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            selectedStatus={selectedStatus}
+            onStatusChange={setSelectedStatus}
+            startDate={startDate}
+            onStartDateChange={setStartDate}
+            endDate={endDate}
+            onEndDateChange={setEndDate}
+            categories={categories}
+            onOpenUpload={handleOpenUpload}
+            onOpenCreateExpense={handleOpenAddExpense}
+          />
+
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 } }}>
           <Box sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', mb: 3 }}>
             <Tabs
               value={currentTab}
@@ -312,6 +289,7 @@ export const ExpensesDashboard = () => {
               onOpenDelete={(item) => handleOpenDelete('category', item)}
             />
           )}
+          </Box>
         </Paper>
 
         {/* Dialog Modals */}
