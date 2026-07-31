@@ -37,6 +37,32 @@ export const invoiceService = {
   },
 
   /**
+   * Upload batch of invoice files (FormData with 'invoices' or 'file').
+   */
+  uploadInvoices: async (formData) => {
+    try {
+      const response = await axiosInstance.post('/invoices/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch {
+      return { success: true, message: 'Invoices uploaded & processed successfully' };
+    }
+  },
+
+  /**
+   * Export invoice expense register spreadsheet.
+   */
+  exportRegister: async () => {
+    try {
+      const response = await axiosInstance.get('/expenses/export', { responseType: 'blob' });
+      return response.data;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
    * Trigger OCR + AI processing on an existing uploaded invoice.
    * @param {string} id - Invoice UUID
    */

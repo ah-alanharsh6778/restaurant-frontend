@@ -22,6 +22,7 @@ import {
 import { toast } from 'react-toastify';
 import PageHeader from '../../components/layout/PageHeader';
 import invoiceService from '../../services/invoice.service';
+import aiService from '../../services/ai.service';
 
 export const InvoiceUpload = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -55,10 +56,21 @@ export const InvoiceUpload = () => {
       });
 
       setProgress(60);
-      await invoiceService.uploadInvoices(formData);
+      const res = await aiService.processInvoiceAI(formData);
       setProgress(100);
 
-      toast.success(`${selectedFiles.length} invoice(s) uploaded & processed successfully!`);
+      if (res && res.data) {
+        const newInvoices = Array.isArray(res.data) ? res.data : [res.data];
+        try {
+          const stored = localStorage.getItem('restaurantos_extracted_invoices');
+          const prev = stored ? JSON.parse(stored) : [];
+          localStorage.setItem('restaurantos_extracted_invoices', JSON.stringify([...newInvoices, ...prev]));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      toast.success(`${selectedFiles.length} invoice(s) uploaded & analyzed with Vision AI OCR!`);
       setSelectedFiles([]);
     } catch (error) {
       toast.error(error.message || 'Upload failed');

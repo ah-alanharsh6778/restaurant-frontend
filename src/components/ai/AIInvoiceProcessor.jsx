@@ -29,46 +29,59 @@ import * as XLSX from 'xlsx';
 import aiService from '../../services/ai.service';
 import expenseService from '../../services/expense.service';
 
+const DEFAULT_INITIAL_INVOICES = [
+  {
+    id: '1',
+    invoiceNumber: 'INV-2026-9918',
+    supplierName: 'Sun Valley Organic Produce Inc.',
+    invoiceDate: '2026-07-26',
+    categoryName: 'Raw Ingredients',
+    subtotal: 420.00,
+    taxAmount: 33.60,
+    totalAmount: 453.60,
+    paymentStatus: 'Pending',
+    ocrConfidence: '98.4% (Vision AI)',
+    type: 'Printed PDF Invoice',
+    lineItems: [
+      { description: 'Organic Cherry Tomatoes (5kg box)', quantity: 4, unitPrice: 32.50, total: 130.00 },
+      { description: 'Extra Virgin Olive Oil 5L', quantity: 2, unitPrice: 65.00, total: 130.00 },
+      { description: 'Fresh Italian Basil Bunches', quantity: 10, unitPrice: 16.00, total: 160.00 },
+    ],
+  },
+  {
+    id: '2',
+    invoiceNumber: 'HW-8812-METRO',
+    supplierName: 'Metro Dairy Foods',
+    invoiceDate: '2026-07-25',
+    categoryName: 'Dairy & Cheese',
+    subtotal: 212.50,
+    taxAmount: 17.00,
+    totalAmount: 229.50,
+    paymentStatus: 'Paid',
+    ocrConfidence: '94.1% (Handwritten AI recognized)',
+    type: 'Handwritten Receipt Scan',
+    lineItems: [
+      { description: 'Fresh Mozzarella Blocks', quantity: 10, unitPrice: 15.00, total: 150.00 },
+      { description: 'Heavy Whipping Cream 1L', quantity: 5, unitPrice: 12.50, total: 62.50 },
+    ],
+  },
+];
+
 export const AIInvoiceProcessor = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [processing, setProcessing] = useState(false);
-  const [extractedInvoices, setExtractedInvoices] = useState([
-    {
-      id: '1',
-      invoiceNumber: 'INV-2026-9918',
-      supplierName: 'Sun Valley Organic Produce Inc.',
-      invoiceDate: '2026-07-26',
-      categoryName: 'Raw Ingredients',
-      subtotal: 420.00,
-      taxAmount: 33.60,
-      totalAmount: 453.60,
-      paymentStatus: 'Pending',
-      ocrConfidence: '98.4% (Vision AI)',
-      type: 'Printed PDF Invoice',
-      lineItems: [
-        { description: 'Organic Cherry Tomatoes (5kg box)', quantity: 4, unitPrice: 32.50, total: 130.00 },
-        { description: 'Extra Virgin Olive Oil 5L', quantity: 2, unitPrice: 65.00, total: 130.00 },
-        { description: 'Fresh Italian Basil Bunches', quantity: 10, unitPrice: 16.00, total: 160.00 },
-      ],
-    },
-    {
-      id: '2',
-      invoiceNumber: 'HW-8812-METRO',
-      supplierName: 'Metro Dairy Foods',
-      invoiceDate: '2026-07-25',
-      categoryName: 'Dairy & Cheese',
-      subtotal: 212.50,
-      taxAmount: 17.00,
-      totalAmount: 229.50,
-      paymentStatus: 'Paid',
-      ocrConfidence: '94.1% (Handwritten AI recognized)',
-      type: 'Handwritten Receipt Scan',
-      lineItems: [
-        { description: 'Fresh Mozzarella Blocks', quantity: 10, unitPrice: 15.00, total: 150.00 },
-        { description: 'Heavy Whipping Cream 1L', quantity: 5, unitPrice: 12.50, total: 62.50 },
-      ],
-    },
-  ]);
+  const [extractedInvoices, setExtractedInvoices] = useState(() => {
+    try {
+      const saved = localStorage.getItem('restaurantos_extracted_invoices');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to parse saved invoices', e);
+    }
+    return DEFAULT_INITIAL_INVOICES;
+  });
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -90,9 +103,18 @@ export const AIInvoiceProcessor = () => {
       selectedFiles.forEach((file) => formData.append('invoices', file));
 
       const res = await aiService.processInvoiceAI(formData);
-      if (res.data) {
-        setExtractedInvoices((prev) => [res.data, ...prev]);
-        toast.success(`Successfully extracted ${selectedFiles.length} invoice(s) using Vision AI OCR!`);
+      if (res && res.data) {
+        const newInvoices = Array.isArray(res.data) ? res.data : [res.data];
+        setExtractedInvoices((prev) => {
+          const updated = [...newInvoices, ...prev];
+          try {
+            localStorage.setItem('restaurantos_extracted_invoices', JSON.stringify(updated));
+          } catch (e) {
+            console.error('Failed to save to localStorage', e);
+          }
+          return updated;
+        });
+        toast.success(`Successfully analyzed & extracted ${newInvoices.length} unique invoice(s) using Vision AI OCR!`);
         setSelectedFiles([]);
       }
     } catch (err) {
