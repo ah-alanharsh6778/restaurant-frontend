@@ -371,20 +371,20 @@ export const AnalyticsDashboard = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Typography variant="h5" component="div" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1 }}>
+                  <Typography variant="h5" component="div" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1 }}>
                     {`${occupancyRate}%`}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600, mt: 0.5, fontSize: '0.7rem' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, mt: 0.5, fontSize: '0.7rem' }}>
                     OCCUPIED
                   </Typography>
                 </Box>
               </Box>
 
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', mb: 0.5 }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.5 }}>
                   Real-Time Dining Capacity Gauge
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#9CA3AF', maxWidth: 360, mb: 1.5 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 360, mb: 1.5 }}>
                   Live visual telemetry of floor tables, seating utilization, and POS customer turnover rate.
                 </Typography>
                 <Stack direction="row" spacing={2}>

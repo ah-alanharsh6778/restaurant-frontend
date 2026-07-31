@@ -5,6 +5,7 @@ import {
   Box,
   Typography,
   Avatar,
+  useTheme,
 } from '@mui/material';
 import TableBarIcon from '@mui/icons-material/TableBar';
 import BuildIcon from '@mui/icons-material/Build';
@@ -25,6 +26,9 @@ export const TableCard = ({
   onOpenQrModal,
   canManage = false,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const tableNum = table?.tableNumber || `T-${table?.id?.substring(0, 4)}`;
   const statusUpper = String(table?.status || 'AVAILABLE').toUpperCase();
 
@@ -38,7 +42,7 @@ export const TableCard = ({
     if (isOccupied) {
       return {
         accent: '#EF4444',
-        border: 'rgba(239, 68, 68, 0.3)',
+        border: isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.4)',
         borderHover: 'rgba(239, 68, 68, 0.6)',
         bgIcon: 'rgba(239, 68, 68, 0.12)',
         glow: '0 12px 28px -6px rgba(239, 68, 68, 0.25)',
@@ -49,7 +53,7 @@ export const TableCard = ({
     if (isReserved) {
       return {
         accent: '#F59E0B',
-        border: 'rgba(245, 158, 11, 0.3)',
+        border: isDark ? 'rgba(245, 158, 11, 0.3)' : 'rgba(245, 158, 11, 0.4)',
         borderHover: 'rgba(245, 158, 11, 0.6)',
         bgIcon: 'rgba(245, 158, 11, 0.12)',
         glow: '0 12px 28px -6px rgba(245, 158, 11, 0.25)',
@@ -60,7 +64,7 @@ export const TableCard = ({
     if (isMaintenance) {
       return {
         accent: '#6B7280',
-        border: 'rgba(107, 114, 128, 0.3)',
+        border: isDark ? 'rgba(107, 114, 128, 0.3)' : 'rgba(107, 114, 128, 0.4)',
         borderHover: 'rgba(107, 114, 128, 0.6)',
         bgIcon: 'rgba(107, 114, 128, 0.12)',
         glow: '0 12px 28px -6px rgba(107, 114, 128, 0.2)',
@@ -71,7 +75,7 @@ export const TableCard = ({
     // Default: Available (Green)
     return {
       accent: '#10B981',
-      border: 'rgba(16, 185, 129, 0.3)',
+      border: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.4)',
       borderHover: 'rgba(16, 185, 129, 0.6)',
       bgIcon: 'rgba(16, 185, 129, 0.12)',
       glow: '0 12px 28px -6px rgba(16, 185, 129, 0.25)',
@@ -101,7 +105,7 @@ export const TableCard = ({
         borderRadius: '20px',
         border: '1px solid',
         borderColor: statusTheme.border,
-        backgroundColor: '#131A24',
+        backgroundColor: isDark ? '#131A24' : '#FFFFFF',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -110,7 +114,7 @@ export const TableCard = ({
         transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+        boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
         '&:hover': {
           transform: 'translateY(-6px) scale(1.02)',
           borderColor: statusTheme.borderHover,
@@ -152,15 +156,15 @@ export const TableCard = ({
                 sx={{
                   fontWeight: 800,
                   fontSize: '22px',
-                  color: '#FFFFFF',
+                  color: 'text.primary',
                   lineHeight: 1.2,
                   letterSpacing: '-0.02em',
                 }}
               >
                 Table #{tableNum}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '13px', display: 'block' }}>
-                Capacity: <span style={{ color: '#FFFFFF', fontWeight: 700 }}>{table?.capacity || 4} Guests</span>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px', display: 'block' }}>
+                Capacity: <span style={{ color: isDark ? '#FFFFFF' : '#0F172A', fontWeight: 700 }}>{table?.capacity || 4} Guests</span>
               </Typography>
             </Box>
           </Box>
@@ -183,7 +187,7 @@ export const TableCard = ({
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: '15px' }}>
+                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '15px' }}>
                   {customerName}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#F59E0B', fontWeight: 800, fontSize: '13px' }}>
@@ -192,8 +196,8 @@ export const TableCard = ({
               </Box>
 
               {customerPhone && (
-                <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <PhoneIcon sx={{ fontSize: 14, color: '#9CA3AF' }} /> {customerPhone}
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <PhoneIcon sx={{ fontSize: 14, color: 'text.secondary' }} /> {customerPhone}
                 </Typography>
               )}
 
@@ -213,7 +217,7 @@ export const TableCard = ({
                 gap: 0.5,
               }}
             >
-              <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: '15px' }}>
+              <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '15px' }}>
                 {customerName ? customerName : `Occupied Party (${table?.capacity || 4} Guests)`}
               </Typography>
               {table?.currentOrder && (
@@ -226,7 +230,7 @@ export const TableCard = ({
             <Typography
               variant="body1"
               sx={{
-                color: '#9CA3AF',
+                color: 'text.secondary',
                 fontSize: '15px',
                 fontWeight: 500,
                 py: 0.5,
@@ -245,7 +249,7 @@ export const TableCard = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.08)',
           }}
         >
           <Typography
@@ -266,7 +270,7 @@ export const TableCard = ({
             sx={{
               fontWeight: 600,
               fontSize: '13px',
-              color: '#9CA3AF',
+              color: 'text.secondary',
               transition: 'all 250ms ease',
             }}
           >

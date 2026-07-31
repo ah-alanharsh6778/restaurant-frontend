@@ -6,6 +6,7 @@ import {
   MenuItem,
   TextField,
   Box,
+  useTheme,
 } from '@mui/material';
 
 export const ExpenseFilters = ({
@@ -19,26 +20,29 @@ export const ExpenseFilters = ({
   onEndDateChange,
   categories = [],
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const selectSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '12px',
-      backgroundColor: '#131A24',
-      color: '#FFFFFF',
-      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.1)' },
-      '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.25)' },
+      backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+      color: 'text.primary',
+      '& fieldset': { borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)' },
+      '&:hover fieldset': { borderColor: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)' },
       '&.Mui-focused fieldset': { borderColor: '#7C6CFF' },
     },
-    '& .MuiInputLabel-root': { color: '#9CA3AF' },
-    '& .MuiSelect-icon': { color: '#9CA3AF' },
+    '& .MuiInputLabel-root': { color: 'text.secondary' },
+    '& .MuiSelect-icon': { color: 'text.secondary' },
   };
 
   const inputMenuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: '#131A24',
-        color: '#FFFFFF',
+        backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+        color: 'text.primary',
         borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.12)',
         '& .MuiMenuItem-root': {
           '&:hover': { backgroundColor: 'rgba(124, 108, 255, 0.12)' },
           '&.Mui-selected': { backgroundColor: '#7C6CFF', color: '#FFFFFF' },

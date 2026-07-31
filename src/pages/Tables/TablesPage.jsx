@@ -274,13 +274,16 @@ export const TablesPage = () => {
     },
   ];
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <Box
       sx={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: '#0B0D14',
-        color: '#FFFFFF',
+        backgroundColor: 'background.default',
+        color: 'text.primary',
         px: { xs: 2, sm: 3, md: 4 },
         py: { xs: 2, sm: 3, md: 4 },
         boxSizing: 'border-box',
@@ -303,14 +306,14 @@ export const TablesPage = () => {
               sx={{
                 fontWeight: 800,
                 fontSize: '32px',
-                color: '#FFFFFF',
+                color: 'text.primary',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
               }}
             >
               Restaurant Tables
             </Typography>
-            <Typography variant="body1" sx={{ color: '#9CA3AF', fontSize: '15px', mt: 0.5 }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '15px', mt: 0.5 }}>
               Manage seating capacity, reservations, occupancy, and floor operations.
             </Typography>
           </Box>
@@ -322,9 +325,9 @@ export const TablesPage = () => {
               onClick={fetchTables}
               sx={{
                 borderRadius: '14px',
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-                backgroundColor: '#131A24',
-                color: '#FFFFFF',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.12)',
+                backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                color: 'text.primary',
                 px: 2.5,
                 py: 1,
                 fontSize: '14px',
@@ -377,15 +380,15 @@ export const TablesPage = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: '24px', color: '#FFFFFF' }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: '24px', color: 'text.primary' }}>
             Tables
           </Typography>
           <IconButton
             onClick={() => setMobileFilterOpen(true)}
             sx={{
-              color: '#FFFFFF',
-              backgroundColor: '#131A24',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: 'text.primary',
+              backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.12)',
               borderRadius: '12px',
               p: 1.2,
             }}
@@ -404,8 +407,9 @@ export const TablesPage = () => {
                   sx={{
                     p: '24px',
                     borderRadius: '20px',
-                    backgroundColor: '#131A24',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                    border: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.08)',
+                    boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -414,13 +418,13 @@ export const TablesPage = () => {
                     transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
                       transform: 'translateY(-4px)',
-                      borderColor: 'rgba(255, 255, 255, 0.12)',
-                      boxShadow: '0 12px 30px rgba(0, 0, 0, 0.5)',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.15)',
+                      boxShadow: isDark ? '0 12px 30px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.08)',
                     },
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" sx={{ color: '#9CA3AF', fontWeight: 600, fontSize: '14px' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '14px' }}>
                       {card.title}
                     </Typography>
                     <Box
@@ -437,10 +441,10 @@ export const TablesPage = () => {
                       {card.icon}
                     </Box>
                   </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '28px', mb: 0.5 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '28px', mb: 0.5 }}>
                     {card.value}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '13px' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '13px' }}>
                     {card.description}
                   </Typography>
                 </Paper>

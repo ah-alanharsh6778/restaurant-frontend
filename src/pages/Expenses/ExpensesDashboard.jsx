@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, Tabs, Tab, Paper, Typography, Button } from '@mui/material';
+import { Box, Tabs, Tab, Paper, Typography, Button, useTheme } from '@mui/material';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CategoryIcon from '@mui/icons-material/Category';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -23,6 +23,8 @@ import ExpenseDetailsDialog from './ExpenseDetailsDialog';
 import DeleteExpenseDialog from './DeleteExpenseDialog';
 
 export const ExpensesDashboard = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   // Data States
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -150,8 +152,8 @@ export const ExpensesDashboard = () => {
       sx={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: '#0B0D14',
-        color: '#FFFFFF',
+        backgroundColor: 'background.default',
+        color: 'text.primary',
         px: { xs: 2, sm: 3, md: 4 },
         py: { xs: 2, sm: 3, md: 4 },
         boxSizing: 'border-box',
@@ -167,14 +169,14 @@ export const ExpensesDashboard = () => {
               sx={{
                 fontWeight: 800,
                 fontSize: '32px',
-                color: '#FFFFFF',
+                color: 'text.primary',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
               }}
             >
               Expense Management
             </Typography>
-            <Typography variant="body1" sx={{ color: '#9CA3AF', fontSize: '15px', mt: 0.5 }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '15px', mt: 0.5 }}>
               Track vendor invoices, category breakdowns, tax registers, and supplier OCR feeds.
             </Typography>
           </Box>

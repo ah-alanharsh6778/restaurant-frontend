@@ -13,6 +13,7 @@ import {
   Typography,
   IconButton,
   Button,
+  useTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -30,6 +31,9 @@ export const TableToolbar = ({
   viewMode = 'grid',
   onViewModeChange,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const statusOptions = [
     { label: 'All Statuses', value: 'ALL' },
     { label: 'Available', value: 'AVAILABLE' },
@@ -43,9 +47,10 @@ export const TableToolbar = ({
       sx={{
         width: '100%',
         minHeight: '64px',
-        backgroundColor: '#131A24',
+        backgroundColor: isDark ? '#131A24' : '#FFFFFF',
         borderRadius: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.08)',
+        boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)',
         px: '24px',
         py: '10px',
         display: 'flex',

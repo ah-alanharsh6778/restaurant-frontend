@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Card, CardContent, Typography, Box, Skeleton, Avatar } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Box, Skeleton, Avatar, useTheme } from '@mui/material';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -8,6 +8,8 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import dayjs from 'dayjs';
 
 export const ExpenseSummaryCards = ({ expenses = [], loading = false }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const now = dayjs();
 
   const totalExpenseSum = expenses.reduce((acc, exp) => acc + Number(exp.total || exp.amount || 0), 0);
@@ -84,32 +86,33 @@ export const ExpenseSummaryCards = ({ expenses = [], loading = false }) => {
             sx={{
               p: 0.5,
               borderRadius: '4px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              backgroundColor: '#131A24',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: isDark ? '#131A24' : '#FFFFFF',
               height: '100%',
               boxSizing: 'border-box',
               transition: 'all 250ms ease',
+              boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.05)',
               '&:hover': {
                 transform: 'translateY(-2px)',
-                borderColor: 'rgba(255, 255, 255, 0.16)',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.16)',
+                boxShadow: isDark ? '0 8px 24px rgba(0, 0, 0, 0.4)' : '0 6px 20px rgba(0, 0, 0, 0.08)',
               },
             }}
           >
             <CardContent sx={{ p: { xs: '12px !important', sm: '20px !important' } }}>
               {loading ? (
                 <Box>
-                  <Skeleton variant="circular" width={36} height={36} sx={{ mb: 1, bgcolor: 'rgba(255,255,255,0.06)' }} />
-                  <Skeleton variant="text" width="60%" height={16} sx={{ bgcolor: 'rgba(255,255,255,0.06)' }} />
-                  <Skeleton variant="text" width="40%" height={24} sx={{ bgcolor: 'rgba(255,255,255,0.06)' }} />
+                  <Skeleton variant="circular" width={36} height={36} sx={{ mb: 1 }} />
+                  <Skeleton variant="text" width="60%" height={16} />
+                  <Skeleton variant="text" width="40%" height={24} />
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600, fontSize: { xs: '11px', sm: '13px' }, display: 'block' }} noWrap>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: { xs: '11px', sm: '13px' }, display: 'block' }} noWrap>
                       {card.title}
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.4, color: '#FFFFFF', fontSize: { xs: '16px', sm: '22px' } }} noWrap>
+                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.4, color: 'text.primary', fontSize: { xs: '16px', sm: '22px' } }} noWrap>
                       {card.value}
                     </Typography>
                   </Box>

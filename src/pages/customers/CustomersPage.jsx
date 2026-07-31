@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Alert, Button, Typography, IconButton, Fab } from '@mui/material';
+import { Box, Alert, Button, Typography, IconButton, Fab, useTheme } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import PeopleIcon from '@mui/icons-material/People';
@@ -139,13 +139,16 @@ export const CustomersPage = () => {
     }
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <Box
       sx={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: '#0B0D14',
-        color: '#FFFFFF',
+        backgroundColor: 'background.default',
+        color: 'text.primary',
         px: { xs: 2, sm: 3, md: 4 },
         py: { xs: 2, sm: 3, md: 4 },
         boxSizing: 'border-box',
@@ -168,14 +171,14 @@ export const CustomersPage = () => {
               sx={{
                 fontWeight: 800,
                 fontSize: '32px',
-                color: '#FFFFFF',
+                color: 'text.primary',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
               }}
             >
               Customer Directory
             </Typography>
-            <Typography variant="body1" sx={{ color: '#9CA3AF', fontSize: '15px', mt: 0.5 }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary', fontSize: '15px', mt: 0.5 }}>
               Manage guest profiles, seating assignments, POS orders & loyalty points directly with backend database.
             </Typography>
           </Box>
