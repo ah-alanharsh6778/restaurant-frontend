@@ -12,6 +12,7 @@
  */
 
 import { createContext, useState, useEffect, useCallback, useRef } from 'react';
+import authService from '../services/auth.service';
 import axiosInstance from '../config/axios';
 import { clearAuth, setTokens, setUser, getToken, getUser, getRefreshToken } from '../utils/storage';
 import { normaliseRole } from '../utils/rbac';
@@ -24,6 +25,7 @@ export const AuthContext = createContext({
   isAuthenticated: false,
   loading: true,
   login: async () => {},
+  register: async () => {},
   logout: () => {},
   refresh: async () => {},
   hasPermission: (action, resource) => false,
@@ -173,6 +175,11 @@ export const AuthProvider = ({ children }) => {
     return { user: loggedUser, token: accessToken, permissions: perms };
   }, []);
 
+  // ── Register ──────────────────────────────────────────────────────────────
+  const register = useCallback(async (userData) => {
+    return await authService.register(userData);
+  }, []);
+
   // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
     clearAuth();
@@ -244,6 +251,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: Boolean(token && user),
     loading,
     login,
+    register,
     logout,
     refresh,
     hasPermission,
