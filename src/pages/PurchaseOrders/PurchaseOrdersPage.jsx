@@ -631,7 +631,7 @@ export const PurchaseOrdersPage = () => {
       <DeletePurchaseOrderDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDeletePO}
+        onConfirm={handleDeletePO}
         purchaseOrder={selectedPO}
         loading={submitting}
       />
