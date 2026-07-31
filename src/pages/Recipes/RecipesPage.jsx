@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Paper, Box, Button, Grid, Card, CardContent, Typography, Chip } from '@mui/material';
+import { Paper, Box, Button, Grid, Card, CardContent, Typography, Chip, IconButton, Fab, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
 import recipeService from '../../services/recipe.service';
 import menuService from '../../services/menu.service';
@@ -15,8 +16,12 @@ import DeleteRecipeDialog from './DeleteRecipeDialog';
 import DeleteRecipeIngredientDialog from './DeleteRecipeIngredientDialog';
 import EmptyRecipeState from './EmptyRecipeState';
 import ErrorState from '../../components/common/ErrorState';
+import MobileRecipeFilterDrawer from './MobileRecipeFilterDrawer';
 
 export const RecipesPage = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const [recipes, setRecipes] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [ingredientsList, setIngredientsList] = useState([]);
@@ -27,6 +32,8 @@ export const RecipesPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [prepTimeFilter, setPrepTimeFilter] = useState('ALL');
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Dialog States
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -236,28 +243,60 @@ export const RecipesPage = () => {
       title="Recipe Management"
       breadcrumbs={['Dashboard', 'Recipes']}
       actions={
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 800, borderRadius: 2.5, px: 2.5 }}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddDialog} sx={{ fontWeight: 800, borderRadius: '12px', px: 2.5, backgroundColor: '#7C6CFF' }}>
           Add Recipe
         </Button>
       }
     >
-      <Paper
-        elevation={2}
+      {/* Mobile Header Filter Trigger */}
+      <Box
         sx={{
-          borderRadius: 3.5,
-          overflow: 'hidden',
-          border: (theme) => `1px solid ${theme.palette.divider}`,
-          mb: 4,
+          display: { xs: 'flex', md: 'none' },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
         }}
       >
-        <RecipeToolbar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+        <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
+          Recipe Formulas ({filteredRecipes.length})
+        </Typography>
 
-        <Box p={3}>
+        <IconButton
+          onClick={() => setMobileFilterOpen(true)}
+          sx={{
+            color: 'text.primary',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '12px',
+            p: 1.2,
+          }}
+        >
+          <FilterListIcon />
+        </IconButton>
+      </Box>
+
+      {/* Single Unified Merged Container */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: '20px',
+          overflow: 'hidden',
+          backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+          border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+          mb: 4,
+          boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <RecipeToolbar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
+        </Box>
+
+        <Box p={{ xs: 2, sm: 3 }}>
           {!loading && filteredRecipes.length === 0 ? (
             <EmptyRecipeState onCreateRecipe={handleOpenAddDialog} />
           ) : viewMode === 'grid' ? (
@@ -383,8 +422,43 @@ export const RecipesPage = () => {
         open={deleteIngredientDialogOpen}
         onClose={() => setDeleteIngredientDialogOpen(false)}
         onConfirm={handleRemoveIngredient}
-        ingredientItem={selectedIngredientItem}
+        recipeIngredient={selectedIngredientItem}
         loading={submitting}
+      />
+
+      {/* Mobile Floating Action Button (FAB) */}
+      <Fab
+        onClick={handleOpenAddDialog}
+        aria-label="add recipe"
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          position: 'fixed',
+          bottom: '24px',
+          right: '20px',
+          zIndex: 1000,
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          backgroundColor: '#7C6CFF',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 24px rgba(124, 108, 255, 0.4)',
+          '&:hover': {
+            backgroundColor: '#6854FF',
+          },
+        }}
+      >
+        <AddIcon sx={{ fontSize: 28 }} />
+      </Fab>
+
+      {/* Mobile Recipe Filter Drawer */}
+      <MobileRecipeFilterDrawer
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        searchQuery={searchTerm}
+        onSearchChange={setSearchTerm}
+        prepTimeFilter={prepTimeFilter}
+        onPrepTimeFilterChange={setPrepTimeFilter}
+        onResetFilters={() => setSearchTerm('')}
       />
     </PageContainer>
   );
