@@ -21,12 +21,20 @@ import OrderInvoicePaymentDialog from './OrderInvoicePaymentDialog';
 import EmptyOrderState from './EmptyOrderState';
 import ErrorState from '../../components/common/ErrorState';
 
+import { getCachedData } from '../../utils/apiCache';
+
 export const OrdersPage = () => {
-  const [orders, setOrders] = useState([]);
+  const cachedOrders = useMemo(() => {
+    const cached = getCachedData('/orders');
+    const list = Array.isArray(cached) ? cached : cached?.data || cached?.orders;
+    return Array.isArray(list) && list.length > 0 ? list : null;
+  }, []);
+
+  const [orders, setOrders] = useState(() => cachedOrders || []);
   const [tables, setTables] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedOrders);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -48,7 +56,7 @@ export const OrdersPage = () => {
   const [selectedOrderItem, setSelectedOrderItem] = useState(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    if (!cachedOrders) setLoading(true);
     setError(null);
     try {
       const [ordRes, tabRes, menuRes] = await Promise.all([

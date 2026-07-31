@@ -34,18 +34,24 @@ import WarehouseDialog from './WarehouseDialog';
 import StockInDialog from './StockInDialog';
 import StockOutDialog from './StockOutDialog';
 import DeleteDialog from './DeleteDialog';
-import ProductDetailsDialog from './ProductDetailsDialog';
-import MobileInventoryFilterDrawer from './MobileInventoryFilterDrawer';
+import { getCachedData } from '../../utils/apiCache';
 
 export const InventoryDashboard = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+
+  const cachedProducts = useMemo(() => {
+    const cached = getCachedData('/inventory/products');
+    const list = Array.isArray(cached) ? cached : cached?.data;
+    return Array.isArray(list) && list.length > 0 ? list : null;
+  }, []);
+
   // Data States
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => cachedProducts || []);
   const [categories, setCategories] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [stockHistory, setStockHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedProducts);
 
   // Active Tab State (0: Products, 1: Warehouses, 2: Categories, 3: Stock History)
   const [currentTab, setCurrentTab] = useState(0);
@@ -69,7 +75,7 @@ export const InventoryDashboard = () => {
   // Load all inventory data from backend API
   const fetchAllData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!cachedProducts) setLoading(true);
       const [catRes, prodRes, whRes, histRes] = await Promise.all([
         inventoryService.getCategories(),
         inventoryService.getProducts(),

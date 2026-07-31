@@ -14,15 +14,23 @@ import CustomerDialog from './CustomerDialog';
 import CustomerDetailsDialog from './CustomerDetailsDialog';
 import DeleteCustomerDialog from './DeleteCustomerDialog';
 
+import { getCachedData } from '../../utils/apiCache';
+
 export const CustomersPage = () => {
   const { user } = useAuth();
   const rawRole = user?.role;
   const userRole = typeof rawRole === 'object' && rawRole !== null ? rawRole.name : String(rawRole || 'ADMIN');
   const canManageCustomers = ['ADMIN', 'MANAGER', 'STAFF'].includes(userRole.toUpperCase());
 
-  const [customers, setCustomers] = useState([]);
+  const cachedCustomers = useMemo(() => {
+    const cached = getCachedData('/customers');
+    const list = Array.isArray(cached) ? cached : cached?.data;
+    return Array.isArray(list) && list.length > 0 ? list : null;
+  }, []);
+
+  const [customers, setCustomers] = useState(() => cachedCustomers || []);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedCustomers);
   const [error, setError] = useState(null);
 
   // Search & Filter
@@ -40,7 +48,7 @@ export const CustomersPage = () => {
   // Fetch real customers from backend API
   const fetchCustomers = useCallback(
     async (page = 1, search = '') => {
-      setLoading(true);
+      if (!cachedCustomers) setLoading(true);
       setError(null);
       try {
         const res = await customerService.getAll({

@@ -34,6 +34,8 @@ import TableDetailsModal from './TableDetailsModal';
 import EmptyTableState from './EmptyTableState';
 import TableQrModal from '../../components/tables/TableQrModal';
 
+import { getCachedData } from '../../utils/apiCache';
+
 const DEFAULT_TABLES = [
   { id: 'tbl-1', tableNumber: 'T-01', capacity: 2, status: 'AVAILABLE', location: 'Main Dining' },
   { id: 'tbl-2', tableNumber: 'T-02', capacity: 4, status: 'OCCUPIED', location: 'Main Dining', booking: { customerName: 'Alexander Wright', guests: 4, time: '08:00 PM' }, currentOrder: { id: 'ORD-1082', orderNumber: '1082' } },
@@ -50,8 +52,14 @@ export const TablesPage = () => {
   const { hasRole } = useAuth();
   const canManageTables = hasRole(['ADMIN', 'MANAGER']);
 
-  const [tables, setTables] = useState(DEFAULT_TABLES);
-  const [loading, setLoading] = useState(true);
+  const cachedTables = useMemo(() => {
+    const cached = getCachedData('/tables');
+    const list = Array.isArray(cached) ? cached : cached?.data || cached?.tables;
+    return Array.isArray(list) && list.length > 0 ? list : null;
+  }, []);
+
+  const [tables, setTables] = useState(() => cachedTables || DEFAULT_TABLES);
+  const [loading, setLoading] = useState(!cachedTables);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
   // Filters
@@ -88,17 +96,18 @@ export const TablesPage = () => {
   // Fetch Tables from GET /api/tables
   const fetchTables = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!cachedTables) setLoading(true);
       const res = await tableService.getTables();
       const tList = Array.isArray(res) ? res : res?.data || res?.tables || [];
-      setTables(tList.length > 0 ? tList : DEFAULT_TABLES);
+      if (tList.length > 0) {
+        setTables(tList);
+      }
     } catch (err) {
       console.error('Error fetching tables:', err);
-      setTables(DEFAULT_TABLES);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cachedTables]);
 
   useEffect(() => {
     fetchTables();

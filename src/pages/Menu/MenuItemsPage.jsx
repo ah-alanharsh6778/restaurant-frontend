@@ -22,7 +22,7 @@ import MenuItemTable from './MenuItemTable';
 import MenuItemDialog from './MenuItemDialog';
 import DeleteMenuItemDialog from './DeleteMenuItemDialog';
 import MenuItemDetailsDialog from './MenuItemDetailsDialog';
-import MobileMenuFilterDrawer from './MobileMenuFilterDrawer';
+import { getCachedData } from '../../utils/apiCache';
 
 import dayjs from 'dayjs';
 
@@ -30,9 +30,15 @@ export const MenuItemsPage = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
-  const [menuItems, setMenuItems] = useState([]);
+  const cachedItems = useMemo(() => {
+    const cached = getCachedData('/menu-items');
+    const list = Array.isArray(cached) ? cached : cached?.data || cached?.menuItems;
+    return Array.isArray(list) && list.length > 0 ? list : null;
+  }, []);
+
+  const [menuItems, setMenuItems] = useState(() => cachedItems || []);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedItems);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Filters & Search
@@ -95,7 +101,7 @@ export const MenuItemsPage = () => {
     let isMounted = true;
 
     const loadInitialData = async () => {
-      setLoading(true);
+      if (!cachedItems) setLoading(true);
       try {
         const [itemsRes, catsRes] = await Promise.all([
           menuService.getMenuItems(),

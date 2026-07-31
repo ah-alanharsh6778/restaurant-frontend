@@ -10,12 +10,27 @@
  * ADMIN always has full access (ADMIN bypass is applied in ProtectedRoute).
  */
 
-import { lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import DashboardLayout from '../layout/DashboardLayout';
 import LoginPage from '../pages/auth/LoginPage';
 import ProtectedRoute from './ProtectedRoute';
+
+// Pre-load route functions
+const prefetchRoutes = () => {
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(() => {
+      import('../pages/Dashboard/AnalyticsDashboard');
+      import('../pages/Tables/TablesPage');
+      import('../pages/Orders/OrdersPage');
+      import('../pages/Menu/MenuPage');
+      import('../pages/Inventory/InventoryDashboard');
+      import('../pages/customers/CustomersPage');
+      import('../pages/Expenses/ExpensesDashboard');
+    });
+  }
+};
 
 // Lazy-loaded pages for optimal bundle splitting & instant login load
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
@@ -72,6 +87,9 @@ const PageLoader = () => (
 );
 
 const AppRoutes = () => {
+  useEffect(() => {
+    prefetchRoutes();
+  }, []);
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
