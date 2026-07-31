@@ -1,4 +1,13 @@
-# 🍽️ RestaurantOS Frontend
+# RestaurantOS
+
+## Live Demo
+https://restaurant-frontend-6qvjf707t-harsh-aa62.vercel.app
+
+## Frontend Repository
+https://github.com/your-username/restaurant-frontend
+
+## Backend Repository
+https://github.com/your-username/restaurant-backend
 
 Modern Enterprise Restaurant Management System frontend built with **React**, **Vite**, **Material UI**, **Axios**, and integrated with the RestaurantOS REST API.
 
