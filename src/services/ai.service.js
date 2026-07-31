@@ -193,13 +193,16 @@ export const aiService = {
   // 6. AI Invoice Processing & OCR Extraction
   processInvoiceAI: async (formData) => {
     try {
-      const response = await api.post('/expenses/upload', formData, {
+      const response = await api.post('/invoices/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       if (response.data && response.data.data) {
         return response.data;
       }
-    } catch {
+    } catch (err) {
+      if (err.response && err.response.status === 409) {
+        throw err;
+      }
       console.warn('Backend OCR endpoint unavailable, executing client-side Vision AI parsing.');
     }
 

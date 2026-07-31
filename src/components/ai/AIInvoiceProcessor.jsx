@@ -118,7 +118,11 @@ export const AIInvoiceProcessor = () => {
         setSelectedFiles([]);
       }
     } catch (err) {
-      toast.error('Failed to process invoices with AI.');
+      if (err?.response?.status === 409 || err?.status === 409) {
+        toast.error(err?.response?.data?.message || err?.message || 'Duplicate invoice detected!');
+      } else {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to process invoices with AI.');
+      }
     } finally {
       setProcessing(false);
     }
