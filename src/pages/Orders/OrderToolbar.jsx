@@ -4,8 +4,13 @@ import {
   TextField,
   InputAdornment,
   MenuItem,
+  ToggleButtonGroup,
+  ToggleButton,
+  useTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import TableRowsIcon from '@mui/icons-material/TableRows';
 import { getCleanTableName } from '../../utils/formatters';
 
 const STATUS_FILTER_OPTIONS = [
@@ -27,7 +32,12 @@ export const OrderToolbar = ({
   tableFilter = 'ALL',
   onTableFilterChange,
   availableTables = [],
+  viewMode = 'kanban',
+  onViewModeChange,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <Box
       sx={{
@@ -42,14 +52,50 @@ export const OrderToolbar = ({
     >
       <Box>
         <Typography variant="h6" fontWeight={800}>
-          Order Directory & Filters
+          Order Operations Center
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Filter active orders by status, search by order number, or view table assignment
+          Real-time order pipeline with Kanban kitchen queue & tabular records
         </Typography>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+        {onViewModeChange && (
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, val) => val && onViewModeChange(val)}
+            size="small"
+            sx={{
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : '#F1F5F9',
+              borderRadius: '10px',
+              p: '2px',
+              '& .MuiToggleButton-root': {
+                border: 'none',
+                borderRadius: '8px',
+                px: 1.5,
+                py: 0.5,
+                fontWeight: 700,
+                fontSize: '13px',
+                textTransform: 'none',
+                color: 'text.secondary',
+                '&.Mui-selected': {
+                  backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                  color: '#7C6CFF',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                },
+              },
+            }}
+          >
+            <ToggleButton value="kanban">
+              <ViewKanbanIcon sx={{ fontSize: 18, mr: 0.75 }} /> Kanban
+            </ToggleButton>
+            <ToggleButton value="table">
+              <TableRowsIcon sx={{ fontSize: 18, mr: 0.75 }} /> Table
+            </ToggleButton>
+          </ToggleButtonGroup>
+        )}
+
         <TextField
           size="small"
           placeholder="Search order number..."
@@ -64,7 +110,7 @@ export const OrderToolbar = ({
               ),
             },
           }}
-          sx={{ minWidth: 220 }}
+          sx={{ minWidth: 200 }}
         />
 
         <TextField
@@ -73,7 +119,7 @@ export const OrderToolbar = ({
           label="Status"
           value={statusFilter}
           onChange={(e) => onStatusFilterChange(e.target.value)}
-          sx={{ minWidth: 140 }}
+          sx={{ minWidth: 130 }}
         >
           {STATUS_FILTER_OPTIONS.map((opt) => (
             <MenuItem key={opt.value} value={opt.value}>
@@ -88,7 +134,7 @@ export const OrderToolbar = ({
           label="Table Filter"
           value={tableFilter}
           onChange={(e) => onTableFilterChange(e.target.value)}
-          sx={{ minWidth: 140 }}
+          sx={{ minWidth: 130 }}
         >
           <MenuItem value="ALL">All Tables</MenuItem>
           {availableTables.map((t) => (

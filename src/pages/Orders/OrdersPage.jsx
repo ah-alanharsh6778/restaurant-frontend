@@ -10,6 +10,7 @@ import PageContainer from '../../components/layout/PageContainer';
 import OrderSummaryCard from './OrderSummaryCard';
 import OrderToolbar from './OrderToolbar';
 import OrderTable from './OrderTable';
+import OrderKanbanBoard from './OrderKanbanBoard';
 import CreateOrderDialog from './CreateOrderDialog';
 import EditOrderDialog from './EditOrderDialog';
 import OrderDetailsDialog from './OrderDetailsDialog';
@@ -32,6 +33,7 @@ export const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [tableFilter, setTableFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'table'
 
   // Dialog States
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -286,12 +288,13 @@ export const OrdersPage = () => {
       <OrderSummaryCard orders={orders} />
 
       <Paper
-        elevation={2}
+        elevation={0}
         sx={{
-          borderRadius: 3.5,
+          borderRadius: '20px',
           overflow: 'hidden',
           border: (theme) => `1px solid ${theme.palette.divider}`,
           mb: 4,
+          backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#131A24' : '#FFFFFF',
         }}
       >
         <OrderToolbar
@@ -302,11 +305,26 @@ export const OrdersPage = () => {
           tableFilter={tableFilter}
           onTableFilterChange={setTableFilter}
           availableTables={tables}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
         <Box p={3}>
           {!loading && filteredOrders.length === 0 ? (
             <EmptyOrderState onCreateOrder={handleOpenCreateDialog} />
+          ) : viewMode === 'kanban' ? (
+            <OrderKanbanBoard
+              orders={filteredOrders}
+              onView={handleOpenDetailsDialog}
+              onEditStatus={(ord, newStatus) => {
+                setSelectedOrder(ord);
+                handleUpdateStatus({ status: newStatus });
+              }}
+              onCheckout={(ord) => {
+                setSelectedOrder(ord);
+                setCheckoutDialogOpen(true);
+              }}
+            />
           ) : (
             <OrderTable
               orders={filteredOrders}
