@@ -5,8 +5,16 @@ import {
   Avatar,
   Chip,
   Paper,
+  Button,
+  IconButton,
+  Grid,
   useTheme,
 } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PhoneIcon from '@mui/icons-material/Phone';
+import StarIcon from '@mui/icons-material/Star';
 import dayjs from 'dayjs';
 import { Table } from '../../components/ui/Table';
 
@@ -25,10 +33,10 @@ export const CustomerTable = ({
   const isDark = theme.palette.mode === 'dark';
 
   const getLoyaltyBadge = (points = 0) => {
-    if (points >= 200) return <Chip label={`Gold (${points} pts)`} color="warning" size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', borderRadius: '4px' }} />;
-    if (points >= 100) return <Chip label={`Silver (${points} pts)`} color="info" size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', borderRadius: '4px' }} />;
-    if (points > 0) return <Chip label={`Bronze (${points} pts)`} color="success" size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', borderRadius: '4px' }} />;
-    return <Chip label="Standard (0 pts)" size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: '0.725rem', borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)', color: 'text.secondary', borderRadius: '4px' }} />;
+    if (points >= 200) return <Chip icon={<StarIcon sx={{ fontSize: '14px !important', color: '#FFD700 !important' }} />} label={`Gold (${points} pts)`} size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', backgroundColor: 'rgba(255, 215, 0, 0.15)', color: '#FFD700', borderRadius: '6px' }} />;
+    if (points >= 100) return <Chip icon={<StarIcon sx={{ fontSize: '14px !important', color: '#C0C0C0 !important' }} />} label={`Silver (${points} pts)`} size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', backgroundColor: 'rgba(192, 192, 192, 0.15)', color: isDark ? '#E2E8F0' : '#475569', borderRadius: '6px' }} />;
+    if (points > 0) return <Chip label={`Bronze (${points} pts)`} size="small" sx={{ fontWeight: 800, fontSize: '0.725rem', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10B981', borderRadius: '6px' }} />;
+    return <Chip label="Standard (0 pts)" size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: '0.725rem', borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)', color: 'text.secondary', borderRadius: '6px' }} />;
   };
 
   const columns = [
@@ -56,13 +64,13 @@ export const CustomerTable = ({
             <Avatar
               variant="square"
               sx={{
-                width: 36,
-                height: 36,
+                width: 38,
+                height: 38,
                 fontSize: '0.85rem',
                 fontWeight: 800,
-                bgcolor: 'primary.main',
+                bgcolor: '#7C6CFF',
                 color: '#FFFFFF',
-                borderRadius: '4px',
+                borderRadius: '8px',
                 flexShrink: 0,
               }}
             >
@@ -100,7 +108,7 @@ export const CustomerTable = ({
         const tableNum = activeTable?.tableNumber || activeReservation?.table?.tableNumber || null;
 
         return tableNum ? (
-          <Chip label={`Table #${tableNum}`} color="primary" size="small" sx={{ fontWeight: 800, backgroundColor: 'primary.main', borderRadius: '4px' }} />
+          <Chip label={`Table #${tableNum}`} color="primary" size="small" sx={{ fontWeight: 800, backgroundColor: '#7C6CFF', borderRadius: '6px' }} />
         ) : (
           <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
             Unseated
@@ -122,7 +130,7 @@ export const CustomerTable = ({
         if (status === 'CHECKED_IN') color = 'success';
         if (status === 'CANCELLED') color = 'error';
 
-        return <Chip label={status} color={color} size="small" sx={{ fontWeight: 800, fontSize: '0.7rem', borderRadius: '4px' }} />;
+        return <Chip label={status} color={color} size="small" sx={{ fontWeight: 800, fontSize: '0.7rem', borderRadius: '6px' }} />;
       },
     },
     {
@@ -133,7 +141,7 @@ export const CustomerTable = ({
       render: (row) => {
         const count = row.orders ? row.orders.length : 0;
         return (
-          <Typography variant="body2" sx={{ fontWeight: 800, color: count > 0 ? 'primary.main' : 'text.secondary' }}>
+          <Typography variant="body2" sx={{ fontWeight: 800, color: count > 0 ? '#7C6CFF' : 'text.secondary' }}>
             {count} {count === 1 ? 'Order' : 'Orders'}
           </Typography>
         );
@@ -161,29 +169,183 @@ export const CustomerTable = ({
   ];
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: '4px',
-        backgroundColor: isDark ? '#131A24' : '#FFFFFF',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
-        overflow: 'hidden',
-        boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
-      }}
-    >
-      <Table
-        columns={columns}
-        rows={customers}
-        loading={loading}
-        onRowClick={(row) => onViewClick && onViewClick(row)}
-        totalCount={pagination?.total || customers.length}
-        page={pagination?.page ? pagination.page - 1 : 0}
-        rowsPerPage={pagination?.limit || 50}
-        onPageChange={(e, newPage) => onPageChange && onPageChange(newPage + 1)}
-        onRowsPerPageChange={(e) => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
-        emptyMessage="No customer accounts registered in database."
-      />
-    </Paper>
+    <Box sx={{ width: '100%' }}>
+      {/* Desktop Table View */}
+      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: '16px',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+          }}
+        >
+          <Table
+            columns={columns}
+            rows={customers}
+            loading={loading}
+            onRowClick={(row) => onViewClick && onViewClick(row)}
+            totalCount={pagination?.total || customers.length}
+            page={pagination?.page ? pagination.page - 1 : 0}
+            rowsPerPage={pagination?.limit || 50}
+            onPageChange={(e, newPage) => onPageChange && onPageChange(newPage + 1)}
+            onRowsPerPageChange={(e) => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
+            emptyMessage="No customer accounts registered in database."
+          />
+        </Paper>
+      </Box>
+
+      {/* Mobile Responsive Customer Cards View */}
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        {customers.length === 0 && !loading ? (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              borderRadius: '16px',
+              backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+            }}
+          >
+            <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              No customer records found.
+            </Typography>
+          </Paper>
+        ) : (
+          <Grid container spacing={2}>
+            {customers.map((cust) => {
+              const nameStr = cust.fullName || 'Customer';
+              const initials = nameStr.substring(0, 2).toUpperCase();
+              const activeTable = (cust.tables && cust.tables.length > 0) ? cust.tables[0] : null;
+              const activeReservation = (cust.reservations && cust.reservations.length > 0) ? cust.reservations[0] : null;
+              const tableNum = activeTable?.tableNumber || activeReservation?.table?.tableNumber || null;
+              const orderCount = cust.orders ? cust.orders.length : 0;
+              const lastVisit = (cust.orders && cust.orders.length > 0) ? cust.orders[0].createdAt : cust.createdAt;
+
+              return (
+                <Grid item xs={12} sm={6} key={cust.id || cust._id}>
+                  <Paper
+                    elevation={0}
+                    onClick={() => onViewClick && onViewClick(cust)}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: '16px',
+                      backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+                      border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+                      boxShadow: isDark ? 'none' : '0 2px 10px rgba(0, 0, 0, 0.04)',
+                      transition: 'all 200ms ease',
+                      '&:active': { transform: 'scale(0.98)' },
+                    }}
+                  >
+                    {/* Header: Avatar + Loyalty + Table */}
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Avatar
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            fontSize: '1rem',
+                            fontWeight: 800,
+                            bgcolor: '#7C6CFF',
+                            color: '#FFFFFF',
+                            borderRadius: '12px',
+                          }}
+                        >
+                          {initials}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '1rem', lineHeight: 1.2 }}>
+                            {nameStr}
+                          </Typography>
+                          {cust.phone && (
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+                              <PhoneIcon sx={{ fontSize: 13 }} /> {cust.phone}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+
+                      {getLoyaltyBadge(cust.loyaltyPoints || 0)}
+                    </Box>
+
+                    {/* Meta Row: Orders & Seating */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, borderRadius: '12px', backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#F8FAFC', mb: 2 }}>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
+                          ORDERS
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: orderCount > 0 ? '#7C6CFF' : 'text.secondary' }}>
+                          {orderCount} {orderCount === 1 ? 'Order' : 'Orders'}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
+                          SEATING
+                        </Typography>
+                        {tableNum ? (
+                          <Chip label={`Table #${tableNum}`} size="small" sx={{ fontWeight: 800, backgroundColor: '#7C6CFF', color: '#FFFFFF', height: 22, borderRadius: '6px' }} />
+                        ) : (
+                          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                            Unseated
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+
+                    {/* Touch Target Action Buttons */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 1, borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.06)' }}>
+                      <Button
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        startIcon={<VisibilityIcon sx={{ fontSize: 16 }} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewClick && onViewClick(cust);
+                        }}
+                        sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700, py: 0.8 }}
+                      >
+                        Profile
+                      </Button>
+
+                      {onEditClick && (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditClick(cust);
+                          }}
+                          sx={{ p: 1, border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.12)', borderRadius: '10px' }}
+                        >
+                          <EditIcon sx={{ fontSize: 18, color: '#7C6CFF' }} />
+                        </IconButton>
+                      )}
+
+                      {onDeleteClick && (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteClick(cust);
+                          }}
+                          sx={{ p: 1, border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.12)', borderRadius: '10px' }}
+                        >
+                          <DeleteIcon sx={{ fontSize: 18, color: '#EF4444' }} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+      </Box>
+    </Box>
   );
 };
 

@@ -301,25 +301,41 @@ export const CustomersPage = () => {
           </Alert>
         )}
 
-        {/* Search Toolbar */}
-        <CustomerToolbar
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          onClearSearch={handleClearSearch}
-        />
+        {/* Single Unified Merged Container (Search Toolbar + Customer Cards/Table) */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: '20px',
+            backgroundColor: isDark ? '#131A24' : '#FFFFFF',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.05)',
+          }}
+        >
+          {/* Merged Search Toolbar */}
+          <Box sx={{ p: { xs: 2, sm: 2.5 }, borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)' }}>
+            <CustomerToolbar
+              searchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
+              onClearSearch={handleClearSearch}
+            />
+          </Box>
 
-        {/* Customer Data Table / Mobile Card Grid */}
-        <CustomerTable
-          customers={customers}
-          loading={loading}
-          pagination={pagination}
-          onPageChange={(page) => fetchCustomers(page, searchTerm)}
-          onRowsPerPageChange={(limit) => setPagination((prev) => ({ ...prev, limit }))}
-          onViewClick={handleViewClick}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteClick}
-          userRole={userRole}
-        />
+          {/* Customer Data Table / Mobile Card Grid */}
+          <Box sx={{ p: { xs: 2, sm: 3 } }}>
+            <CustomerTable
+              customers={customers}
+              loading={loading}
+              pagination={pagination}
+              onPageChange={(page) => fetchCustomers(page, searchTerm)}
+              onRowsPerPageChange={(limit) => setPagination((prev) => ({ ...prev, limit }))}
+              onViewClick={handleViewClick}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
+              userRole={userRole}
+            />
+          </Box>
+        </Paper>
 
         {/* Mobile Floating Action Button (FAB) */}
         {canManageCustomers && (
